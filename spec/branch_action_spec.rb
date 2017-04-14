@@ -1,9 +1,9 @@
-describe Fastlane::Actions::BranchAction do
+describe Fastlane::Actions::SetupBranchAction do
   describe '#run' do
     it 'prints a message' do
-      expect(Fastlane::UI).to receive(:message).with("The branch plugin is working!")
+      expect(Fastlane::UI).to receive(:message).at_least(1)
 
-      Fastlane::Actions::BranchAction.run(nil)
+      Fastlane::Actions::SetupBranchAction.run({})
     end
   end
 end
