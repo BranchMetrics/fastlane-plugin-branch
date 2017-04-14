@@ -217,6 +217,7 @@ AllCops:
 # They have not to be snake_case
 Style/FileName:
   Exclude:
+    - '*.gemspec'
     - '**/Dangerfile'
     - '**/Brewfile'
     - '**/Gemfile'

@@ -1,4 +1,5 @@
 # coding: utf-8
+
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'fastlane/plugin/branch/version'
@@ -6,10 +7,10 @@ require 'fastlane/plugin/branch/version'
 Gem::Specification.new do |spec|
   spec.name          = 'fastlane-plugin-branch'
   spec.version       = Fastlane::Branch::VERSION
-  spec.author        = %q{Jimmy Dee}
-  spec.email         = %q{jgvdthree@gmail.com}
+  spec.author        = 'Jimmy Dee'
+  spec.email         = 'jgvdthree@gmail.com'
 
-  spec.summary       = %q{Adds Branch keys, custom URI schemes and domains to iOS and Android projects.}
+  spec.summary       = 'Adds Branch keys, custom URI schemes and domains to iOS and Android projects.'
   spec.homepage      = "https://github.com/BranchMetrics/fastlane-plugin-branch"
   spec.license       = "MIT"
 
