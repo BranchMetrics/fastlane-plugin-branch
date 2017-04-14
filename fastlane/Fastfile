@@ -1,10 +1,6 @@
 lane :test do
   setup_branch live_key: "key_live_feebgAAhbH9Tv85H5wLQhpdaefiZv5Dv",
                test_key: "key_test_hdcBLUy1xZ1JD0tKg7qrLcgirFmPPVJc",
-                domains: %w{
-                  bnctestbed.app.link
-                  bnctestbed-alternate.app.link
-                  bnctestbed.test-app.link
-                  bnctestbed-alternate.test-app.link
-                }
+     app_link_subdomain: "bnctestbed",
+              xcodeproj: "BranchPluginExample/BranchPluginExample.xcodeproj"
 end

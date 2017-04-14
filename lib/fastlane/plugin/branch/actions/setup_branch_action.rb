@@ -1,3 +1,5 @@
+require "xcodeproj"
+
 module Fastlane
   module Actions
     class SetupBranchAction < Action
@@ -12,6 +14,11 @@ module Fastlane
         UI.message(" live key: #{live_key}")
         UI.message(" test key: #{test_key}")
         UI.message(" domains: #{domains}")
+
+        # raises
+        xcodeproj = Xcodeproj::Project.open params[:xcodeproj]
+
+        helper.add_keys_to_info_plist xcodeproj, live_key, test_key
       end
 
       def self.description
@@ -33,15 +40,20 @@ module Fastlane
 
       def self.available_options
         [
+          FastlaneCore::ConfigItem.new(key: :xcodeproj,
+                                  env_name: "BRANCH_XCODEPROJ",
+                               description: "Path to the Xcode project to modify",
+                                  optional: false,
+                                      type: String),
           FastlaneCore::ConfigItem.new(key: :live_key,
                                   env_name: "BRANCH_LIVE_KEY",
-                               description: "The branch_live key for your app",
-                                  optional: true,
+                               description: "The Branch live key for your app",
+                                  optional: false,
                                       type: String),
           FastlaneCore::ConfigItem.new(key: :test_key,
                                   env_name: "BRANCH_TEST_KEY",
-                               description: "The branch_test key for your app",
-                                  optional: true,
+                               description: "The Branch test key for your app",
+                                  optional: false,
                                       type: String),
           FastlaneCore::ConfigItem.new(key: :domains,
                                   env_name: "BRANCH_DOMAINS",
