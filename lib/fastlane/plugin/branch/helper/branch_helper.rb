@@ -94,7 +94,7 @@ module Fastlane
             current_domains = entitlements["com.apple.developer.associated-domains"]
           end
 
-          current_domains += domains
+          current_domains += domains.map { |d| "applinks:#{d}"}
           all_domains = current_domains.uniq
 
           entitlements["com.apple.developer.associated-domains"] = all_domains
