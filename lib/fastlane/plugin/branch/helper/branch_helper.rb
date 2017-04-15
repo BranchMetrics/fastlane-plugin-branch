@@ -32,7 +32,6 @@ module Fastlane
 
         def add_keys_to_info_plist(project, live_key, test_key)
           # find the first application target
-          # TODO: Exclude other target types (libraries & frameworks)
           target = project.targets.find { |t| !t.extension_target_type? && !t.test_target_type? }
 
           raise "No application target found" if target.nil?
@@ -64,7 +63,6 @@ module Fastlane
 
         def add_universal_links_to_project(project, domains)
           # find the first application target
-          # TODO: Exclude other target types (libraries & frameworks)
           target = project.targets.find { |t| !t.extension_target_type? && !t.test_target_type? }
 
           raise "No application target found" if target.nil?
