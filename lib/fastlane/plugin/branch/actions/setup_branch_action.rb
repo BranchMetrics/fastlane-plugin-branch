@@ -19,6 +19,7 @@ module Fastlane
         xcodeproj = Xcodeproj::Project.open params[:xcodeproj]
 
         helper.add_keys_to_info_plist xcodeproj, live_key, test_key
+        helper.add_universal_links_to_project xcodeproj, domains
       end
 
       def self.description
@@ -59,8 +60,7 @@ module Fastlane
                                   env_name: "BRANCH_DOMAINS",
                                description: "Branch (and/or non-Branch) Universal Link/App Link domains to add (comma-separated list or array)",
                                   optional: true,
-                                 is_string: false,
-                             default_value: []),
+                                 is_string: false),
           FastlaneCore::ConfigItem.new(key: :app_link_subdomain,
                                   env_name: "BRANCH_APP_LINK_SUBDOMAIN",
                                description: "app.link subdomain",
