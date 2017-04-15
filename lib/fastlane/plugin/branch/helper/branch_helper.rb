@@ -70,10 +70,10 @@ module Fastlane
           raise "No application target found" if target.nil?
 
           # TODO: Handle different configurations
-          entitlements_path = target.resolved_build_setting("CODE_SIGN_ENTITLEMENTS")["Release"]
+          relative_entitlements_path = target.resolved_build_setting("CODE_SIGN_ENTITLEMENTS")["Release"]
           project_parent = File.dirname project.path
 
-          if entitlements_path.nil?
+          if relative_entitlements_path.nil?
             relative_entitlements_path = File.join target.name, "#{target.name}.entitlements"
             entitlements_path = File.join project_parent, relative_entitlements_path
 
@@ -87,15 +87,21 @@ module Fastlane
 
             project.save
 
-            create_code_sign_entitlements_file entitlements_path, domains
+            entitlements = {}
+            current_domains = []
           else
-            # TODO: Modify existing entitlements file
+            entitlements_path = File.join project_parent, relative_entitlements_path
+            # Raises
+            entitlements = Plist.parse_xml entitlements_path
+            current_domains = entitlements["com.apple.developer.associated-domains"]
           end
-        end
 
-        def create_code_sign_entitlements_file(entitlements_path, domains)
-          UI.message "Creating #{entitlements_path} with domains #{domains}"
-          Plist::Emit.save_plist({"com.apple.developer.associated-domains" => domains}, entitlements_path)
+          current_domains += domains
+          all_domains = current_domains.uniq
+
+          entitlements["com.apple.developer.associated-domains"] = all_domains
+
+          Plist::Emit.save_plist entitlements, entitlements_path
         end
       end
     end
