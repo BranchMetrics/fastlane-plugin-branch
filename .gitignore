@@ -1,4 +1,5 @@
 *.gem
+*.entitlements
 
 ## Documentation cache and generated files:
 /.yardoc/
