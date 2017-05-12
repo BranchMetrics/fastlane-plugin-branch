@@ -56,7 +56,7 @@ module Fastlane
           info_plist = Plist.parse_xml release_info_plist_path
 
           # add Branch key(s)
-          info_plist["branch_key"] = {live: live_key, test: test_key}
+          info_plist["branch_key"] = { live: live_key, test: test_key }
 
           Plist::Emit.save_plist info_plist, release_info_plist_path
         end
@@ -96,7 +96,7 @@ module Fastlane
             end
           end
 
-          current_domains += domains.map { |d| "applinks:#{d}"}
+          current_domains += domains.map { |d| "applinks:#{d}" }
           all_domains = current_domains.uniq
 
           entitlements["com.apple.developer.associated-domains"] = all_domains
@@ -109,7 +109,7 @@ module Fastlane
           update_team_and_bundle_ids project, *team_and_bundle
         end
 
-        def validate_team_and_bundle_ids_from_aasa_file(project, domain, configuration="Release")
+        def validate_team_and_bundle_ids_from_aasa_file(project, domain, configuration = "Release")
           team_and_bundle = team_and_bundle_ids_from_aasa_file domain
           validate_team_and_bundle_ids project, *team_and_bundle, configuration
         end
@@ -117,9 +117,9 @@ module Fastlane
         def team_and_bundle_ids_from_aasa_file(domain)
           file = JSON.parse Net::HTTP.get(domain, "/apple-app-site-association")
           identifier = file["applinks"]["details"][0]["appID"]
-          team = identifier.sub /\..*$/, ""
-          bundle = identifier.sub /^[^.]*\./, ""
-          [ team, bundle ]
+          team = identifier.sub(/\..*$/, "")
+          bundle = identifier.sub(/^[^.]*\./, "")
+          [team, bundle]
         end
 
         def validate_team_and_bundle_ids(project, team, bundle, configuration)
@@ -144,7 +144,7 @@ module Fastlane
           target.build_configuration_list.set_setting "DEVELOPMENT_TEAM", team
 
           # also update the team in the first test target
-          target = project.targets.find { |t| t.test_target_type? }
+          target = project.targets.find(&:test_target_type?)
           return if target.nil?
 
           target.build_configuration_list.set_setting "DEVELOPMENT_TEAM", team
