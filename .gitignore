@@ -1,5 +1,4 @@
 *.gem
-*.entitlements
 
 ## Documentation cache and generated files:
 /.yardoc/
@@ -7,3 +6,6 @@
 /doc/
 /rdoc/
 fastlane/report.xml
+
+*.entitlements
+coverage
