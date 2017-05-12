@@ -109,6 +109,11 @@ module Fastlane
           update_team_and_bundle_ids project, *team_and_bundle
         end
 
+        def validate_team_and_bundle_ids_from_aasa_file(project, domain, configuration="Release")
+          team_and_bundle = team_and_bundle_ids_from_aasa_file domain
+          validate_team_and_bundle_ids project, *team_and_bundle, configuration
+        end
+
         def team_and_bundle_ids_from_aasa_file(domain)
           file = JSON.parse Net::HTTP.get(domain, "/apple-app-site-association")
           identifier = file["applinks"]["details"][0]["appID"]
@@ -117,24 +122,32 @@ module Fastlane
           [ team, bundle ]
         end
 
+        def validate_team_and_bundle_ids(project, team, bundle, configuration)
+          target = project.targets.find { |t| !t.extension_target_type? && !t.test_target_type? }
+
+          raise "No application target found" if target.nil?
+
+          product_bundle_identifier = target.resolved_build_setting("PRODUCT_BUNDLE_IDENTIFIER")[configuration]
+          development_team = target.resolved_build_setting("DEVELOPMENT_TEAM")[configuration]
+
+          raise "PRODUCT_BUNDLE_IDENTIFIER mismatch. Universal Links will not work. Dashboard: #{bundle}, project: #{product_bundle_identifier}" unless bundle == product_bundle_identifier
+          raise "DEVELOPMENT_TEAM mismatch. Universal Links will not work. Dashboard: #{team}, project: #{development_team}" unless team == development_team
+        end
+
         def update_team_and_bundle_ids(project, team, bundle)
           # find the first application target
           target = project.targets.find { |t| !t.extension_target_type? && !t.test_target_type? }
 
           raise "No application target found" if target.nil?
 
-          target.build_configurations.each do |config|
-            config.build_settings["PRODUCT_BUNDLE_IDENTIFIER"] = bundle
-            config.build_settings["DEVELOPMENT_TEAM"] = team
-          end
+          target.build_configuration_list.set_setting "PRODUCT_BUNDLE_IDENTIFIER", bundle
+          target.build_configuration_list.set_setting "DEVELOPMENT_TEAM", team
 
           # also update the team in the first test target
           target = project.targets.find { |t| t.test_target_type? }
           return if target.nil?
 
-          target.build_configurations.each do |config|
-            config.build_settings["DEVELOPMENT_TEAM"] = team
-          end
+          target.build_configuration_list.set_setting "DEVELOPMENT_TEAM", team
         end
       end
     end
