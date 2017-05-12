@@ -3,6 +3,13 @@ require "plist"
 module Fastlane
   module Helper
     class BranchHelper
+      APPLINKS = "applinks"
+      ASSOCIATED_DOMAINS = "com.apple.developer.associated-domains"
+      CODE_SIGN_ENTITLEMENTS = "CODE_SIGN_ENTITLEMENTS"
+      DEVELOPMENT_TEAM = "DEVELOPMENT_TEAM"
+      PRODUCT_BUNDLE_IDENTIFIER = "PRODUCT_BUNDLE_IDENTIFIER"
+      RELEASE_CONFIGURATION = "Release"
+
       class << self
         def domains_from_params(params)
           if params[:domains].nil?
@@ -30,7 +37,7 @@ module Fastlane
           domains
         end
 
-        def add_keys_to_info_plist(project, live_key, test_key)
+        def add_keys_to_info_plist(project, live_key, test_key, configuration = RELEASE_CONFIGURATION)
           # find the first application target
           target = project.targets.find { |t| !t.extension_target_type? && !t.test_target_type? }
 
@@ -44,9 +51,9 @@ module Fastlane
           # this can differ from one configuration to another.
           # take from Release for now.
           # TODO: Add an optional configuration: parameter
-          release_info_plist_path = info_plist_paths["Release"]
+          release_info_plist_path = info_plist_paths[configuration]
 
-          raise "Info.plist not found for configuration Release" if release_info_plist_path.nil?
+          raise "Info.plist not found for configuration #{configuration}" if release_info_plist_path.nil?
 
           project_parent = File.dirname project.path
 
@@ -61,14 +68,14 @@ module Fastlane
           Plist::Emit.save_plist info_plist, release_info_plist_path
         end
 
-        def add_universal_links_to_project(project, domains, remove_existing)
+        def add_universal_links_to_project(project, domains, remove_existing, configuration = RELEASE_CONFIGURATION)
           # find the first application target
           target = project.targets.find { |t| !t.extension_target_type? && !t.test_target_type? }
 
           raise "No application target found" if target.nil?
 
           # TODO: Handle different configurations
-          relative_entitlements_path = target.resolved_build_setting("CODE_SIGN_ENTITLEMENTS")["Release"]
+          relative_entitlements_path = target.resolved_build_setting(CODE_SIGN_ENTITLEMENTS)[configuration]
           project_parent = File.dirname project.path
 
           if relative_entitlements_path.nil?
@@ -76,9 +83,7 @@ module Fastlane
             entitlements_path = File.join project_parent, relative_entitlements_path
 
             # Add CODE_SIGN_ENTITLEMENTS setting to each configuration
-            target.build_configurations.each do |config|
-              config.build_settings["CODE_SIGN_ENTITLEMENTS"] = relative_entitlements_path
-            end
+            target.build_configuration_list.set_setting CODE_SIGN_ENTITLEMENTS, relative_entitlements_path
 
             # Add the file to the project
             project.new_file relative_entitlements_path
@@ -92,14 +97,14 @@ module Fastlane
             if remove_existing
               current_domains = []
             else
-              current_domains = entitlements["com.apple.developer.associated-domains"]
+              current_domains = entitlements[ASSOCIATED_DOMAINS]
             end
           end
 
-          current_domains += domains.map { |d| "applinks:#{d}" }
+          current_domains += domains.map { |d| "#{APPLINKS}:#{d}" }
           all_domains = current_domains.uniq
 
-          entitlements["com.apple.developer.associated-domains"] = all_domains
+          entitlements[ASSOCIATED_DOMAINS] = all_domains
 
           Plist::Emit.save_plist entitlements, entitlements_path
         end
@@ -109,14 +114,14 @@ module Fastlane
           update_team_and_bundle_ids project, *team_and_bundle
         end
 
-        def validate_team_and_bundle_ids_from_aasa_file(project, domain, configuration = "Release")
+        def validate_team_and_bundle_ids_from_aasa_file(project, domain, configuration = RELEASE_CONFIGURATION)
           team_and_bundle = team_and_bundle_ids_from_aasa_file domain
           validate_team_and_bundle_ids project, *team_and_bundle, configuration
         end
 
         def team_and_bundle_ids_from_aasa_file(domain)
           file = JSON.parse Net::HTTP.get(domain, "/apple-app-site-association")
-          identifier = file["applinks"]["details"][0]["appID"]
+          identifier = file[APPLINKS]["details"][0]["appID"]
           team = identifier.sub(/\..*$/, "")
           bundle = identifier.sub(/^[^.]*\./, "")
           [team, bundle]
@@ -127,11 +132,11 @@ module Fastlane
 
           raise "No application target found" if target.nil?
 
-          product_bundle_identifier = target.resolved_build_setting("PRODUCT_BUNDLE_IDENTIFIER")[configuration]
-          development_team = target.resolved_build_setting("DEVELOPMENT_TEAM")[configuration]
+          product_bundle_identifier = target.resolved_build_setting(PRODUCT_BUNDLE_IDENTIFIER)[configuration]
+          development_team = target.resolved_build_setting(DEVELOPMENT_TEAM)[configuration]
 
-          raise "PRODUCT_BUNDLE_IDENTIFIER mismatch. Universal Links will not work. Dashboard: #{bundle}, project: #{product_bundle_identifier}" unless bundle == product_bundle_identifier
-          raise "DEVELOPMENT_TEAM mismatch. Universal Links will not work. Dashboard: #{team}, project: #{development_team}" unless team == development_team
+          raise "#{PRODUCT_BUNDLE_IDENTIFIER} mismatch. Universal Links will not work. Dashboard: #{bundle}, project: #{product_bundle_identifier}" unless bundle == product_bundle_identifier
+          raise "#{DEVELOPMENT_TEAM} mismatch. Universal Links will not work. Dashboard: #{team}, project: #{development_team}" unless team == development_team
         end
 
         def update_team_and_bundle_ids(project, team, bundle)
@@ -140,14 +145,14 @@ module Fastlane
 
           raise "No application target found" if target.nil?
 
-          target.build_configuration_list.set_setting "PRODUCT_BUNDLE_IDENTIFIER", bundle
-          target.build_configuration_list.set_setting "DEVELOPMENT_TEAM", team
+          target.build_configuration_list.set_setting PRODUCT_BUNDLE_IDENTIFIER, bundle
+          target.build_configuration_list.set_setting DEVELOPMENT_TEAM, team
 
           # also update the team in the first test target
           target = project.targets.find(&:test_target_type?)
           return if target.nil?
 
-          target.build_configuration_list.set_setting "DEVELOPMENT_TEAM", team
+          target.build_configuration_list.set_setting DEVELOPMENT_TEAM, team
         end
       end
     end
