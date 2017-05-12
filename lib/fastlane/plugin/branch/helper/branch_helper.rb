@@ -49,23 +49,21 @@ module Fastlane
           raise "INFOPLIST_FILE not found in target" if info_plist_paths.nil? or info_plist_paths.empty?
 
           # this can differ from one configuration to another.
-          # take from Release for now.
-          # TODO: Add an optional configuration: parameter
-          release_info_plist_path = info_plist_paths[configuration]
+          info_plist_path = info_plist_paths[configuration]
 
-          raise "Info.plist not found for configuration #{configuration}" if release_info_plist_path.nil?
+          raise "Info.plist not found for configuration #{configuration}" if info_plist_path.nil?
 
           project_parent = File.dirname project.path
 
-          release_info_plist_path = File.join project_parent, release_info_plist_path
+          info_plist_path = File.join project_parent, info_plist_path
 
           # try to open and parse the Info.plist (raises)
-          info_plist = Plist.parse_xml release_info_plist_path
+          info_plist = Plist.parse_xml info_plist_path
 
-          # add Branch key(s)
+          # add/overwrite Branch key(s)
           info_plist["branch_key"] = { live: live_key, test: test_key }
 
-          Plist::Emit.save_plist info_plist, release_info_plist_path
+          Plist::Emit.save_plist info_plist, info_plist_path
         end
 
         def add_universal_links_to_project(project, domains, remove_existing, configuration = RELEASE_CONFIGURATION)
