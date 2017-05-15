@@ -15,7 +15,7 @@ module Fastlane
           app_link_subdomains = app_link_subdomains_from_params params
           custom_domains = custom_domains_from_params params
           domains = (app_link_subdomains + custom_domains).uniq
-          raise ":app_link_subdomain or :domains is required" if domains.empty?
+          raise ArgumentError, ":app_link_subdomain or :domains is required" if domains.empty?
           domains
         end
 
@@ -40,7 +40,7 @@ module Fastlane
           elsif domains.kind_of? String
             domains = domains.split(",")
           else
-            raise "Unsupported type #{domains.class.name} for :domains key"
+            raise ArgumentError, "Unsupported type #{domains.class.name} for :domains key"
           end
 
           domains
@@ -140,7 +140,13 @@ module Fastlane
 
         def app_ids_from_aasa_file(domain)
           file = JSON.parse Net::HTTP.get(domain, "/apple-app-site-association")
-          identifiers = file[APPLINKS]["details"].map { |d| d["appID"] }.uniq
+          applinks = file[APPLINKS]
+          raise "No #{APPLINKS} found in AASA file" if applinks.nil?
+
+          details = applinks["details"]
+          raise "No details found for #{APPLINKS} in AASA file" if details.nil?
+
+          identifiers = details.map { |d| d["appID"] }.uniq
           raise "No appID found in AASA file" if identifiers.count <= 0
           identifiers
         end

@@ -46,7 +46,7 @@ describe Fastlane::Helper::BranchHelper do
       it "raises for other parameter types" do
         expect do
           helper.custom_domains_from_params(domains: 123)
-        end.to raise_error RuntimeError
+        end.to raise_error ArgumentError
       end
     end
 
@@ -94,8 +94,57 @@ describe Fastlane::Helper::BranchHelper do
 
         expect do
           helper.domains_from_params({})
-        end.to raise_error RuntimeError
+        end.to raise_error ArgumentError
       end
+    end
+  end
+
+  describe "#app_ids_from_aasa_file" do
+    it "returns the contents of an apple-app-site-assocation file" do
+      expect(Net::HTTP).to receive(:get).with("myapp.app.link", "/apple-app-site-association").and_return '{"applinks":{"apps":[],"details":[{"appID":"XYZPDQ.com.example.MyApp","paths":["NOT /e/*","*","/"]}]}}'
+
+      expect(helper.app_ids_from_aasa_file("myapp.app.link")).to eq ["XYZPDQ.com.example.MyApp"]
+    end
+
+    it "raises if the file cannot be retrieved" do
+      expect(Net::HTTP).to receive(:get).and_raise IOError
+
+      expect do
+        helper.app_ids_from_aasa_file "myapp.app.link"
+      end.to raise_error IOError
+    end
+
+    it "raises in case of unparseable JSON" do
+      # return value missing final }
+      expect(Net::HTTP).to receive(:get).and_return '{"applinks":{"apps":[],"details":[{"appID":"XYZPDQ.com.example.MyApp","paths":["NOT /e/*","*","/"]}]}'
+
+      expect do
+        helper.app_ids_from_aasa_file "myapp.app.link"
+      end.to raise_error JSON::ParserError
+    end
+
+    it "raises if no applinks found in file" do
+      expect(Net::HTTP).to receive(:get).and_return '{"webcredentials": {}}'
+
+      expect do
+        helper.app_ids_from_aasa_file "myapp.app.link"
+      end.to raise_error RuntimeError
+    end
+
+    it "raises if no details found for applinks" do
+      expect(Net::HTTP).to receive(:get).and_return '{"applinks": {}}'
+
+      expect do
+        helper.app_ids_from_aasa_file "myapp.app.link"
+      end.to raise_error RuntimeError
+    end
+
+    it "raises if no appIDs found in file" do
+      expect(Net::HTTP).to receive(:get).and_return '{"applinks":{"apps":[],"details":[]}}'
+
+      expect do
+        helper.app_ids_from_aasa_file "myapp.app.link"
+      end.to raise_error RuntimeError
     end
   end
 end
