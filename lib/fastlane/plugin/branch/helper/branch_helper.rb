@@ -12,19 +12,28 @@ module Fastlane
 
       class << self
         def domains_from_params(params)
-          if params[:domains].nil?
-            app_link_subdomain = params[:app_link_subdomain]
-            raise ":domains or :app_link_subdomain must be set" if app_link_subdomain.nil?
+          app_link_subdomains = app_link_subdomains_from_params params
+          custom_domains = custom_domains_from_params params
+          domains = (app_link_subdomains + custom_domains).uniq
+          raise ":app_link_subdomain or :domains is required" if domains.empty?
+          domains
+        end
 
-            return [
-              "#{app_link_subdomain}.app.link",
-              "#{app_link_subdomain}-alternate.app.link",
-              "#{app_link_subdomain}.test-app.link",
-              "#{app_link_subdomain}-alternate.test-app.link"
-            ]
-          end
+        def app_link_subdomains_from_params(params)
+          app_link_subdomain = params[:app_link_subdomain]
+          return [] if app_link_subdomain.nil?
 
+          [
+            "#{app_link_subdomain}.app.link",
+            "#{app_link_subdomain}-alternate.app.link",
+            "#{app_link_subdomain}.test-app.link",
+            "#{app_link_subdomain}-alternate.test-app.link"
+          ]
+        end
+
+        def custom_domains_from_params(params)
           domains = params[:domains]
+          return [] if domains.nil?
 
           if domains.kind_of? Array
             domains = domains.map(&:to_s)
