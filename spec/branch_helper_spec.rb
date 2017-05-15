@@ -34,12 +34,12 @@ describe Fastlane::Helper::BranchHelper do
       end
 
       it "returns custom domains from a string array" do
-        domains = ["example.com", "www.example.com"]
+        domains = %w{example.com www.example.com}
         expect(helper.custom_domains_from_params(domains: domains)).to eq domains
       end
 
       it "returns custom domains from a comma-separated string" do
-        domains = ["example.com", "www.example.com"]
+        domains = %w{example.com www.example.com}
         expect(helper.custom_domains_from_params(domains: domains.join(","))).to eq domains
       end
 
@@ -56,7 +56,7 @@ describe Fastlane::Helper::BranchHelper do
       end
 
       it "returns four domains if :app_link_subdomain specified" do
-        expected = ["myapp.app.link", "myapp-alternate.app.link", "myapp.test-app.link", "myapp-alternate.test-app.link"]
+        expected = %w{myapp.app.link myapp-alternate.app.link myapp.test-app.link myapp-alternate.test-app.link}
         expect(helper.app_link_subdomains_from_params(app_link_subdomain: "myapp")).to eq expected
       end
     end
@@ -64,8 +64,8 @@ describe Fastlane::Helper::BranchHelper do
     describe "#domains_from_params" do
       it "merges the results of #custom_domains_from_params and #app_link_subdomains_from_params" do
         params = { domains: "example.com,www.example.com", app_link_subdomain: "myapp" }
-        custom_domains = ["example.com", "www.example.com"]
-        app_link_subdomains = ["myapp.app.link", "myapp-alternate.app.link", "myapp.test-app.link", "myapp-alternate.test-app.link"]
+        custom_domains = %w{example.com www.example.com}
+        app_link_subdomains = %w{myapp.app.link myapp-alternate.app.link myapp.test-app.link myapp-alternate.test-app.link}
 
         # ensure that domains_from_params calls the other two methods
         expect(helper).to receive(:custom_domains_from_params).with(params).and_return custom_domains
@@ -77,8 +77,8 @@ describe Fastlane::Helper::BranchHelper do
 
       it "ignores duplicates" do
         params = { domains: "example.com,www.example.com,myapp.app.link", app_link_subdomain: "myapp" }
-        custom_domains = ["example.com", "www.example.com", "myapp.app.link"]
-        app_link_subdomains = ["myapp.app.link", "myapp-alternate.app.link", "myapp.test-app.link", "myapp-alternate.test-app.link"]
+        custom_domains = %w{example.com www.example.com myapp.app.link}
+        app_link_subdomains = %w{myapp.app.link myapp-alternate.app.link myapp.test-app.link myapp-alternate.test-app.link}
 
         # ensure that domains_from_params calls the other two methods
         expect(helper).to receive(:custom_domains_from_params).with(params).and_return custom_domains
@@ -103,7 +103,7 @@ describe Fastlane::Helper::BranchHelper do
     it "returns the contents of an apple-app-site-assocation file" do
       expect(Net::HTTP).to receive(:get).with("myapp.app.link", "/apple-app-site-association").and_return '{"applinks":{"apps":[],"details":[{"appID":"XYZPDQ.com.example.MyApp","paths":["NOT /e/*","*","/"]}]}}'
 
-      expect(helper.app_ids_from_aasa_file("myapp.app.link")).to eq ["XYZPDQ.com.example.MyApp"]
+      expect(helper.app_ids_from_aasa_file("myapp.app.link")).to eq %w{XYZPDQ.com.example.MyApp}
     end
 
     it "raises if the file cannot be retrieved" do
