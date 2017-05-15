@@ -107,25 +107,36 @@ module Fastlane
           Plist::Emit.save_plist entitlements, entitlements_path
         end
 
-        def update_team_and_bundle_ids_from_aasa_file(project, domain)
-          team_and_bundle = team_and_bundle_ids_from_aasa_file domain
-          update_team_and_bundle_ids project, *team_and_bundle
-        end
-
-        def validate_team_and_bundle_ids_from_aasa_file(project, domain, configuration = RELEASE_CONFIGURATION)
-          team_and_bundle = team_and_bundle_ids_from_aasa_file domain
-          validate_team_and_bundle_ids project, *team_and_bundle, configuration
-        end
-
-        def team_and_bundle_ids_from_aasa_file(domain)
-          file = JSON.parse Net::HTTP.get(domain, "/apple-app-site-association")
-          identifier = file[APPLINKS]["details"][0]["appID"]
-          team = identifier.sub(/\..*$/, "")
-          bundle = identifier.sub(/^[^.]*\./, "")
+        def team_and_bundle_from_app_id(identifier)
+          team = identifier.sub(/\..+$/, "")
+          bundle = identifier.sub(/^[^.]+\./, "")
           [team, bundle]
         end
 
-        def validate_team_and_bundle_ids(project, team, bundle, configuration)
+        def update_team_and_bundle_ids_from_aasa_file(project, domain)
+          # raises
+          identifiers = app_ids_from_aasa_file domain
+          raise "Multiple appIDs found in AASA file" if identifiers.count > 1
+
+          identifier = identifiers[0]
+          team, bundle = team_and_bundle_from_app_id identifier
+
+          update_team_and_bundle_ids project, team, bundle
+        end
+
+        def validate_team_and_bundle_ids_from_aasa_file(project, domain, configuration = RELEASE_CONFIGURATION)
+          identifiers = app_ids_from_aasa_file domain
+          validate_team_and_bundle_ids project, identifiers, configuration
+        end
+
+        def app_ids_from_aasa_file(domain)
+          file = JSON.parse Net::HTTP.get(domain, "/apple-app-site-association")
+          identifiers = file[APPLINKS]["details"].map { |d| d["appID"] }.uniq
+          raise "No appID found in AASA file" if identifiers.count <= 0
+          identifiers
+        end
+
+        def validate_team_and_bundle_ids(project, identifiers, configuration)
           target = project.targets.find { |t| !t.extension_target_type? && !t.test_target_type? }
 
           raise "No application target found" if target.nil?
@@ -133,8 +144,11 @@ module Fastlane
           product_bundle_identifier = target.resolved_build_setting(PRODUCT_BUNDLE_IDENTIFIER)[configuration]
           development_team = target.resolved_build_setting(DEVELOPMENT_TEAM)[configuration]
 
-          raise "#{PRODUCT_BUNDLE_IDENTIFIER} mismatch. Universal Links will not work. Dashboard: #{bundle}, project: #{product_bundle_identifier}" unless bundle == product_bundle_identifier
-          raise "#{DEVELOPMENT_TEAM} mismatch. Universal Links will not work. Dashboard: #{team}, project: #{development_team}" unless team == development_team
+          bundle_matches = identifiers.map { |i| team_and_bundle_from_app_id(i)[1] }.include? product_bundle_identifier
+          team_matches = identifiers.map { |i| team_and_bundle_from_app_id(i)[0] }.include? development_team
+
+          raise "#{PRODUCT_BUNDLE_IDENTIFIER} mismatch. Universal Links will not work." unless bundle_matches
+          raise "#{DEVELOPMENT_TEAM} mismatch. Universal Links will not work." unless team_matches
         end
 
         def update_team_and_bundle_ids(project, team, bundle)
