@@ -133,9 +133,12 @@ module Fastlane
           update_team_and_bundle_ids project, team, bundle
         end
 
-        def validate_team_and_bundle_ids_from_aasa_file(project, domain, configuration = RELEASE_CONFIGURATION)
-          identifiers = app_ids_from_aasa_file domain
-          validate_team_and_bundle_ids project, identifiers, configuration
+        def validate_team_and_bundle_ids_from_aasa_files(project, domains, configuration = RELEASE_CONFIGURATION)
+          domains.each do |domain|
+            # ignore test-app.link domains for now (bnctestbed.test-app.link/apple-app-site-association is blank)
+            next if domain =~ /\.test-app\.link$/
+            validate_team_and_bundle_ids project, domain, configuration
+          end
         end
 
         def app_ids_from_aasa_file(domain)
@@ -149,9 +152,11 @@ module Fastlane
           identifiers = details.map { |d| d["appID"] }.uniq
           raise "No appID found in AASA file" if identifiers.count <= 0
           identifiers
+        rescue JSON::ParserError => e
+          raise JSON::ParserError, "Failed to parse AASA file for domain #{domain}: #{e.message}"
         end
 
-        def validate_team_and_bundle_ids(project, identifiers, configuration)
+        def validate_team_and_bundle_ids(project, domain, configuration)
           target = project.targets.find { |t| !t.extension_target_type? && !t.test_target_type? }
 
           raise "No application target found" if target.nil?
@@ -159,11 +164,13 @@ module Fastlane
           product_bundle_identifier = target.resolved_build_setting(PRODUCT_BUNDLE_IDENTIFIER)[configuration]
           development_team = target.resolved_build_setting(DEVELOPMENT_TEAM)[configuration]
 
+          identifiers = app_ids_from_aasa_file domain
+
           bundle_matches = identifiers.map { |i| team_and_bundle_from_app_id(i)[1] }.include? product_bundle_identifier
           team_matches = identifiers.map { |i| team_and_bundle_from_app_id(i)[0] }.include? development_team
 
-          raise "#{PRODUCT_BUNDLE_IDENTIFIER} mismatch. Universal Links will not work." unless bundle_matches
-          raise "#{DEVELOPMENT_TEAM} mismatch. Universal Links will not work." unless team_matches
+          raise "#{PRODUCT_BUNDLE_IDENTIFIER} mismatch for #{domain}. Universal Links will not work." unless bundle_matches
+          raise "#{DEVELOPMENT_TEAM} mismatch for #{domain}. Universal Links will not work." unless team_matches
         end
 
         def update_team_and_bundle_ids(project, team, bundle)

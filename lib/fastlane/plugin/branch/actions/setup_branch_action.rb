@@ -24,7 +24,7 @@ module Fastlane
         if params[:update_bundle_and_team_ids]
           helper.update_team_and_bundle_ids_from_aasa_file xcodeproj, domains.first
         else
-          helper.validate_team_and_bundle_ids_from_aasa_file xcodeproj, domains.first
+          helper.validate_team_and_bundle_ids_from_aasa_files xcodeproj, domains
           UI.message("Universal Link configuration passed validation")
         end
 
