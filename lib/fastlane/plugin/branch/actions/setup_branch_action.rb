@@ -13,10 +13,9 @@ module Fastlane
         # (used with :app_link_subdomain to choose which domains to add)
         domains = helper.domains_from_params params
 
-        UI.message("##### Branch:")
-        UI.message(" live key: #{live_key}") unless live_key.nil?
-        UI.message(" test key: #{test_key}") unless test_key.nil?
-        UI.message(" domains: #{domains}")
+        UI.message "live key: #{live_key}" unless live_key.nil?
+        UI.message "test key: #{test_key}" unless test_key.nil?
+        UI.message "domains: #{domains}"
 
         # raises
         xcodeproj = Xcodeproj::Project.open params[:xcodeproj]
@@ -30,9 +29,13 @@ module Fastlane
 
         if params[:update_bundle_and_team_ids]
           helper.update_team_and_bundle_ids_from_aasa_file xcodeproj, domains.first
+        elsif helper.validate_team_and_bundle_ids_from_aasa_files xcodeproj, domains
+          UI.message "Universal Link configuration passed validation. ✅"
         else
-          helper.validate_team_and_bundle_ids_from_aasa_files xcodeproj, domains
-          UI.message("Universal Link configuration passed validation ✅")
+          UI.error "Universal Link configuration failed validation."
+          helper.errors.each do |error|
+            UI.error " #{error}"
+          end
         end
 
         # raises

@@ -12,6 +12,8 @@ module Fastlane
       RELEASE_CONFIGURATION = "Release"
 
       class << self
+        attr_accessor :errors
+
         def domains_from_params(params)
           app_link_subdomains = app_link_subdomains_from_params params
           custom_domains = custom_domains_from_params params
@@ -147,27 +149,33 @@ module Fastlane
         end
 
         def validate_team_and_bundle_ids_from_aasa_files(project, domains, configuration = RELEASE_CONFIGURATION)
+          @errors = []
+          valid = false # one domain must validate
           domains.each do |domain|
             # ignore test-app.link domains for now (bnctestbed.test-app.link/apple-app-site-association is blank)
+            # TODO: Support URI schemes for iOS?
             next if domain =~ /\.test-app\.link$/
-            validate_team_and_bundle_ids project, domain, configuration
-            UI.message "Valid Universal Link configuration for #{domain} ✅"
+            domain_valid = validate_team_and_bundle_ids project, domain, configuration
+            valid ||= domain_valid
+            UI.message "Valid Universal Link configuration for #{domain} ✅" if domain_valid
           end
+          valid
         end
 
         def app_ids_from_aasa_file(domain)
           file = JSON.parse Net::HTTP.get(domain, "/apple-app-site-association")
           applinks = file[APPLINKS]
-          raise "No #{APPLINKS} found in AASA file" if applinks.nil?
+          @errors << "No #{APPLINKS} found in AASA file for domain #{domain}" and return if applinks.nil?
 
           details = applinks["details"]
-          raise "No details found for #{APPLINKS} in AASA file" if details.nil?
+          @errors << "No details found for #{APPLINKS} in AASA file for domain #{domain}" and return if details.nil?
 
           identifiers = details.map { |d| d["appID"] }.uniq
-          raise "No appID found in AASA file" if identifiers.count <= 0
+          @errors << "No appID found in AASA file for domain #{domain}" and return if identifiers.count <= 0
           identifiers
         rescue JSON::ParserError => e
-          raise JSON::ParserError, "Failed to parse AASA file for domain #{domain}: #{e.message}"
+          @errors << "Failed to parse AASA file for domain #{domain}: #{e.message}"
+          nil
         end
 
         def validate_team_and_bundle_ids(project, domain, configuration)
@@ -179,12 +187,23 @@ module Fastlane
           development_team = target.resolved_build_setting(DEVELOPMENT_TEAM)[configuration]
 
           identifiers = app_ids_from_aasa_file domain
+          return false if identifiers.nil?
 
-          bundle_matches = identifiers.map { |i| team_and_bundle_from_app_id(i)[1] }.include? product_bundle_identifier
-          team_matches = identifiers.map { |i| team_and_bundle_from_app_id(i)[0] }.include? development_team
+          teams = identifiers.map { |i| team_and_bundle_from_app_id(i)[0] }
+          bundles = identifiers.map { |i| team_and_bundle_from_app_id(i)[1] }
 
-          raise "#{PRODUCT_BUNDLE_IDENTIFIER} mismatch for #{domain}. Universal Links will not work." unless bundle_matches
-          raise "#{DEVELOPMENT_TEAM} mismatch for #{domain}. Universal Links will not work." unless team_matches
+          team_matches = teams.include? development_team
+          bundle_matches = bundles.include? product_bundle_identifier
+
+          unless team_matches
+            @errors << "#{DEVELOPMENT_TEAM} mismatch for #{domain}. Project: #{development_team}. Dashboard: #{teams}"
+          end
+
+          unless bundle_matches
+            @errors << "#{PRODUCT_BUNDLE_IDENTIFIER} mismatch for #{domain}. Project: #{product_bundle_identifier}. Dashboard: #{bundles}"
+          end
+
+          bundle_matches and team_matches
         end
 
         def update_team_and_bundle_ids(project, team, bundle)
