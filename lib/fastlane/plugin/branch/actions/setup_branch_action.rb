@@ -25,7 +25,7 @@ module Fastlane
           helper.update_team_and_bundle_ids_from_aasa_file xcodeproj, domains.first
         else
           helper.validate_team_and_bundle_ids_from_aasa_files xcodeproj, domains
-          UI.message("Universal Link configuration passed validation")
+          UI.message("Universal Link configuration passed validation ✅")
         end
 
         xcodeproj.save

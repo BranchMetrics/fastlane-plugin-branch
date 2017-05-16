@@ -2,6 +2,7 @@ require "plist"
 
 module Fastlane
   module Helper
+    UI = FastlaneCore::UI
     class BranchHelper
       APPLINKS = "applinks"
       ASSOCIATED_DOMAINS = "com.apple.developer.associated-domains"
@@ -138,6 +139,7 @@ module Fastlane
             # ignore test-app.link domains for now (bnctestbed.test-app.link/apple-app-site-association is blank)
             next if domain =~ /\.test-app\.link$/
             validate_team_and_bundle_ids project, domain, configuration
+            UI.message "Valid Universal Link configuration for #{domain} ✅"
           end
         end
 
