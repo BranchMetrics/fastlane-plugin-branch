@@ -8,17 +8,24 @@ module Fastlane
 
         live_key = params[:live_key]
         test_key = params[:test_key]
+
+        # raises unless :live_key or :test_key is present
+        # (used with :app_link_subdomain to choose which domains to add)
         domains = helper.domains_from_params params
 
         UI.message("##### Branch:")
-        UI.message(" live key: #{live_key}")
-        UI.message(" test key: #{test_key}")
+        UI.message(" live key: #{live_key}") unless live_key.nil?
+        UI.message(" test key: #{test_key}") unless test_key.nil?
         UI.message(" domains: #{domains}")
 
         # raises
         xcodeproj = Xcodeproj::Project.open params[:xcodeproj]
 
-        helper.add_keys_to_info_plist xcodeproj, live_key, test_key
+        keys = {}
+        keys[:live] = live_key unless live_key.nil?
+        keys[:test] = test_key unless test_key.nil?
+
+        helper.add_keys_to_info_plist xcodeproj, keys
         helper.add_universal_links_to_project xcodeproj, domains, params[:remove_existing_domains]
 
         if params[:update_bundle_and_team_ids]
@@ -60,12 +67,12 @@ module Fastlane
           FastlaneCore::ConfigItem.new(key: :live_key,
                                   env_name: "BRANCH_LIVE_KEY",
                                description: "The Branch live key for your app",
-                                  optional: false,
+                                  optional: true,
                                       type: String),
           FastlaneCore::ConfigItem.new(key: :test_key,
                                   env_name: "BRANCH_TEST_KEY",
                                description: "The Branch test key for your app",
-                                  optional: false,
+                                  optional: true,
                                       type: String),
           FastlaneCore::ConfigItem.new(key: :domains,
                                   env_name: "BRANCH_DOMAINS",

@@ -52,12 +52,18 @@ describe Fastlane::Helper::BranchHelper do
 
     describe "#app_link_subdomains_from_params" do
       it "returns a blank array if no :app_link_subdomain parameter" do
-        expect(helper.app_link_subdomains_from_params({})).to eq []
+        expect(helper.app_link_subdomains_from_params(live_key: "abc")).to eq []
       end
 
-      it "returns four domains if :app_link_subdomain specified" do
+      it "raises unless :live_key or :test_key is present" do
+        expect do
+          helper.app_link_subdomains_from_params app_link_subdomain: "myapp"
+        end.to raise_error ArgumentError
+      end
+
+      it "returns four domains if :app_link_subdomain, :live_key and :test_key specified" do
         expected = %w{myapp.app.link myapp-alternate.app.link myapp.test-app.link myapp-alternate.test-app.link}
-        expect(helper.app_link_subdomains_from_params(app_link_subdomain: "myapp")).to eq expected
+        expect(helper.app_link_subdomains_from_params(app_link_subdomain: "myapp", live_key: "abc", test_key: "xyz")).to eq expected
       end
     end
 

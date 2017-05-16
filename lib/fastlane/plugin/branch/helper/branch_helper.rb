@@ -22,14 +22,26 @@ module Fastlane
 
         def app_link_subdomains_from_params(params)
           app_link_subdomain = params[:app_link_subdomain]
+          live_key = params[:live_key]
+          test_key = params[:test_key]
+          raise ArgumentError, ":live_key or :test_key is required" if live_key.nil? and test_key.nil?
+
           return [] if app_link_subdomain.nil?
 
-          [
-            "#{app_link_subdomain}.app.link",
-            "#{app_link_subdomain}-alternate.app.link",
-            "#{app_link_subdomain}.test-app.link",
-            "#{app_link_subdomain}-alternate.test-app.link"
-          ]
+          domains = []
+          unless live_key.nil?
+            domains += [
+              "#{app_link_subdomain}.app.link",
+              "#{app_link_subdomain}-alternate.app.link"
+            ]
+          end
+          unless live_key.nil?
+            domains += [
+              "#{app_link_subdomain}.test-app.link",
+              "#{app_link_subdomain}-alternate.test-app.link"
+            ]
+          end
+          domains
         end
 
         def custom_domains_from_params(params)
@@ -47,7 +59,7 @@ module Fastlane
           domains
         end
 
-        def add_keys_to_info_plist(project, live_key, test_key, configuration = RELEASE_CONFIGURATION)
+        def add_keys_to_info_plist(project, keys, configuration = RELEASE_CONFIGURATION)
           # find the first application target
           target = project.targets.find { |t| !t.extension_target_type? && !t.test_target_type? }
 
@@ -71,7 +83,7 @@ module Fastlane
           info_plist = Plist.parse_xml info_plist_path
 
           # add/overwrite Branch key(s)
-          info_plist["branch_key"] = { live: live_key, test: test_key }
+          info_plist["branch_key"] = keys
 
           Plist::Emit.save_plist info_plist, info_plist_path
         end
