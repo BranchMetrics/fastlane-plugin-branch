@@ -26,9 +26,7 @@ module Fastlane
           UI.message "Universal Link configuration passed validation. ✅"
         else
           UI.error "Universal Link configuration failed validation."
-          helper.errors.each do |error|
-            UI.error " #{error}"
-          end
+          helper.errors.each { |error| UI.error " #{error}" }
           return
         end
 
@@ -36,10 +34,9 @@ module Fastlane
         keys[:live] = live_key unless live_key.nil?
         keys[:test] = test_key unless test_key.nil?
 
+        # the following calls can all raise IOError
         helper.add_keys_to_info_plist xcodeproj, keys
         helper.add_universal_links_to_project xcodeproj, domains, params[:remove_existing_domains]
-
-        # raises
         xcodeproj.save
       rescue => e
         UI.user_error! "Error in SetupBranchAction: #{e.message}"

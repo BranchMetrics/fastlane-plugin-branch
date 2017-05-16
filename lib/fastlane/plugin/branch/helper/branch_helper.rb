@@ -189,21 +189,14 @@ module Fastlane
           identifiers = app_ids_from_aasa_file domain
           return false if identifiers.nil?
 
-          teams = identifiers.map { |i| team_and_bundle_from_app_id(i)[0] }
-          bundles = identifiers.map { |i| team_and_bundle_from_app_id(i)[1] }
+          app_id = "#{development_team}.#{product_bundle_identifier}"
+          match_found = identifiers.include? app_id
 
-          team_matches = teams.include? development_team
-          bundle_matches = bundles.include? product_bundle_identifier
-
-          unless team_matches
-            @errors << "#{DEVELOPMENT_TEAM} mismatch for #{domain}. Project: #{development_team}. Dashboard: #{teams}"
+          unless match_found
+            @errors << "appID mismatch for #{domain}. Project: #{app_id}. AASA: #{identifiers}"
           end
 
-          unless bundle_matches
-            @errors << "#{PRODUCT_BUNDLE_IDENTIFIER} mismatch for #{domain}. Project: #{product_bundle_identifier}. Dashboard: #{bundles}"
-          end
-
-          bundle_matches and team_matches
+          match_found
         end
 
         def update_team_and_bundle_ids(project, team, bundle)
