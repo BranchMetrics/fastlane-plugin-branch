@@ -20,13 +20,6 @@ module Fastlane
         # raises
         xcodeproj = Xcodeproj::Project.open params[:xcodeproj]
 
-        keys = {}
-        keys[:live] = live_key unless live_key.nil?
-        keys[:test] = test_key unless test_key.nil?
-
-        helper.add_keys_to_info_plist xcodeproj, keys
-        helper.add_universal_links_to_project xcodeproj, domains, params[:remove_existing_domains]
-
         if params[:update_bundle_and_team_ids]
           helper.update_team_and_bundle_ids_from_aasa_file xcodeproj, domains.first
         elsif helper.validate_team_and_bundle_ids_from_aasa_files xcodeproj, domains
@@ -36,7 +29,15 @@ module Fastlane
           helper.errors.each do |error|
             UI.error " #{error}"
           end
+          return
         end
+
+        keys = {}
+        keys[:live] = live_key unless live_key.nil?
+        keys[:test] = test_key unless test_key.nil?
+
+        helper.add_keys_to_info_plist xcodeproj, keys
+        helper.add_universal_links_to_project xcodeproj, domains, params[:remove_existing_domains]
 
         # raises
         xcodeproj.save
