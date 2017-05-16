@@ -35,7 +35,7 @@ module Fastlane
               "#{app_link_subdomain}-alternate.app.link"
             ]
           end
-          unless live_key.nil?
+          unless test_key.nil?
             domains += [
               "#{app_link_subdomain}.test-app.link",
               "#{app_link_subdomain}-alternate.test-app.link"

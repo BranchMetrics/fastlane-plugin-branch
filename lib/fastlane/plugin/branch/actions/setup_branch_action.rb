@@ -35,6 +35,7 @@ module Fastlane
           UI.message("Universal Link configuration passed validation ✅")
         end
 
+        # raises
         xcodeproj.save
       rescue => e
         UI.user_error! "Error in SetupBranchAction: #{e.message}"
