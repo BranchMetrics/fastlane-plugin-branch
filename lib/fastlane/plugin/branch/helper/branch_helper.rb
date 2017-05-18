@@ -234,9 +234,9 @@ module Fastlane
             test_key_element = manifest.at_css('manifest application meta-data[android|name="io.branch.sdk.BranchKey.test"]')
             if test_key_element.nil?
               application = manifest.at_css('manifest application')
-              application.add_child "  <meta-data android:name=\"io.branch.sdk.BranchKey\" android:value=\"#{live_key}\" />\n  "
+              application.add_child "  <meta-data android:name=\"io.branch.sdk.BranchKey\" android:value=\"#{test_key}\" />\n  "
             else
-              test_key_element["android:value"] = live_key
+              test_key_element["android:value"] = test_key
             end
           end
 

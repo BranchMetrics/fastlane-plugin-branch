@@ -13,6 +13,10 @@ module Fastlane
         # (used with :app_link_subdomain to choose which domains to add)
         domains = helper.domains_from_params params
 
+        if params[:xcodeproj].nil? and params[:android_project_path].nil?
+          raise ":xcodeproj or :android_project_path is required"
+        end
+
         UI.message "live key: #{live_key}" unless live_key.nil?
         UI.message "test key: #{test_key}" unless test_key.nil?
         UI.message "domains: #{domains}"
