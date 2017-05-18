@@ -1,3 +1,4 @@
+require "nokogiri"
 require "plist"
 
 module Fastlane
@@ -213,6 +214,35 @@ module Fastlane
           return if target.nil?
 
           target.build_configuration_list.set_setting DEVELOPMENT_TEAM, team
+        end
+
+        def add_keys_to_android_manifest(project_path, live_key, test_key)
+          manifest = File.open("#{project_path}/app/src/main/AndroidManifest.xml") { |f| Nokogiri::XML f }
+
+          # TODO: Work on formatting
+          unless live_key.nil?
+            live_key_element = manifest.at_css('manifest application meta-data[android|name="io.branch.sdk.BranchKey"]')
+            if live_key_element.nil?
+              application = manifest.at_css('manifest application')
+              application.add_child "  <meta-data android:name=\"io.branch.sdk.BranchKey\" android:value=\"#{live_key}\" />\n  "
+            else
+              live_key_element["android:value"] = live_key
+            end
+          end
+
+          unless test_key.nil?
+            test_key_element = manifest.at_css('manifest application meta-data[android|name="io.branch.sdk.BranchKey.test"]')
+            if test_key_element.nil?
+              application = manifest.at_css('manifest application')
+              application.add_child "  <meta-data android:name=\"io.branch.sdk.BranchKey\" android:value=\"#{live_key}\" />\n  "
+            else
+              test_key_element["android:value"] = live_key
+            end
+          end
+
+          File.open("#{project_path}/app/src/main/AndroidManifest.xml", "w") do |f|
+            manifest.write_xml_to f, ident: 4
+          end
         end
       end
     end

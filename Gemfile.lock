@@ -2,7 +2,9 @@ PATH
   remote: .
   specs:
     fastlane-plugin-branch (0.1.0)
+      nokogiri
       plist
+      xcodeproj
 
 GEM
   remote: https://rubygems.org/
@@ -141,6 +143,7 @@ GEM
       mime-types-data (~> 3.2015)
     mime-types-data (3.2016.0521)
     mini_magick (4.5.1)
+    mini_portile2 (2.1.0)
     minitest (5.10.1)
     molinillo (0.5.7)
     multi_json (1.12.1)
@@ -149,6 +152,8 @@ GEM
     nanaimo (0.2.3)
     nap (1.1.0)
     netrc (0.7.8)
+    nokogiri (1.7.2)
+      mini_portile2 (~> 2.1.0)
     os (0.9.6)
     parser (2.4.0.0)
       ast (~> 2.2)

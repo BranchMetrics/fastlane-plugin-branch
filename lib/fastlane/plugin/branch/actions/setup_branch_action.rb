@@ -17,27 +17,33 @@ module Fastlane
         UI.message "test key: #{test_key}" unless test_key.nil?
         UI.message "domains: #{domains}"
 
-        # raises
-        xcodeproj = Xcodeproj::Project.open params[:xcodeproj]
+        if params[:xcodeproj]
+          # raises
+          xcodeproj = Xcodeproj::Project.open params[:xcodeproj]
 
-        if params[:update_bundle_and_team_ids]
-          helper.update_team_and_bundle_ids_from_aasa_file xcodeproj, domains.first
-        elsif helper.validate_team_and_bundle_ids_from_aasa_files xcodeproj, domains
-          UI.message "Universal Link configuration passed validation. ✅"
-        else
-          UI.error "Universal Link configuration failed validation."
-          helper.errors.each { |error| UI.error " #{error}" }
-          return
+          if params[:update_bundle_and_team_ids]
+            helper.update_team_and_bundle_ids_from_aasa_file xcodeproj, domains.first
+          elsif helper.validate_team_and_bundle_ids_from_aasa_files xcodeproj, domains
+            UI.message "Universal Link configuration passed validation. ✅"
+          else
+            UI.error "Universal Link configuration failed validation."
+            helper.errors.each { |error| UI.error " #{error}" }
+            return
+          end
+
+          keys = {}
+          keys[:live] = live_key unless live_key.nil?
+          keys[:test] = test_key unless test_key.nil?
+
+          # the following calls can all raise IOError
+          helper.add_keys_to_info_plist xcodeproj, keys
+          helper.add_universal_links_to_project xcodeproj, domains, params[:remove_existing_domains]
+          xcodeproj.save
         end
 
-        keys = {}
-        keys[:live] = live_key unless live_key.nil?
-        keys[:test] = test_key unless test_key.nil?
-
-        # the following calls can all raise IOError
-        helper.add_keys_to_info_plist xcodeproj, keys
-        helper.add_universal_links_to_project xcodeproj, domains, params[:remove_existing_domains]
-        xcodeproj.save
+        if params[:android_project_path]
+          helper.add_keys_to_android_manifest params[:android_project_path], live_key, test_key
+        end
       rescue => e
         UI.user_error! "Error in SetupBranchAction: #{e.message}"
       end
@@ -63,8 +69,13 @@ module Fastlane
         [
           FastlaneCore::ConfigItem.new(key: :xcodeproj,
                                   env_name: "BRANCH_XCODEPROJ",
-                               description: "Path to the Xcode project to modify",
-                                  optional: false,
+                               description: "Path to an Xcode project to modify",
+                                  optional: true,
+                                      type: String),
+          FastlaneCore::ConfigItem.new(key: :android_project_path,
+                                  env_name: "BRANCH_ANDROID_PROJECT_PATH",
+                               description: "Path to an Android project to modify",
+                                  optional: true,
                                       type: String),
           FastlaneCore::ConfigItem.new(key: :live_key,
                                   env_name: "BRANCH_LIVE_KEY",
@@ -84,6 +95,11 @@ module Fastlane
           FastlaneCore::ConfigItem.new(key: :app_link_subdomain,
                                   env_name: "BRANCH_APP_LINK_SUBDOMAIN",
                                description: "app.link subdomain",
+                                  optional: true,
+                                      type: String),
+          FastlaneCore::ConfigItem.new(key: :uri_scheme,
+                                  env_name: "BRANCH_URI_SCHEME",
+                               description: "Custom URI scheme used with Branch (Android only)",
                                   optional: true,
                                       type: String),
           FastlaneCore::ConfigItem.new(key: :update_bundle_and_team_ids,
