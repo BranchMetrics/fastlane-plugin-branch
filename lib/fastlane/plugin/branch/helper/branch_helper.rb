@@ -252,8 +252,8 @@ module Fastlane
         def find_activity(manifest)
           # try to infer the right activity
           # look for the first singleTask
-          single_task_activities = manifest.css "manifest > application > activity[android|launchMode=\"singleTask\"]"
-          return single_task_activities.first if single_task_activities.count > 0
+          single_task_activity = manifest.at_css "manifest > application > activity[android|launchMode=\"singleTask\"]"
+          return single_task_activity if single_task_activity
 
           # no singleTask activities. Take the first Activity
           # TODO: Add singleTask?
