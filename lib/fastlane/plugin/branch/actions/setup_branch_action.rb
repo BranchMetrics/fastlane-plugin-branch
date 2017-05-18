@@ -21,6 +21,10 @@ module Fastlane
         UI.message "test key: #{test_key}" unless test_key.nil?
         UI.message "domains: #{domains}"
 
+        keys = {}
+        keys[:live] = live_key unless live_key.nil?
+        keys[:test] = test_key unless test_key.nil?
+
         if params[:xcodeproj]
           # raises
           xcodeproj = Xcodeproj::Project.open params[:xcodeproj]
@@ -35,10 +39,6 @@ module Fastlane
             return
           end
 
-          keys = {}
-          keys[:live] = live_key unless live_key.nil?
-          keys[:test] = test_key unless test_key.nil?
-
           # the following calls can all raise IOError
           helper.add_keys_to_info_plist xcodeproj, keys
           helper.add_universal_links_to_project xcodeproj, domains, params[:remove_existing_domains]
@@ -49,7 +49,13 @@ module Fastlane
           project_path = params[:android_project_path]
           manifest = File.open("#{project_path}/app/src/main/AndroidManifest.xml") { |f| Nokogiri::XML f }
 
-          helper.add_keys_to_android_manifest manifest, live_key, test_key
+          helper.add_keys_to_android_manifest manifest, keys
+          # :activity_name and :uri_scheme may be nil. :remove_existing_domains defaults to false
+          helper.add_intent_filters_to_android_manifest manifest,
+                                                        domains,
+                                                        params[:uri_scheme],
+                                                        params[:activity_name],
+                                                        params[:remove_existing_domains]
 
           File.open("#{project_path}/app/src/main/AndroidManifest.xml", "w") do |f|
             manifest.write_xml_to f, ident: 4
@@ -113,15 +119,20 @@ module Fastlane
                                description: "Custom URI scheme used with Branch (Android only)",
                                   optional: true,
                                       type: String),
+          FastlaneCore::ConfigItem.new(key: :activity_name,
+                                  env_name: "BRANCH_ACTIVITY_NAME",
+                               description: "Name of the Activity in the manifest containing Branch intent-filers (Android only)",
+                                  optional: true,
+                                      type: String),
           FastlaneCore::ConfigItem.new(key: :update_bundle_and_team_ids,
                                   env_name: "BRANCH_UPDATE_BUNDLE_AND_TEAM_IDS",
-                               description: "If set to true, updates the bundle and team identifiers to match the AASA file",
+                               description: "If set to true, updates the bundle and team identifiers to match the AASA file (iOS only)",
                                   optional: true,
                              default_value: false,
                                  is_string: false),
           FastlaneCore::ConfigItem.new(key: :remove_existing_domains,
                                   env_name: "BRANCH_REMOVE_EXISTING_DOMAINS",
-                               description: "If set to true, removes any existing UL domains before adding Branch domains",
+                               description: "If set to true, removes any existing domains before adding Branch domains",
                                   optional: true,
                              default_value: false,
                                  is_string: false)
