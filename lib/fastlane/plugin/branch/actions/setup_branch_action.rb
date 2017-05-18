@@ -46,7 +46,14 @@ module Fastlane
         end
 
         if params[:android_project_path]
-          helper.add_keys_to_android_manifest params[:android_project_path], live_key, test_key
+          project_path = params[:android_project_path]
+          manifest = File.open("#{project_path}/app/src/main/AndroidManifest.xml") { |f| Nokogiri::XML f }
+
+          helper.add_keys_to_android_manifest manifest, live_key, test_key
+
+          File.open("#{project_path}/app/src/main/AndroidManifest.xml", "w") do |f|
+            manifest.write_xml_to f, ident: 4
+          end
         end
       rescue => e
         UI.user_error! "Error in SetupBranchAction: #{e.message}"

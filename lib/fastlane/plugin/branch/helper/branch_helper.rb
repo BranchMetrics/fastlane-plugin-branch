@@ -216,32 +216,19 @@ module Fastlane
           target.build_configuration_list.set_setting DEVELOPMENT_TEAM, team
         end
 
-        def add_keys_to_android_manifest(project_path, live_key, test_key)
-          manifest = File.open("#{project_path}/app/src/main/AndroidManifest.xml") { |f| Nokogiri::XML f }
+        def add_keys_to_android_manifest(manifest, live_key, test_key)
+          add_metadata_to_manifest manifest, "io.branch.sdk.BranchKey", live_key unless live_key.nil?
+          add_metadata_to_manifest manifest, "io.branch.sdk.BranchKey.test", test_key unless test_key.nil?
+        end
 
+        def add_metadata_to_manifest(manifest, key, value)
           # TODO: Work on formatting
-          unless live_key.nil?
-            live_key_element = manifest.at_css('manifest application meta-data[android|name="io.branch.sdk.BranchKey"]')
-            if live_key_element.nil?
-              application = manifest.at_css('manifest application')
-              application.add_child "  <meta-data android:name=\"io.branch.sdk.BranchKey\" android:value=\"#{live_key}\" />\n  "
-            else
-              live_key_element["android:value"] = live_key
-            end
-          end
-
-          unless test_key.nil?
-            test_key_element = manifest.at_css('manifest application meta-data[android|name="io.branch.sdk.BranchKey.test"]')
-            if test_key_element.nil?
-              application = manifest.at_css('manifest application')
-              application.add_child "  <meta-data android:name=\"io.branch.sdk.BranchKey\" android:value=\"#{test_key}\" />\n  "
-            else
-              test_key_element["android:value"] = test_key
-            end
-          end
-
-          File.open("#{project_path}/app/src/main/AndroidManifest.xml", "w") do |f|
-            manifest.write_xml_to f, ident: 4
+          element = manifest.at_css "manifest application meta-data[android|name=\"#{key}\"]"
+          if element.nil?
+            application = manifest.at_css "manifest application"
+            application.add_child "  <meta-data android:name=\"#{key}\" android:value=\"#{value}\" />\n  "
+          else
+            element["android:value"] = value
           end
         end
       end
