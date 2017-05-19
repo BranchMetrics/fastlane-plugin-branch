@@ -49,8 +49,7 @@ module Fastlane
 
         if params[:android_project_path] || params[:android_manifest_path]
           # :android_manifest_path overrides :android_project_path
-          project_path = params[:android_project_path]
-          manifest_path = params[:android_manifest_path] || "#{project_path}/app/src/main/AndroidManifest.xml"
+          manifest_path = params[:android_manifest_path] || "#{params[:android_project_path]}/app/src/main/AndroidManifest.xml"
           manifest = File.open(manifest_path) { |f| Nokogiri::XML f }
 
           helper.add_keys_to_android_manifest manifest, keys
@@ -74,16 +73,29 @@ module Fastlane
       end
 
       def self.authors
-        ["Jimmy Dee"]
-      end
-
-      def self.return_value
-        # If your method provides a return value, you can describe here what it does
+        [
+          "Branch <integrations@branch.io>",
+          "Jimmy Dee <jgvdthree@gmail.com>"
+        ]
       end
 
       def self.details
-        # Optional:
-        "More to come"
+        "This action automatically configures Xcode and Android projects that use the Branch SDK " \
+          "for Universal Links, App Links and custom URI handling. It modifies Xcode project settings and " \
+          "entitlements as well as Info.plist and AndroidManifest.xml files."
+      end
+
+      def self.example_code
+        [
+          <<-EOF
+            setup_branch live_key: "key_live_feebgAAhbH9Tv85H5wLQhpdaefiZv5Dv",
+                         test_key: "key_test_hdcBLUy1xZ1JD0tKg7qrLcgirFmPPVJc",
+               app_link_subdomain: "bnctestbed",
+                       uri_scheme: "branchtest",
+             android_project_path: "examples/android/BranchPluginExample",
+                        xcodeproj: "examples/ios/BranchPluginExample/BranchPluginExample.xcodeproj"
+          EOF
+        ]
       end
 
       def self.available_options
@@ -154,8 +166,7 @@ module Fastlane
       end
 
       def self.is_supported?(platform)
-        platform == :ios
-        # [:ios, :android].contains platform # Add Android once available
+        [:ios, :android].include? platform
       end
     end
   end
