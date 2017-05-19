@@ -6,11 +6,69 @@
 
 ## Getting Started
 
-This project is a [_fastlane_](https://github.com/fastlane/fastlane) plugin. To get started with `fastlane-plugin-branch`, add it to your project by running:
+This project is a [_fastlane_](https://github.com/fastlane/fastlane) plugin. To get started with `fastlane-plugin-branch`
+before it is released:
+
+### Install Fastlane
+
+https://docs.fastlane.tools/getting-started/android/setup/
+https://docs.fastlane.tools/getting-started/ios/setup/
+
+On OS X:
+
+```bash
+brew cask install fastlane
+```
+
+### Set up Fastlane for your project
+
+**Option 1:** This may be easiest, but it requires more setup than is needed to try out this plugin.
+
+```bash
+fastlane init
+```
+
+**Option 2:** This is also easy and requires no further setup:
+
+```bash
+git checkout git@github.com:BranchMetrics/fastlane-plugin-branch
+cp -r fastlane-plugin-branch/fastlane /path/to/MyProject
+```
+
+Then modify the parameters in `/path/to/MyProject/fastlane/Fastfile`.
+
+### Install this plugin
+
+Once released, you can install this plugin using
 
 ```bash
 fastlane add_plugin branch
 ```
+
+That tries to install from Rubygems and will fail before release.
+
+To install before release:
+
+1. Add a `Gemfile` to your project with these contents:
+
+  ```ruby
+  source 'https://rubygems.org'
+
+  plugins_path = File.join(File.dirname(__FILE__), 'fastlane', 'Pluginfile')
+  eval_gemfile(plugins_path) if File.exist?(plugins_path)
+  ```
+
+2. Modify `/path/to/MyProject/fastlane/Pluginfile` to have these contents:
+
+  ```ruby
+  gem "fastlane-plugin-branch", git: "git@github.com/BranchMetrics/fastlane-plugin-branch"
+  ```
+
+  or
+
+  ```ruby
+  gem "fastlane-plugin-branch", path: "/where/I/checked/out/fastlane-plugin-branch"
+  ```
 
 ## setup_branch action
 
