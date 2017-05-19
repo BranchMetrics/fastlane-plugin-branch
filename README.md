@@ -21,7 +21,8 @@ work.
 gem install fastlane -NV
 ```
 
-**Note:** If using the system Ruby, you must use `sudo`.
+**Note:** If using the system Ruby, you must use `sudo`. However, using the system Ruby is not recommended. See
+[Notes on Ruby Version Managers](#notes-on-ruby-version-managers)
 
 ### Set up Fastlane for your project
 
@@ -137,3 +138,31 @@ For more information about how the `fastlane` plugin system works, check out the
 ## About _fastlane_
 
 _fastlane_ is the easiest way to automate beta deployments and releases for your iOS and Android apps. To learn more, check out [fastlane.tools](https://fastlane.tools).
+
+## Notes on Ruby Version Managers
+
+It is strongly recommended for all Ruby work to use a version manager, either [RVM](https://rvm.io) or
+[rbenv](https://github.com/rbenv/rbenv).
+
+### Streamlined RVM installation
+
+```bash
+\curl -sSL https://get.rvm.io | bash --ruby
+```
+
+Note the initial backslash, recommended to avoid shell aliases, but not entirely necessary.
+
+Note that if GPG is detected, RVM will require a cert be installed in order to verify. On OS X:
+
+```bash
+gpg2 --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
+```
+
+```bash
+gem install bundler
+```
+
+**Note:** When using RVM, all gems and binaries are installed under `~/.rvm`. Do not use `sudo`
+to install or update gems or rubies.
+
+Now the `bundle` command is available in your `PATH` under `~/.rvm`.
