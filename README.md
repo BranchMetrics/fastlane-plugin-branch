@@ -14,11 +14,14 @@ before it is released:
 https://docs.fastlane.tools/getting-started/android/setup/
 https://docs.fastlane.tools/getting-started/ios/setup/
 
-On OS X:
+Before release, the packaged `fastlane` binary available in the zip and via Homebrew will not
+work.
 
 ```bash
-brew cask install fastlane
+gem install fastlane -NV
 ```
+
+**Note:** If using the system Ruby, you must use `sudo`.
 
 ### Set up Fastlane for your project
 
@@ -58,7 +61,7 @@ To install before release:
   eval_gemfile(plugins_path) if File.exist?(plugins_path)
   ```
 
-2. Modify `/path/to/MyProject/fastlane/Pluginfile` to have these contents:
+1. Modify `/path/to/MyProject/fastlane/Pluginfile` to have these contents:
 
   ```ruby
   gem "fastlane-plugin-branch", git: "git@github.com/BranchMetrics/fastlane-plugin-branch"
@@ -69,6 +72,15 @@ To install before release:
   ```ruby
   gem "fastlane-plugin-branch", path: "/where/I/checked/out/fastlane-plugin-branch"
   ```
+
+1. Install the plugin
+
+  ```ruby
+  bundle install
+  ```
+
+**Note:** Before release, `fastlane` must always be run using `bundle exec fastlane <args>` in order
+to use this plugin.
 
 ## setup_branch action
 
@@ -95,7 +107,7 @@ setup_branch live_key: "key_live_xxxx",
 
 ## Example
 
-Check out the [example `Fastfile`](fastlane/Fastfile) to see how to use this plugin. Try it by cloning the repo, running `fastlane install_plugins` and `bundle exec fastlane test`.
+Check out the [example `Fastfile`](fastlane/Fastfile) to see how to use this plugin. Try it by cloning the repo, running `bundle install` and `bundle exec fastlane test`.
 
 ## Run tests for this plugin
 
