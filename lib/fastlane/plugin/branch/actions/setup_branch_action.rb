@@ -13,8 +13,8 @@ module Fastlane
         # (used with :app_link_subdomain to choose which domains to add)
         domains = helper.domains_from_params params
 
-        if params[:xcodeproj].nil? and params[:android_project_path].nil?
-          raise ":xcodeproj or :android_project_path is required"
+        if params[:xcodeproj].nil? and params[:android_project_path].nil? and params[:android_manifest_path].nil?
+          raise ":xcodeproj, :android_manifest_path or :android_project_path is required"
         end
 
         UI.message "live key: #{live_key}" unless live_key.nil?
@@ -29,9 +29,11 @@ module Fastlane
           # raises
           xcodeproj = Xcodeproj::Project.open params[:xcodeproj]
 
+          target = params[:target] # may be nil
+
           if params[:update_bundle_and_team_ids]
-            helper.update_team_and_bundle_ids_from_aasa_file xcodeproj, domains.first
-          elsif helper.validate_team_and_bundle_ids_from_aasa_files xcodeproj, domains
+            helper.update_team_and_bundle_ids_from_aasa_file xcodeproj, target, domains.first
+          elsif helper.validate_team_and_bundle_ids_from_aasa_files xcodeproj, target, domains
             UI.message "Universal Link configuration passed validation. ✅"
           else
             UI.error "Universal Link configuration failed validation."
@@ -40,14 +42,16 @@ module Fastlane
           end
 
           # the following calls can all raise IOError
-          helper.add_keys_to_info_plist xcodeproj, keys
-          helper.add_universal_links_to_project xcodeproj, domains, params[:remove_existing_domains]
+          helper.add_keys_to_info_plist xcodeproj, target, keys
+          helper.add_universal_links_to_project xcodeproj, target, domains, params[:remove_existing_domains]
           xcodeproj.save
         end
 
-        if params[:android_project_path]
+        if params[:android_project_path] || params[:android_manifest_path]
+          # :android_manifest_path overrides :android_project_path
           project_path = params[:android_project_path]
-          manifest = File.open("#{project_path}/app/src/main/AndroidManifest.xml") { |f| Nokogiri::XML f }
+          manifest_path = params[:android_manifest_path] || "#{project_path}/app/src/main/AndroidManifest.xml"
+          manifest = File.open(manifest_path) { |f| Nokogiri::XML f }
 
           helper.add_keys_to_android_manifest manifest, keys
           # :activity_name and :uri_scheme may be nil. :remove_existing_domains defaults to false
@@ -57,7 +61,7 @@ module Fastlane
                                                         params[:activity_name],
                                                         params[:remove_existing_domains]
 
-          File.open("#{project_path}/app/src/main/AndroidManifest.xml", "w") do |f|
+          File.open(manifest_path, "w") do |f|
             manifest.write_xml_to f, ident: 4
           end
         end
@@ -94,6 +98,11 @@ module Fastlane
                                description: "Path to an Android project to modify",
                                   optional: true,
                                       type: String),
+          FastlaneCore::ConfigItem.new(key: :android_manifest_path,
+                                  env_name: "BRANCH_ANDROID_MANIFEST_PATH",
+                               description: "Path to and Android manifest to modify",
+                                  optional: true,
+                                      type: String),
           FastlaneCore::ConfigItem.new(key: :live_key,
                                   env_name: "BRANCH_LIVE_KEY",
                                description: "The Branch live key for your app",
@@ -122,6 +131,11 @@ module Fastlane
           FastlaneCore::ConfigItem.new(key: :activity_name,
                                   env_name: "BRANCH_ACTIVITY_NAME",
                                description: "Name of the Activity in the manifest containing Branch intent-filers (Android only)",
+                                  optional: true,
+                                      type: String),
+          FastlaneCore::ConfigItem.new(key: :target,
+                                  env_name: "BRANCH_TARGET",
+                               description: "Name of the target in the Xcode project to modify (iOS only)",
                                   optional: true,
                                       type: String),
           FastlaneCore::ConfigItem.new(key: :update_bundle_and_team_ids,

@@ -15,6 +15,10 @@ module Fastlane
       class << self
         attr_accessor :errors
 
+        #
+        # ----- Domains -----
+        #
+
         def domains_from_params(params)
           app_link_subdomains = app_link_subdomains_from_params params
           custom_domains = custom_domains_from_params params
@@ -62,11 +66,13 @@ module Fastlane
           domains
         end
 
-        def add_keys_to_info_plist(project, keys, configuration = RELEASE_CONFIGURATION)
-          # find the first application target
-          target = project.targets.find { |t| !t.extension_target_type? && !t.test_target_type? }
+        #
+        # ----- iOS Support -----
+        #
 
-          raise "No application target found" if target.nil?
+        def add_keys_to_info_plist(project, target_name, keys, configuration = RELEASE_CONFIGURATION)
+          # raises
+          target = target_from_project project, target_name
 
           # find the Info.plist paths for all configurations
           info_plist_paths = target.resolved_build_setting "INFOPLIST_FILE"
@@ -91,11 +97,9 @@ module Fastlane
           Plist::Emit.save_plist info_plist, info_plist_path
         end
 
-        def add_universal_links_to_project(project, domains, remove_existing, configuration = RELEASE_CONFIGURATION)
-          # find the first application target
-          target = project.targets.find { |t| !t.extension_target_type? && !t.test_target_type? }
-
-          raise "No application target found" if target.nil?
+        def add_universal_links_to_project(project, target_name, domains, remove_existing, configuration = RELEASE_CONFIGURATION)
+          # raises
+          target = target_from_project project, target_name
 
           # TODO: Handle different configurations
           relative_entitlements_path = target.resolved_build_setting(CODE_SIGN_ENTITLEMENTS)[configuration]
@@ -138,7 +142,7 @@ module Fastlane
           [team, bundle]
         end
 
-        def update_team_and_bundle_ids_from_aasa_file(project, domain)
+        def update_team_and_bundle_ids_from_aasa_file(project, target_name, domain)
           # raises
           identifiers = app_ids_from_aasa_file domain
           raise "Multiple appIDs found in AASA file" if identifiers.count > 1
@@ -146,17 +150,17 @@ module Fastlane
           identifier = identifiers[0]
           team, bundle = team_and_bundle_from_app_id identifier
 
-          update_team_and_bundle_ids project, team, bundle
+          update_team_and_bundle_ids project, target_name, team, bundle
         end
 
-        def validate_team_and_bundle_ids_from_aasa_files(project, domains, configuration = RELEASE_CONFIGURATION)
+        def validate_team_and_bundle_ids_from_aasa_files(project, target_name, domains, configuration = RELEASE_CONFIGURATION)
           @errors = []
           valid = false # one domain must validate
           domains.each do |domain|
             # ignore test-app.link domains for now (bnctestbed.test-app.link/apple-app-site-association is blank)
             # TODO: Support URI schemes for iOS?
             next if domain =~ /\.test-app\.link$/
-            domain_valid = validate_team_and_bundle_ids project, domain, configuration
+            domain_valid = validate_team_and_bundle_ids project, target_name, domain, configuration
             valid ||= domain_valid
             UI.message "Valid Universal Link configuration for #{domain} ✅" if domain_valid
           end
@@ -179,10 +183,9 @@ module Fastlane
           nil
         end
 
-        def validate_team_and_bundle_ids(project, domain, configuration)
-          target = project.targets.find { |t| !t.extension_target_type? && !t.test_target_type? }
-
-          raise "No application target found" if target.nil?
+        def validate_team_and_bundle_ids(project, target_name, domain, configuration)
+          # raises
+          target = target_from_project project, target_name
 
           product_bundle_identifier = target.resolved_build_setting(PRODUCT_BUNDLE_IDENTIFIER)[configuration]
           development_team = target.resolved_build_setting(DEVELOPMENT_TEAM)[configuration]
@@ -215,6 +218,22 @@ module Fastlane
 
           target.build_configuration_list.set_setting DEVELOPMENT_TEAM, team
         end
+
+        def target_from_project(project, target_name)
+          if target_name
+            target = project.targets.find { |t| t.name == target_name }
+            raise "Target #{target} not found" if target.nil?
+          else
+            # find the first application target
+            target = project.targets.find { |t| !t.extension_target_type? && !t.test_target_type? }
+            raise "No application target found" if target.nil?
+          end
+          target
+        end
+
+        #
+        # ----- Android support -----
+        #
 
         def add_keys_to_android_manifest(manifest, keys)
           add_metadata_to_manifest manifest, "io.branch.sdk.BranchKey", keys[:live] unless keys[:live].nil?

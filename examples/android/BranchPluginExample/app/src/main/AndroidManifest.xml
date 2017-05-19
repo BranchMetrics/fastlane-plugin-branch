@@ -1,21 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="io.branch.branchpluginexample">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="io.branch.branchpluginexample">
 
-    <application
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+    <application android:allowBackup="true" android:icon="@mipmap/ic_launcher" android:label="@string/app_name" android:roundIcon="@mipmap/ic_launcher_round" android:supportsRtl="true" android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        
+            <intent-filter android:autoverify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="bnctestbed.app.link"/>
+                <data android:scheme="https" android:host="bnctestbed-alternate.app.link"/>
+                <data android:scheme="https" android:host="bnctestbed.test-app.link"/>
+                <data android:scheme="https" android:host="bnctestbed-alternate.test-app.link"/>
+                <data android:scheme="branchtest" android:host="open"/>
             </intent-filter>
         </activity>
-    </application>
+        <meta-data android:name="io.branch.sdk.BranchKey" android:value="key_live_feebgAAhbH9Tv85H5wLQhpdaefiZv5Dv"/>
+    <meta-data android:name="io.branch.sdk.BranchKey.test" android:value="key_test_hdcBLUy1xZ1JD0tKg7qrLcgirFmPPVJc"/>
+</application>
 
 </manifest>
