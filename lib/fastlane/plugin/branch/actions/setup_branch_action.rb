@@ -168,6 +168,10 @@ module Fastlane
       def self.is_supported?(platform)
         [:ios, :android].include? platform
       end
+
+      def self.category
+        :project
+      end
     end
   end
 end
