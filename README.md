@@ -1,26 +1,8 @@
 # branch plugin
 
-## TL;DR
-
-This is a work in progress. Currently it can add Branch keys and Universal Link domains to an Xcode project.
-To try it out:
-```
-bundle install
-bundle exec fastlane test
-git status
-git diff
-```
-
-Open BranchPluginExample.xcworkspace in the BranchPluginExample subdirectory. It now has the branch_key
-(both live and test) and the Universal Link domains for bnctestbed.app.link.
-
-Android remains to be done. Also, the setup_branch (iOS) action should probably support target and
-configuration options. Currently it chooses the first non-extension, non-test target in the project
-and adds the same settings for all configurations.
-
-The rest of this README was generated and has not been updated. You can stop here.
-
-[![fastlane Plugin Badge](https://rawcdn.githack.com/fastlane/fastlane/master/fastlane/assets/plugin-badge.svg)](https://rubygems.org/gems/fastlane-plugin-branch)
+[![fastlane Plugin Badge](https://rawcdn.githack.com/fastlane/fastlane/master/fastlane/assets/plugin-badge.svg?style=flat-square)](https://rubygems.org/gems/fastlane-plugin-branch)
+[![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://github.com/jdee/settings-bundle/blob/master/LICENSE)
+[![CircleCI](https://img.shields.io/circleci/project/github/BranchMetrics/fastlane-plugin-branch.svg)](https://circleci.com/gh/BranchMetrics/fastlane-plugin-branch)
 
 ## Getting Started
 
@@ -30,29 +12,44 @@ This project is a [_fastlane_](https://github.com/fastlane/fastlane) plugin. To 
 fastlane add_plugin branch
 ```
 
-## About branch
+## setup_branch action
 
 Adds Branch keys, custom URI schemes and domains to iOS and Android projects.
 
-**Note to author:** Add a more detailed description about this plugin here. If your plugin contains multiple actions, make sure to mention them here.
+This action automatically configures Xcode and Android projects that use the Branch SDK
+for Universal Links, App Links and custom URI handling. It modifies Xcode project settings and entitlements as well as Info.plist and AndroidManifest.xml files.
+
+```ruby
+setup_branch live_key: "key_live_xxxx",
+             test_key: "key_test_yyyy",
+   app_link_subdomain: "myapp",
+           uri_scheme: "myscheme", # Android only
+ android_project_path: "MyAndroidApp", # MyAndroidApp/src/main/AndroidManifest.xml
+            xcodeproj: "MyIOSApp.xcodeproj"
+```
+
+Use the `:domains` parameter to specify custom domains, including non-Branch domains
+```ruby
+setup_branch live_key: "key_live_xxxx",
+              domains: %w{example.com www.example.com}
+            xcodeproj: "MyIOSApp.xcodeproj"
+```
 
 ## Example
 
 Check out the [example `Fastfile`](fastlane/Fastfile) to see how to use this plugin. Try it by cloning the repo, running `fastlane install_plugins` and `bundle exec fastlane test`.
-
-**Note to author:** Please set up a sample project to make it easy for users to explore what your plugin does. Provide everything that is necessary to try out the plugin in this project (including a sample Xcode/Android project if necessary)
 
 ## Run tests for this plugin
 
 To run both the tests, and code style validation, run
 
 ```
-rake
+bundle exec rake
 ```
 
 To automatically fix many of the styling issues, use
 ```
-rubocop -a
+bundle exec rubocop -a
 ```
 
 ## Issues and Feedback

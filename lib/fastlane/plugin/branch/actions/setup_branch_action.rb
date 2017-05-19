@@ -82,18 +82,19 @@ module Fastlane
       def self.details
         "This action automatically configures Xcode and Android projects that use the Branch SDK " \
           "for Universal Links, App Links and custom URI handling. It modifies Xcode project settings and " \
-          "entitlements as well as Info.plist and AndroidManifest.xml files."
+          "entitlements as well as Info.plist and AndroidManifest.xml files. It also validates the Universal Link " \
+          "configuration for Xcode projects."
       end
 
       def self.example_code
         [
           <<-EOF
-            setup_branch live_key: "key_live_feebgAAhbH9Tv85H5wLQhpdaefiZv5Dv",
-                         test_key: "key_test_hdcBLUy1xZ1JD0tKg7qrLcgirFmPPVJc",
-               app_link_subdomain: "bnctestbed",
-                       uri_scheme: "branchtest",
-             android_project_path: "examples/android/BranchPluginExample",
-                        xcodeproj: "examples/ios/BranchPluginExample/BranchPluginExample.xcodeproj"
+            setup_branch live_key: "key_live_xxxx",
+                         test_key: "key_test_yyyy",
+               app_link_subdomain: "myapp",
+                       uri_scheme: "myscheme", # Android only
+             android_project_path: "MyAndroidApp", # MyAndroidApp/src/main/AndroidManifest.xml
+                        xcodeproj: "MyIOSApp.xcodeproj"
           EOF
         ]
       end
