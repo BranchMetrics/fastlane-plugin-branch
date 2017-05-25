@@ -120,44 +120,51 @@ describe Fastlane::Helper::BranchHelper do
   end
 
   describe "#app_ids_from_aasa_file" do
-    it "returns the contents of an apple-app-site-assocation file" do
-      expect(Net::HTTP).to receive(:get).with("myapp.app.link", "/apple-app-site-association").and_return '{"applinks":{"apps":[],"details":[{"appID":"XYZPDQ.com.example.MyApp","paths":["NOT /e/*","*","/"]}]}}'
+    it "returns the contents of an unsigned apple-app-site-assocation file" do
+      mock_response = '{"applinks":{"apps":[],"details":[{"appID":"XYZPDQ.com.example.MyApp","paths":["NOT /e/*","*","/"]}]}}'
+
+      expect(helper).to receive(:contents_of_aasa_file).with("myapp.app.link") { mock_response }
 
       expect(helper.app_ids_from_aasa_file("myapp.app.link")).to eq %w{XYZPDQ.com.example.MyApp}
       expect(helper.errors).to be_empty
     end
 
-    it "returns nil if the file cannot be retrieved" do
-      expect(Net::HTTP).to receive(:get).and_return ""
+    it "raises if the file cannot be retrieved" do
+      expect(helper).to receive(:contents_of_aasa_file).and_raise RuntimeError
 
-      expect(helper.app_ids_from_aasa_file("myapp.app.link")).to be_nil
-      expect(helper.errors).not_to be_empty
+      expect do
+        helper.app_ids_from_aasa_file("myapp.app.link")
+      end.to raise_error RuntimeError
     end
 
     it "returns nil in case of unparseable JSON" do
       # return value missing final }
-      expect(Net::HTTP).to receive(:get).and_return '{"applinks":{"apps":[],"details":[{"appID":"XYZPDQ.com.example.MyApp","paths":["NOT /e/*","*","/"]}]}'
+      mock_response = '{"applinks":{"apps":[],"details":[{"appID":"XYZPDQ.com.example.MyApp","paths":["NOT /e/*","*","/"]}]}'
+      expect(helper).to receive(:contents_of_aasa_file).with("myapp.app.link") { mock_response }
 
       expect(helper.app_ids_from_aasa_file("myapp.app.link")).to be_nil
       expect(helper.errors).not_to be_empty
     end
 
     it "returns nil if no applinks found in file" do
-      expect(Net::HTTP).to receive(:get).and_return '{"webcredentials": {}}'
+      mock_response = '{"webcredentials": {}}'
+      expect(helper).to receive(:contents_of_aasa_file).with("myapp.app.link") { mock_response }
 
       expect(helper.app_ids_from_aasa_file("myapp.app.link")).to be_nil
       expect(helper.errors).not_to be_empty
     end
 
     it "returns nil if no details found for applinks" do
-      expect(Net::HTTP).to receive(:get).and_return '{"applinks": {}}'
+      mock_response = '{"applinks": {}}'
+      expect(helper).to receive(:contents_of_aasa_file).with("myapp.app.link") { mock_response }
 
       expect(helper.app_ids_from_aasa_file("myapp.app.link")).to be_nil
       expect(helper.errors).not_to be_empty
     end
 
     it "returns nil if no appIDs found in file" do
-      expect(Net::HTTP).to receive(:get).and_return '{"applinks":{"apps":[],"details":[]}}'
+      mock_response = '{"applinks":{"apps":[],"details":[]}}'
+      expect(helper).to receive(:contents_of_aasa_file).with("myapp.app.link") { mock_response }
 
       expect(helper.app_ids_from_aasa_file("myapp.app.link")).to be_nil
       expect(helper.errors).not_to be_empty

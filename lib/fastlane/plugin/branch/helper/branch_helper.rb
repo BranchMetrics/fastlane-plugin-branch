@@ -168,7 +168,9 @@ module Fastlane
         end
 
         def app_ids_from_aasa_file(domain)
-          file = JSON.parse Net::HTTP.get(domain, "/apple-app-site-association")
+          # raises
+          file = JSON.parse contents_of_aasa_file domain
+
           applinks = file[APPLINKS]
           @errors << "No #{APPLINKS} found in AASA file for domain #{domain}" and return if applinks.nil?
 
@@ -181,6 +183,31 @@ module Fastlane
         rescue JSON::ParserError => e
           @errors << "Failed to parse AASA file for domain #{domain}: #{e.message}"
           nil
+        end
+
+        def contents_of_aasa_file(domain)
+          uri = URI("https://#{domain}/apple-app-site-association")
+          Net::HTTP.start uri.host, uri.port, use_ssl: uri.scheme == "https" do |http|
+            request = Net::HTTP::Get.new uri
+            response = http.request request
+
+            raise "Could not retrieve #{uri}: #{response.code} #{response.message}" unless response.code.to_i == 200
+
+            content_type = response["Content-type"]
+            raise "Response does not contain a Content-type header" if content_type.nil?
+
+            case content_type
+            when %r{application/pkcs7-mime}
+              # Verify/decrypt PKCS7 (non-Branch domains)
+              cert_store = OpenSSL::X509::Store.new
+              signature = OpenSSL::PKCS7.new response.body
+              # raises
+              signature.verify [http.peer_cert], cert_store, nil, OpenSSL::PKCS7::NOVERIFY
+              signature.data
+            else
+              response.body
+            end
+          end
         end
 
         def validate_team_and_bundle_ids(project, target_name, domain, configuration)
