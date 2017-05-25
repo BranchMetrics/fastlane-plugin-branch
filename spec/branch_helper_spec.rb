@@ -120,47 +120,110 @@ describe Fastlane::Helper::BranchHelper do
   end
 
   describe "#app_ids_from_aasa_file" do
-    it "returns the contents of an apple-app-site-assocation file" do
-      expect(Net::HTTP).to receive(:get).with("myapp.app.link", "/apple-app-site-association").and_return '{"applinks":{"apps":[],"details":[{"appID":"XYZPDQ.com.example.MyApp","paths":["NOT /e/*","*","/"]}]}}'
+    it "parses the contents of an apple-app-site-assocation file" do
+      mock_response = '{"applinks":{"apps":[],"details":[{"appID":"XYZPDQ.com.example.MyApp","paths":["NOT /e/*","*","/"]}]}}'
+
+      expect(helper).to receive(:contents_of_aasa_file).with("myapp.app.link") { mock_response }
 
       expect(helper.app_ids_from_aasa_file("myapp.app.link")).to eq %w{XYZPDQ.com.example.MyApp}
       expect(helper.errors).to be_empty
     end
 
-    it "returns nil if the file cannot be retrieved" do
-      expect(Net::HTTP).to receive(:get).and_return ""
+    it "raises if the file cannot be retrieved" do
+      expect(helper).to receive(:contents_of_aasa_file).and_raise RuntimeError
 
-      expect(helper.app_ids_from_aasa_file("myapp.app.link")).to be_nil
-      expect(helper.errors).not_to be_empty
+      expect do
+        helper.app_ids_from_aasa_file("myapp.app.link")
+      end.to raise_error RuntimeError
     end
 
     it "returns nil in case of unparseable JSON" do
       # return value missing final }
-      expect(Net::HTTP).to receive(:get).and_return '{"applinks":{"apps":[],"details":[{"appID":"XYZPDQ.com.example.MyApp","paths":["NOT /e/*","*","/"]}]}'
+      mock_response = '{"applinks":{"apps":[],"details":[{"appID":"XYZPDQ.com.example.MyApp","paths":["NOT /e/*","*","/"]}]}'
+      expect(helper).to receive(:contents_of_aasa_file).with("myapp.app.link") { mock_response }
 
       expect(helper.app_ids_from_aasa_file("myapp.app.link")).to be_nil
       expect(helper.errors).not_to be_empty
     end
 
     it "returns nil if no applinks found in file" do
-      expect(Net::HTTP).to receive(:get).and_return '{"webcredentials": {}}'
+      mock_response = '{"webcredentials": {}}'
+      expect(helper).to receive(:contents_of_aasa_file).with("myapp.app.link") { mock_response }
 
       expect(helper.app_ids_from_aasa_file("myapp.app.link")).to be_nil
       expect(helper.errors).not_to be_empty
     end
 
     it "returns nil if no details found for applinks" do
-      expect(Net::HTTP).to receive(:get).and_return '{"applinks": {}}'
+      mock_response = '{"applinks": {}}'
+      expect(helper).to receive(:contents_of_aasa_file).with("myapp.app.link") { mock_response }
 
       expect(helper.app_ids_from_aasa_file("myapp.app.link")).to be_nil
       expect(helper.errors).not_to be_empty
     end
 
     it "returns nil if no appIDs found in file" do
-      expect(Net::HTTP).to receive(:get).and_return '{"applinks":{"apps":[],"details":[]}}'
+      mock_response = '{"applinks":{"apps":[],"details":[]}}'
+      expect(helper).to receive(:contents_of_aasa_file).with("myapp.app.link") { mock_response }
 
       expect(helper.app_ids_from_aasa_file("myapp.app.link")).to be_nil
       expect(helper.errors).not_to be_empty
     end
+  end
+
+  describe "#contents_of_aasa_file" do
+    it "returns the contents of an unsigned AASA file" do
+      mock_contents = "{}"
+      mock_response = double "response", body: mock_contents, code: 200
+      expect(mock_response).to receive(:[]).with("Content-type") { "application/json" }
+
+      mock_http_request mock_response
+
+      expect(helper.contents_of_aasa_file("myapp.app.link")).to eq mock_contents
+    end
+
+    it "returns the contents of a signed AASA file" do
+      mock_contents = "{}"
+      mock_response = double "response", code: 200, body: ""
+      expect(mock_response).to receive(:[]).with("Content-type") { "application/pkcs7-mime" }
+
+      mock_signature = double "signature", data: mock_contents
+      # just ensure verify doesn't raise
+      expect(mock_signature).to receive(:verify)
+      # and return the mock_contents as signature.data
+      expect(OpenSSL::PKCS7).to receive(:new) { mock_signature }
+
+      mock_http_request mock_response
+
+      expect(helper.contents_of_aasa_file("myapp.app.link")).to eq mock_contents
+    end
+
+    it "raises if the file cannot be retrieved" do
+      mock_response = double "response", code: 404, message: "Not found"
+
+      mock_http_request mock_response
+
+      expect do
+        helper.contents_of_aasa_file "myapp.app.link"
+      end.to raise_error RuntimeError
+    end
+
+    it "raises if the response does not contain a Content-type" do
+      mock_contents = "{}"
+      mock_response = double "response", body: mock_contents, code: 200
+      expect(mock_response).to receive(:[]).with("Content-type") { nil }
+
+      mock_http_request mock_response
+
+      expect do
+        helper.contents_of_aasa_file "myapp.app.link"
+      end.to raise_error RuntimeError
+    end
+  end
+
+  def mock_http_request(mock_response)
+    mock_http = double "http", peer_cert: nil
+    expect(mock_http).to receive(:request) { mock_response }
+    expect(Net::HTTP).to receive(:start).and_yield mock_http
   end
 end
