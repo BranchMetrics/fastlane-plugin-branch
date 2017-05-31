@@ -101,7 +101,6 @@ module Fastlane
           # raises
           target = target_from_project project, target_name
 
-          # TODO: Handle different configurations
           relative_entitlements_path = target.resolved_build_setting(CODE_SIGN_ENTITLEMENTS)[configuration]
           project_parent = File.dirname project.path
 
@@ -153,9 +152,14 @@ module Fastlane
           update_team_and_bundle_ids project, target_name, team, bundle
         end
 
-        def validate_team_and_bundle_ids_from_aasa_files(project, target_name, domains, configuration = RELEASE_CONFIGURATION)
+        def validate_team_and_bundle_ids_from_aasa_files(project, target_name, domains = [], configuration = RELEASE_CONFIGURATION)
           @errors = []
           valid = false # one domain must validate
+
+          # Include any domains already in the project.
+          # Raises. Returns an non-nil array of strings.
+          domains = (domains + domains_from_project(project, target_name, configuration)).uniq
+
           domains.each do |domain|
             # ignore test-app.link domains for now (bnctestbed.test-app.link/apple-app-site-association is blank)
             # TODO: Support URI schemes for iOS?
@@ -186,28 +190,48 @@ module Fastlane
         end
 
         def contents_of_aasa_file(domain)
-          uri = URI("https://#{domain}/apple-app-site-association")
-          Net::HTTP.start uri.host, uri.port, use_ssl: uri.scheme == "https" do |http|
-            request = Net::HTTP::Get.new uri
-            response = http.request request
+          uris = [
+            URI("https://#{domain}/.well-known/apple-app-site-association"),
+            URI("https://#{domain}/apple-app-site-association")
+          ]
 
-            raise "Could not retrieve #{uri}: #{response.code} #{response.message}" unless response.code.to_i == 200
+          data = nil
 
-            content_type = response["Content-type"]
-            raise "Response does not contain a Content-type header" if content_type.nil?
+          uris.each do |uri|
+            break unless data.nil?
 
-            case content_type
-            when %r{application/pkcs7-mime}
-              # Verify/decrypt PKCS7 (non-Branch domains)
-              cert_store = OpenSSL::X509::Store.new
-              signature = OpenSSL::PKCS7.new response.body
-              # raises
-              signature.verify [http.peer_cert], cert_store, nil, OpenSSL::PKCS7::NOVERIFY
-              signature.data
-            else
-              response.body
+            Net::HTTP.start uri.host, uri.port, use_ssl: uri.scheme == "https" do |http|
+              request = Net::HTTP::Get.new uri
+              response = http.request request
+
+              # Try the next URI.
+              unless response.code.to_i == 200
+                UI.message "Could not retrieve #{uri}: #{response.code} #{response.message}. Ignoring."
+                next
+              end
+
+              content_type = response["Content-type"]
+              raise "Response does not contain a Content-type header" if content_type.nil?
+
+              case content_type
+              when %r{application/pkcs7-mime}
+                # Verify/decrypt PKCS7 (non-Branch domains)
+                cert_store = OpenSSL::X509::Store.new
+                signature = OpenSSL::PKCS7.new response.body
+                # raises
+                signature.verify [http.peer_cert], cert_store, nil, OpenSSL::PKCS7::NOVERIFY
+                data = signature.data
+              else
+                data = response.body
+              end
+
+              UI.message "Retrieved contents of #{uri} ✅"
             end
           end
+
+          raise "Failed to retrieve AASA file for #{domain}" if data.nil?
+
+          data
         end
 
         def validate_team_and_bundle_ids(project, target_name, domain, configuration)
@@ -256,6 +280,23 @@ module Fastlane
             raise "No application target found" if target.nil?
           end
           target
+        end
+
+        def domains_from_project(project, target_name, configuration)
+          # Raises. Does not return nil.
+          target = target_from_project project, target_name
+
+          relative_entitlements_path = target.resolved_build_setting(CODE_SIGN_ENTITLEMENTS)[configuration]
+          return [] if relative_entitlements_path.nil?
+
+          project_parent = File.dirname project.path
+          entitlements_path = File.join project_parent, relative_entitlements_path
+
+          # Raises
+          entitlements = File.open(entitlements_path) { |f| Plist.parse_xml f }
+          raise "Failed to parse entitlements file #{entitlements_path}" if entitlements.nil?
+
+          entitlements[ASSOCIATED_DOMAINS].select { |d| d =~ /^applinks:/ }.map { |d| d.sub(/^applinks:/, "") }
         end
 
         #

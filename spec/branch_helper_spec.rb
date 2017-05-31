@@ -223,7 +223,7 @@ describe Fastlane::Helper::BranchHelper do
 
   def mock_http_request(mock_response)
     mock_http = double "http", peer_cert: nil
-    expect(mock_http).to receive(:request) { mock_response }
-    expect(Net::HTTP).to receive(:start).and_yield mock_http
+    expect(mock_http).to receive(:request).at_least(:once) { mock_response }
+    expect(Net::HTTP).to receive(:start).at_least(:once).and_yield mock_http
   end
 end
