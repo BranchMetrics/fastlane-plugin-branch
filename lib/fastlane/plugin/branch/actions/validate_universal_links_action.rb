@@ -11,9 +11,11 @@ module Fastlane
 
         target = params[:target] # may be nil
 
-        helper.validate_team_and_bundle_ids_from_aasa_files xcodeproj, target
-
-        UI.message "Universal Link configuration passed validation. ✅"
+        if helper.validate_team_and_bundle_ids_from_aasa_files xcodeproj, target
+          UI.message "Universal Link configuration passed validation. ✅"
+        else
+          UI.user_error! "Universal Link configuration failed validation"
+        end
       rescue => e
         UI.user_error! "Error in SetupBranchAction: #{e.message}"
       end
