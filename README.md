@@ -87,8 +87,6 @@ to use this plugin.
 
 ## setup_branch action
 
-Adds Branch keys, custom URI schemes and domains to iOS and Android projects.
-
 This action automatically configures Xcode and Android projects that use the Branch SDK
 for Universal Links, App Links and custom URI handling. It modifies Xcode project settings and entitlements as well as Info.plist and AndroidManifest.xml files.
 
@@ -106,6 +104,15 @@ Use the `:domains` parameter to specify custom domains, including non-Branch dom
 setup_branch live_key: "key_live_xxxx",
               domains: %w{example.com www.example.com}
             xcodeproj: "MyIOSApp.xcodeproj"
+```
+
+## validate_universal_links action
+
+This action validates all Universal Link domains configured in a project without making any modification.
+It validates both Branch and non-Branch domains.
+
+```ruby
+validate_universal_links xcodeproj: "MyIOSApp.xcodeproj"
 ```
 
 ## Example

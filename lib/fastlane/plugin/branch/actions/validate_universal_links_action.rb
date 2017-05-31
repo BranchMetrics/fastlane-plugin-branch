@@ -13,11 +13,14 @@ module Fastlane
 
         if helper.validate_team_and_bundle_ids_from_aasa_files xcodeproj, target
           UI.message "Universal Link configuration passed validation. ✅"
+          return true
         else
           UI.user_error! "Universal Link configuration failed validation"
+          return false
         end
       rescue => e
         UI.user_error! "Error in SetupBranchAction: #{e.message}"
+        return false
       end
 
       def self.description
@@ -58,6 +61,10 @@ module Fastlane
                                   optional: true,
                                       type: String)
         ]
+      end
+
+      def self.return_value
+        "Returns true for a valid configuration, false otherwise."
       end
 
       def self.is_supported?(platform)
