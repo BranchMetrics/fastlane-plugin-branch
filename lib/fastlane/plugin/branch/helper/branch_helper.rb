@@ -101,7 +101,6 @@ module Fastlane
           # raises
           target = target_from_project project, target_name
 
-          # TODO: Handle different configurations
           relative_entitlements_path = target.resolved_build_setting(CODE_SIGN_ENTITLEMENTS)[configuration]
           project_parent = File.dirname project.path
 
@@ -156,6 +155,11 @@ module Fastlane
         def validate_team_and_bundle_ids_from_aasa_files(project, target_name, domains, configuration = RELEASE_CONFIGURATION)
           @errors = []
           valid = false # one domain must validate
+
+          # Include any domains already in the project.
+          # Raises. Returns an non-nil array of strings.
+          domains = (domains + domains_from_project(project, target_name, configuration)).uniq
+
           domains.each do |domain|
             # ignore test-app.link domains for now (bnctestbed.test-app.link/apple-app-site-association is blank)
             # TODO: Support URI schemes for iOS?
@@ -256,6 +260,23 @@ module Fastlane
             raise "No application target found" if target.nil?
           end
           target
+        end
+
+        def domains_from_project(project, target_name, configuration)
+          # Raises. Does not return nil.
+          target = target_from_project project, target_name
+
+          relative_entitlements_path = target.resolved_build_setting(CODE_SIGN_ENTITLEMENTS)[configuration]
+          return [] if relative_entitlements_path.nil?
+
+          project_parent = File.dirname project.path
+          entitlements_path = File.join project_parent, relative_entitlements_path
+
+          # Raises
+          entitlements = File.open(entitlements_path) { |f| Plist.parse_xml f }
+          raise "Failed to parse entitlements file #{entitlements_path}" if entitlements.nil?
+
+          entitlements[ASSOCIATED_DOMAINS].select { |d| d =~ /^applinks:/ }.map { |d| d.sub(/^applinks:/, "") }
         end
 
         #
