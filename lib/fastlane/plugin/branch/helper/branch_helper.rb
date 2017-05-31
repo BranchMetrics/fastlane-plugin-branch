@@ -152,7 +152,7 @@ module Fastlane
           update_team_and_bundle_ids project, target_name, team, bundle
         end
 
-        def validate_team_and_bundle_ids_from_aasa_files(project, target_name, domains, configuration = RELEASE_CONFIGURATION)
+        def validate_team_and_bundle_ids_from_aasa_files(project, target_name, domains = [], configuration = RELEASE_CONFIGURATION)
           @errors = []
           valid = false # one domain must validate
 
