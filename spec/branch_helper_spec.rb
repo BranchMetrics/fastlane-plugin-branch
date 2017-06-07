@@ -221,6 +221,28 @@ describe Fastlane::Helper::BranchHelper do
     end
   end
 
+  describe '#validate_team_and_bundle_ids_from_aasa_files' do
+    it 'only succeeds if all domains are valid' do
+      project = double "project"
+
+      # No domains in project. Just validating what's passed in.
+      expect(helper).to receive(:domains_from_project) { [] }
+      # example.com is valid
+      expect(helper).to receive(:validate_team_and_bundle_ids)
+        .with(project, nil, "example.com", "Release") { true }
+      # www.example.com is not valid
+      expect(helper).to receive(:validate_team_and_bundle_ids)
+        .with(project, nil, "www.example.com", "Release") { false }
+
+      valid = helper.validate_team_and_bundle_ids_from_aasa_files(
+        project,
+        nil,
+        %w{example.com www.example.com}
+      )
+      expect(valid).to be false
+    end
+  end
+
   def mock_http_request(mock_response)
     mock_http = double "http", peer_cert: nil
     expect(mock_http).to receive(:request).at_least(:once) { mock_response }
