@@ -1,6 +1,6 @@
 Style/PercentLiteralDelimiters:
   Enabled: false
-  
+
 # kind_of? is a good way to check a type
 Style/ClassCheck:
   EnforcedStyle: kind_of?
@@ -23,7 +23,7 @@ Style/NumericPredicate:
 # this would cause errors with long lanes
 Metrics/BlockLength:
   Enabled: false
-  
+
 # this is a bit buggy
 Metrics/ModuleLength:
   Enabled: false
@@ -36,23 +36,23 @@ Style/VariableNumber:
 Style/MethodMissing:
   Enabled: false
 
-# 
+#
 #   File.chmod(0777, f)
-# 
+#
 # is easier to read than
-# 
+#
 #   File.chmod(0o777, f)
-# 
+#
 Style/NumericLiteralPrefix:
   Enabled: false
 
-# 
+#
 # command = (!clean_expired.nil? || !clean_pattern.nil?) ? CLEANUP : LIST
-# 
+#
 # is easier to read than
-# 
+#
 # command = !clean_expired.nil? || !clean_pattern.nil? ? CLEANUP : LIST
-# 
+#
 Style/TernaryParentheses:
   Enabled: false
 
@@ -70,14 +70,14 @@ Lint/UselessAssignment:
     - '**/spec/**/*'
 
 # We could potentially enable the 2 below:
-Style/IndentHash:
+Layout/IndentHash:
   Enabled: false
 
-Style/AlignHash:
+Layout/AlignHash:
   Enabled: false
 
 # HoundCI doesn't like this rule
-Style/DotPosition:
+Layout/DotPosition:
   Enabled: false
 
 # We allow !! as it's an easy way to convert ot boolean
@@ -89,7 +89,7 @@ Style/SymbolArray:
   Enabled: false
 
 # We still support Ruby 2.0.0
-Style/IndentHeredoc:
+Layout/IndentHeredoc:
   Enabled: false
 
 # This cop would not work fine with rspec
@@ -203,7 +203,7 @@ Style/PerlBackrefs:
   Enabled: false
 
 # Disable '+ should be surrounded with a single space' for xcodebuild_spec.rb
-Style/SpaceAroundOperators:
+Layout/SpaceAroundOperators:
   Exclude:
     - '**/spec/actions_specs/xcodebuild_spec.rb'
 

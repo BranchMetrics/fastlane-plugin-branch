@@ -89,10 +89,17 @@ module Fastlane
           info_plist_path = File.join project_parent, info_plist_path
 
           # try to open and parse the Info.plist (raises)
-          info_plist = Plist.parse_xml info_plist_path
+          info_plist = File.open(info_plist_path) { |f| Plist.parse_xml f }
+          raise "Failed to parse #{info_plist_path}" if info_plist.nil?
 
           # add/overwrite Branch key(s)
-          info_plist["branch_key"] = keys
+          if keys.count > 1
+            info_plist["branch_key"] = keys
+          elsif keys[:live]
+            info_plist["branch_key"] = keys[:live]
+          else # no need to validate here, which was done by the action
+            info_plist["branch_key"] = keys[:test]
+          end
 
           Plist::Emit.save_plist info_plist, info_plist_path
         end
@@ -119,7 +126,9 @@ module Fastlane
           else
             entitlements_path = File.join project_parent, relative_entitlements_path
             # Raises
-            entitlements = Plist.parse_xml entitlements_path
+            entitlements = File.open(entitlements_path) { |f| Plist.parse_xml f }
+            raise "Failed to parse entitlements file #{entitlements_path}" if entitlements.nil?
+
             if remove_existing
               current_domains = []
             else
