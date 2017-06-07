@@ -89,7 +89,7 @@ module Fastlane
           info_plist_path = File.join project_parent, info_plist_path
 
           # try to open and parse the Info.plist (raises)
-          info_plist = Plist.parse_xml info_plist_path
+          info_plist = File.open(info_plist_path) { |f| Plist.parse_xml f }
 
           # add/overwrite Branch key(s)
           info_plist["branch_key"] = keys
@@ -119,7 +119,7 @@ module Fastlane
           else
             entitlements_path = File.join project_parent, relative_entitlements_path
             # Raises
-            entitlements = Plist.parse_xml entitlements_path
+            entitlements = File.open(entitlements_path) { |f| Plist.parse_xml f }
             if remove_existing
               current_domains = []
             else
