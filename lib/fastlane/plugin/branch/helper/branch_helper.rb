@@ -93,7 +93,13 @@ module Fastlane
           raise "Failed to parse #{info_plist_path}" if info_plist.nil?
 
           # add/overwrite Branch key(s)
-          info_plist["branch_key"] = keys
+          if keys.count > 1
+            info_plist["branch_key"] = keys
+          elsif keys[:live]
+            info_plist["branch_key"] = keys[:live]
+          else # no need to validate here, which was done by the action
+            info_plist["branch_key"] = keys[:test]
+          end
 
           Plist::Emit.save_plist info_plist, info_plist_path
         end
