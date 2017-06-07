@@ -174,7 +174,7 @@ module Fastlane
             # TODO: Support URI schemes for iOS?
             next if domain =~ /\.test-app\.link$/
             domain_valid = validate_team_and_bundle_ids project, target_name, domain, configuration
-            valid ||= domain_valid
+            valid &&= domain_valid
             UI.message "Valid Universal Link configuration for #{domain} ✅" if domain_valid
           end
           valid
