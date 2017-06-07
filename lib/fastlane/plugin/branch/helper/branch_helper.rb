@@ -90,6 +90,7 @@ module Fastlane
 
           # try to open and parse the Info.plist (raises)
           info_plist = File.open(info_plist_path) { |f| Plist.parse_xml f }
+          raise "Failed to parse #{info_plist_path}" if info_plist.nil?
 
           # add/overwrite Branch key(s)
           info_plist["branch_key"] = keys
@@ -120,6 +121,8 @@ module Fastlane
             entitlements_path = File.join project_parent, relative_entitlements_path
             # Raises
             entitlements = File.open(entitlements_path) { |f| Plist.parse_xml f }
+            raise "Failed to parse entitlements file #{entitlements_path}" if entitlements.nil?
+
             if remove_existing
               current_domains = []
             else
