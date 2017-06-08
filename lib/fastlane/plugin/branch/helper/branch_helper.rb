@@ -16,8 +16,35 @@ module Fastlane
         attr_accessor :errors
 
         #
-        # ----- Domains -----
+        # ----- Configuration -----
         #
+
+        def xcodeproj_path_from_params(params)
+          return params[:xcodeproj] if params[:xcodeproj]
+
+          # Adapted from commit_version_bump
+          # https://github.com/fastlane/fastlane/blob/master/fastlane/lib/fastlane/actions/commit_version_bump.rb#L21
+
+          # This may not be a git project. Search relative to the Gemfile.
+          repo_path = Bundler.root
+
+          all_xcodeproj_paths = Dir[File.expand_path(File.join(repo_path, '**/*.xcodeproj'))]
+          # find an xcodeproj (ignoring the Cocoapods one)
+          xcodeproj_paths = Fastlane::Actions.ignore_cocoapods_path(all_xcodeproj_paths)
+
+          # no projects found: error
+          UI.user_error!('Could not find a .xcodeproj in the current repository\'s working directory.') and return nil if xcodeproj_paths.count == 0
+
+          # too many projects found: error
+          if xcodeproj_paths.count > 1
+            relative_projects = xcodeproj_paths.map { |e| Pathname.new(e).relative_path_from(repo_pathname).to_s }.join("\n")
+            UI.user_error!("Found multiple .xcodeproj projects in the current repository's working directory. Please specify your app's main project: \n#{relative_projects}")
+            return nil
+          end
+
+          # one project found: great
+          xcodeproj_paths.first
+        end
 
         def domains_from_params(params)
           app_link_subdomains = app_link_subdomains_from_params params
