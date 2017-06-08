@@ -6,8 +6,12 @@ module Fastlane
       def self.run(params)
         helper = Fastlane::Helper::BranchHelper
 
+        xcodeproj_path = helper.xcodeproj_path_from_params params
+        # Error reporting is done in the helper.
+        return false if xcodeproj_path.nil?
+
         # raises
-        xcodeproj = Xcodeproj::Project.open params[:xcodeproj]
+        xcodeproj = Xcodeproj::Project.open xcodeproj_path
 
         target = params[:target] # may be nil
 
@@ -43,7 +47,13 @@ module Fastlane
       def self.example_code
         [
           <<-EOF
-            validate_universal_links xcodeproj: "MyIOSApp.xcodeproj"
+            validate_universal_links
+          EOF,
+          <<-EOF
+            validate_universal_links xcodeproj: "MyProject.xcodeproj"
+          EOF,
+          <<-EOF
+            validate_universal_links xcodeproj: "MyProject.xcodeproj", target: "MyProject"
           EOF
         ]
       end
@@ -53,7 +63,7 @@ module Fastlane
           FastlaneCore::ConfigItem.new(key: :xcodeproj,
                                   env_name: "BRANCH_XCODEPROJ",
                                description: "Path to an Xcode project to modify",
-                                  optional: false,
+                                  optional: true,
                                       type: String),
           FastlaneCore::ConfigItem.new(key: :target,
                                   env_name: "BRANCH_TARGET",

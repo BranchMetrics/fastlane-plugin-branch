@@ -112,7 +112,7 @@ This action validates all Universal Link domains configured in a project without
 It validates both Branch and non-Branch domains.
 
 ```ruby
-validate_universal_links xcodeproj: "MyIOSApp.xcodeproj"
+validate_universal_links
 ```
 
 ## Example
