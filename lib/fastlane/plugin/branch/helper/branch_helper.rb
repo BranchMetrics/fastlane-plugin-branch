@@ -19,6 +19,15 @@ module Fastlane
         # ----- Configuration -----
         #
 
+        def keys_from_params(params)
+          live_key = params[:live_key]
+          test_key = params[:test_key]
+          keys = {}
+          keys[:live] = live_key unless live_key.nil?
+          keys[:test] = test_key unless test_key.nil?
+          keys
+        end
+
         def xcodeproj_path_from_params(params)
           return params[:xcodeproj] if params[:xcodeproj]
 
@@ -49,17 +58,14 @@ module Fastlane
         def domains_from_params(params)
           app_link_subdomains = app_link_subdomains_from_params params
           custom_domains = custom_domains_from_params params
-          domains = (app_link_subdomains + custom_domains).uniq
-          raise ArgumentError, ":app_link_subdomain or :domains is required" if domains.empty?
-          domains
+          (app_link_subdomains + custom_domains).uniq
         end
 
         def app_link_subdomains_from_params(params)
           app_link_subdomain = params[:app_link_subdomain]
           live_key = params[:live_key]
           test_key = params[:test_key]
-          raise ArgumentError, ":live_key or :test_key is required" if live_key.nil? and test_key.nil?
-
+          return [] if live_key.nil? and test_key.nil?
           return [] if app_link_subdomain.nil?
 
           domains = []
@@ -190,13 +196,20 @@ module Fastlane
 
         def validate_team_and_bundle_ids_from_aasa_files(project, target_name, domains = [], configuration = RELEASE_CONFIGURATION)
           @errors = []
-          valid = false # one domain must validate
+          valid = true
 
           # Include any domains already in the project.
           # Raises. Returns an non-nil array of strings.
-          domains = (domains + domains_from_project(project, target_name, configuration)).uniq
+          all_domains = (domains + domains_from_project(project, target_name, configuration)).uniq
+          if all_domains.empty?
+            # Cannot get here from SetupBranchAction, since the domains passed in will never be empty.
+            # If called from ValidateUniversalLinksAction, this is a failure, possibly caused by
+            # failure to add applinks:.
+            @errors << "No domains in project. Be sure each Universal Link domain is prefixed with applinks:."
+            return false
+          end
 
-          domains.each do |domain|
+          all_domains.each do |domain|
             # ignore test-app.link domains for now (bnctestbed.test-app.link/apple-app-site-association is blank)
             # TODO: Support URI schemes for iOS?
             next if domain =~ /\.test-app\.link$/

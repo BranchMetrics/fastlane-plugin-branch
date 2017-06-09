@@ -55,10 +55,8 @@ describe Fastlane::Helper::BranchHelper do
     end
 
     describe "#app_link_subdomains_from_params" do
-      it "raises unless :live_key or :test_key is present" do
-        expect do
-          helper.app_link_subdomains_from_params app_link_subdomain: "myapp"
-        end.to raise_error ArgumentError
+      it "returns [] unless :live_key or :test_key is present" do
+        expect(helper.app_link_subdomains_from_params(app_link_subdomain: "myapp")).to be_empty
       end
 
       it "returns a blank array if no :app_link_subdomain parameter" do
@@ -108,13 +106,11 @@ describe Fastlane::Helper::BranchHelper do
         expect(helper.domains_from_params(params).sort).to eq (custom_domains + app_link_subdomains).uniq.sort
       end
 
-      it "raises if no domains" do
+      it "returns [] if no domains" do
         expect(helper).to receive(:custom_domains_from_params).and_return []
         expect(helper).to receive(:app_link_subdomains_from_params).and_return []
 
-        expect do
-          helper.domains_from_params({})
-        end.to raise_error ArgumentError
+        expect(helper.domains_from_params({})).to be_empty
       end
     end
   end
@@ -240,6 +236,26 @@ describe Fastlane::Helper::BranchHelper do
         %w{example.com www.example.com}
       )
       expect(valid).to be false
+    end
+
+    it 'succeeds if all domains are valid' do
+      project = double "project"
+
+      # No domains in project. Just validating what's passed in.
+      expect(helper).to receive(:domains_from_project) { [] }
+      # example.com is valid
+      expect(helper).to receive(:validate_team_and_bundle_ids)
+        .with(project, nil, "example.com", "Release") { true }
+      # www.example.com is not valid
+      expect(helper).to receive(:validate_team_and_bundle_ids)
+        .with(project, nil, "www.example.com", "Release") { true }
+
+      valid = helper.validate_team_and_bundle_ids_from_aasa_files(
+        project,
+        nil,
+        %w{example.com www.example.com}
+      )
+      expect(valid).to be true
     end
   end
 
