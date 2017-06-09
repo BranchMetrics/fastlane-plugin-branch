@@ -257,6 +257,20 @@ describe Fastlane::Helper::BranchHelper do
       )
       expect(valid).to be true
     end
+
+    it 'fails if no domains specified and no domains in project' do
+      project = double "project"
+
+      # No domains in project. Just validating what's passed in.
+      expect(helper).to receive(:domains_from_project) { [] }
+
+      valid = helper.validate_team_and_bundle_ids_from_aasa_files(
+        project,
+        nil,
+        []
+      )
+      expect(valid).to be false
+    end
   end
 
   def mock_http_request(mock_response)

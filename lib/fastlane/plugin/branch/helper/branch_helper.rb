@@ -205,7 +205,7 @@ module Fastlane
             # Cannot get here from SetupBranchAction, since the domains passed in will never be empty.
             # If called from ValidateUniversalLinksAction, this is a failure, possibly caused by
             # failure to add applinks:.
-            @errors << "No domains in project. Be sure each Universal Link domain is prefixed with applinks:."
+            @errors << "No Universal Link domains in project. Be sure each Universal Link domain is prefixed with applinks:."
             return false
           end
 
@@ -303,6 +303,26 @@ module Fastlane
           match_found
         end
 
+        def validate_project_domains(expected, project, target, configuration = RELEASE_CONFIGURATION)
+          @errors = []
+          project_domains = domains_from_project project, target, configuration
+          valid = expected.count == project_domains.count
+          if valid
+            sorted = expected.sort
+            project_domains.sort.each_with_index do |domain, index|
+              valid = false and break unless sorted[index] == domain
+            end
+          end
+
+          unless valid
+            @errors << "Project domains do not match :domains parameter"
+            @errors << "Project domains: #{project_domains}"
+            @errors << ":domains parameter: #{expected}"
+          end
+
+          valid
+        end
+
         def update_team_and_bundle_ids(project, team, bundle)
           # find the first application target
           target = project.targets.find { |t| !t.extension_target_type? && !t.test_target_type? }
@@ -331,7 +351,7 @@ module Fastlane
           target
         end
 
-        def domains_from_project(project, target_name, configuration)
+        def domains_from_project(project, target_name, configuration = RELEASE_CONFIGURATION)
           # Raises. Does not return nil.
           target = target_from_project project, target_name
 
