@@ -11,7 +11,7 @@ before it is released:
 
 ### Install Fastlane
 
-https://docs.fastlane.tools/getting-started/android/setup/
+https://docs.fastlane.tools/getting-started/android/setup/  
 https://docs.fastlane.tools/getting-started/ios/setup/
 
 Before release, the packaged `fastlane` binary available in the zip and via Homebrew will not
@@ -64,7 +64,7 @@ To install before release:
   eval_gemfile(plugins_path) if File.exist?(plugins_path)
   ```
 
-1. Modify `/path/to/MyProject/fastlane/Pluginfile` to have these contents:
+2. Modify `/path/to/MyProject/fastlane/Pluginfile` to have these contents:
 
   ```ruby
   gem "fastlane-plugin-branch", git: "git@github.com/BranchMetrics/fastlane-plugin-branch"
@@ -76,7 +76,7 @@ To install before release:
   gem "fastlane-plugin-branch", path: "/where/I/checked/out/fastlane-plugin-branch"
   ```
 
-1. Install the plugin
+3. Install the plugin
 
   ```ruby
   bundle install
