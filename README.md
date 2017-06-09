@@ -106,14 +106,67 @@ setup_branch live_key: "key_live_xxxx",
             xcodeproj: "MyIOSApp.xcodeproj"
 ```
 
-## validate_universal_links action
+Available options:
+
+|Fastfile key|Environment variable|description|type|default value|
+|---|---|---|---|---|
+|:live_key|BRANCH_LIVE_KEY|The Branch live key to use (:live_key or :test_key is required)|string||
+|:test_key|BRANCH_TEST_KEY|The Branch test key to use (:live_key or :test_key is required)|string||
+|:app_link_subdomain|BRANCH_APP_LINK_SUBDOMAIN|An app.link subdomain to use (:app_link_subdomain or :domains is required. The union of the two sets of domains will be used.)|string||
+|:domains|BRANCH_DOMAINS|A list of domains (custom domains or Branch domains) to use (:app_link_subdomain or :domains is required. The union of the two sets of domains will be used.)|string array or comma-separated string||
+|:uri_scheme|BRANCH_URI_SCHEME|A URI scheme to add to the manifest (Android only)|string||
+|:android_project_path|BRANCH_ANDROID_PROJECT_PATH|Path to an Android project to use. Equivalent to 'android_manifest_path: "app/src/main/AndroidManifest.xml"`. Overridden by :android_manifest_path (:xcodeproj, :android_project_path or :android_manifest_path is required.)|string||
+|:android_manifest_path|BRANCH_ANDROID_MANIFEST_PATH|Path to an Android manifest to modify. Overrides :android_project_path. (:xcodeproj, :android_project_path or :android_manifest_path is required.)|string||
+|:xcodeproj|BRANCH_XCODEPROJ|Path to a .xcodeproj directory to use. (:xcodeproj, :android_project_path or :android_manifest_path is required.)|string||
+|:activity_name|BRANCH_ACTIVITY_NAME|Name of the Activity to use (Android only; optional)|string||
+|:target|BRANCH_TARGET|Name of the target to use in the Xcode project (iOS only; optional)|string||
+|:update_bundle_and_team_ids|BRANCH_UPDATE_BUNDLE_AND_TEAM_IDS|If true, changes the bundle and team identifiers in the Xcode project to match the AASA file. Mainly useful for sample apps. (iOS only)|boolean|false|
+|:remove_existing_domains|BRANCH_REMOVE_EXISTING_DOMAINS|If true, any domains currently configured in the Xcode project or Android manifest will be removed before adding the domains specified by the arguments. Mainly useful for sample apps.|boolean|false|
+
+Individually, all parameters are optional, but the following conditions apply:
+
+- :android_manifest_path, :android_project_path or :xcodeproj must be specified.
+- :live_key or :test_key must be specified.
+- :app_link_subdomain or :domains must be specified.
+
+## validate_universal_links action (iOS only)
 
 This action validates all Universal Link domains configured in a project without making any modification.
 It validates both Branch and non-Branch domains.
 
+
 ```ruby
 validate_universal_links
 ```
+
+```ruby
+validate_universal_links xcodeproj: "MyProject.xcodeproj"
+```
+
+```ruby
+validate_universal_links xcodeproj: "MyProject.xcodeproj", target: "MyProject"
+```
+
+```ruby
+validate_universal_links domains: %w{example.com www.example.com}
+```
+
+Available options:
+
+|Fastfile key|Environment variable|description|type|default value|
+|---|---|---|---|---|
+|:xcodeproj|BRANCH_XCODEPROJ|Path to a .xcodeproj directory to use|string||
+|:target|BRANCH_TARGET|Name of the target to use in the Xcode project|string||
+|:domains|BRANCH_DOMAINS|A list of domains (custom domains or Branch domains) that must be present in the project.|string array or comma-separated string||
+
+All parameters are optional. Without any parameters, the action looks for a single .xcodeproj
+folder (with the exception of a Pods project) and reports an error if none or more than one is found.
+It uses the first non-test, non-extension target in that project.
+
+If the :domains parameter is not provided, validation will pass as long as there is at least
+one Universal Link domain configured for the target, and all Universal Link domains pass
+AASA validation. If the the :domains parameter is provided, the Universal Link domains in
+the project must also match the value of this parameter without regard to order.
 
 ## Example
 
