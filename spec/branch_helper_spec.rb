@@ -43,8 +43,8 @@ describe Fastlane::Helper::BranchHelper do
       end
 
       it "returns custom domains from a comma-separated string" do
-        domains = %w{example.com www.example.com}
-        expect(helper.custom_domains_from_params(domains: domains.join(","))).to eq domains
+        domains = "example.com,www.example.com"
+        expect(helper.custom_domains_from_params(domains: domains)).to eq %w{example.com www.example.com}
       end
 
       it "raises for other parameter types" do
