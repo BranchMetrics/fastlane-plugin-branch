@@ -6,24 +6,19 @@ module Fastlane
       def self.run(params)
         helper = Helper::BranchHelper
 
-        live_key = params[:live_key]
-        test_key = params[:test_key]
+        keys = helper.keys_from_params params
+        raise "Must specify :live_key or :test_key." if keys.empty?
 
-        # raises unless :live_key or :test_key is present
-        # (used with :app_link_subdomain to choose which domains to add)
         domains = helper.domains_from_params params
+        raise "Cannot determine domains to add to project. Specify :app_link_subdomain or :domains." if domains.empty?
 
         if params[:xcodeproj].nil? and params[:android_project_path].nil? and params[:android_manifest_path].nil?
           raise ":xcodeproj, :android_manifest_path or :android_project_path is required"
         end
 
-        UI.message "live key: #{live_key}" unless live_key.nil?
-        UI.message "test key: #{test_key}" unless test_key.nil?
+        UI.message "live key: #{keys[:live]}" unless keys[:live].nil?
+        UI.message "test key: #{keys[:test]}" unless keys[:test].nil?
         UI.message "domains: #{domains}"
-
-        keys = {}
-        keys[:live] = live_key unless live_key.nil?
-        keys[:test] = test_key unless test_key.nil?
 
         if params[:xcodeproj]
           # raises
