@@ -1,5 +1,4 @@
 require "nokogiri"
-require "pathname"
 require "plist"
 
 module Fastlane
