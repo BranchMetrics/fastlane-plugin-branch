@@ -53,7 +53,7 @@ That tries to install from Rubygems and will fail before release.
 
 To install before release:
 
-1. Add a `Gemfile` to your project with these contents:
+1. Add a `Gemfile` to your project with these contents (already there if you used fastlane init):
 
   ```ruby
   source 'https://rubygems.org'

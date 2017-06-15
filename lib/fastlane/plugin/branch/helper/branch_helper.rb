@@ -1,4 +1,5 @@
 require "nokogiri"
+require "pathname"
 require "plist"
 
 module Fastlane
@@ -46,6 +47,7 @@ module Fastlane
 
           # too many projects found: error
           if xcodeproj_paths.count > 1
+            repo_pathname = Pathname.new repo_path
             relative_projects = xcodeproj_paths.map { |e| Pathname.new(e).relative_path_from(repo_pathname).to_s }.join("\n")
             UI.user_error!("Found multiple .xcodeproj projects in the current repository's working directory. Please specify your app's main project: \n#{relative_projects}")
             return nil
