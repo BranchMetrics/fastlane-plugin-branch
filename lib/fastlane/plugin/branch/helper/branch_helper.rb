@@ -211,9 +211,6 @@ module Fastlane
           end
 
           all_domains.each do |domain|
-            # ignore test-app.link domains for now (bnctestbed.test-app.link/apple-app-site-association is blank)
-            # TODO: Support URI schemes for iOS?
-            next if domain =~ /\.test-app\.link$/
             domain_valid = validate_team_and_bundle_ids project, target_name, domain, configuration
             valid &&= domain_valid
             UI.message "Valid Universal Link configuration for #{domain} ✅" if domain_valid
@@ -222,8 +219,12 @@ module Fastlane
         end
 
         def app_ids_from_aasa_file(domain)
+          data = contents_of_aasa_file domain
+          # errors reported in the method above
+          return nil if data.nil?
+
           # raises
-          file = JSON.parse contents_of_aasa_file domain
+          file = JSON.parse data
 
           applinks = file[APPLINKS]
           @errors << "No #{APPLINKS} found in AASA file for domain #{domain}" and return if applinks.nil?
@@ -248,20 +249,23 @@ module Fastlane
           data = nil
 
           uris.each do |uri|
-            break unless data.nil?
-
             Net::HTTP.start uri.host, uri.port, use_ssl: uri.scheme == "https" do |http|
               request = Net::HTTP::Get.new uri
               response = http.request request
 
-              # Try the next URI.
-              unless response.code.to_i == 200
+              # Better to use Net::HTTPRedirection and Net::HTTPSuccess here, but
+              # having difficulty with the unit tests.
+              if response.code.to_i =~ [300..399]
+                UI.important "#{uri} cannot result in a redirect. Ignoring."
+                next
+              elsif response.code.to_i != 200
+                # Try the next URI.
                 UI.message "Could not retrieve #{uri}: #{response.code} #{response.message}. Ignoring."
                 next
               end
 
               content_type = response["Content-type"]
-              raise "Response does not contain a Content-type header" if content_type.nil?
+              @errors << "Response does not contain a Content-type header" and return nil if content_type.nil?
 
               case content_type
               when %r{application/pkcs7-mime}
@@ -275,13 +279,17 @@ module Fastlane
                 data = response.body
               end
 
-              UI.message "Retrieved contents of #{uri} ✅"
+              UI.message "Retrieved contents of #{uri} (Content-type:#{content_type}) ✅"
+              return data
             end
           end
 
-          raise "Failed to retrieve AASA file for #{domain}" if data.nil?
+          @errors << "Failed to retrieve AASA file for #{domain}" and return nil if data.nil?
 
           data
+        rescue OpenSSL::PKCS7::PKCS7Error => e
+          @errors << "Failed to verify signed AASA file: #{e.message}"
+          nil
         end
 
         def validate_team_and_bundle_ids(project, target_name, domain, configuration)
