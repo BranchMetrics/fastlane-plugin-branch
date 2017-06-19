@@ -285,7 +285,7 @@ module Fastlane
             end
           end
 
-          @errors << "[#{domain}] Failed to retrieve AASA file for #{domain}" and return nil if data.nil?
+          @errors << "[#{domain}] Failed to retrieve AASA file" and return nil if data.nil?
 
           data
         rescue IOError, SocketError => e
