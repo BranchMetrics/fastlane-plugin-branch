@@ -170,7 +170,14 @@ the project must also match the value of this parameter without regard to order.
 
 ## Example
 
-Check out the [example `Fastfile`](fastlane/Fastfile) to see how to use this plugin. Try it by cloning the repo, running `bundle install` and `bundle exec fastlane test`.
+Check out the [example `Fastfile`](fastlane/Fastfile) to see how to use this plugin. To try it:
+
+```bash
+bundle install
+bundle exec fastlane validate # The example project needs to be set up. This will fail.
+bundle exec fastlane update   # Also validates the UL configuration.
+bundle exec fastlane validate # Now validation will pass.
+```
 
 ## Run tests for this plugin
 

@@ -200,7 +200,7 @@ describe Fastlane::Helper::BranchHelper do
   describe "#contents_of_aasa_file" do
     it "returns the contents of an unsigned AASA file" do
       mock_contents = "{}"
-      mock_response = double "response", body: mock_contents, code: 200
+      mock_response = double "response", body: mock_contents, code: "200", message: "OK"
       expect(mock_response).to receive(:[]).with("Content-type") { "application/json" }
 
       mock_http_request mock_response
@@ -210,7 +210,7 @@ describe Fastlane::Helper::BranchHelper do
 
     it "returns the contents of a signed AASA file" do
       mock_contents = "{}"
-      mock_response = double "response", code: 200, body: ""
+      mock_response = double "response", code: "200", message: "OK", body: ""
       expect(mock_response).to receive(:[]).with("Content-type") { "application/pkcs7-mime" }
 
       mock_signature = double "signature", data: mock_contents
@@ -224,26 +224,24 @@ describe Fastlane::Helper::BranchHelper do
       expect(helper.contents_of_aasa_file("myapp.app.link")).to eq mock_contents
     end
 
-    it "raises if the file cannot be retrieved" do
-      mock_response = double "response", code: 404, message: "Not found"
+    it "returns nil if the file cannot be retrieved" do
+      mock_response = double "response", code: "404", message: "Not found"
 
       mock_http_request mock_response
 
-      expect do
-        helper.contents_of_aasa_file "myapp.app.link"
-      end.to raise_error RuntimeError
+      expect(helper.contents_of_aasa_file("myapp.app.link")).to be_nil
+      expect(helper.errors).not_to be_empty
     end
 
-    it "raises if the response does not contain a Content-type" do
+    it "returns nil if the response does not contain a Content-type" do
       mock_contents = "{}"
-      mock_response = double "response", body: mock_contents, code: 200
+      mock_response = double "response", body: mock_contents, code: "200", message: "OK"
       expect(mock_response).to receive(:[]).with("Content-type") { nil }
 
       mock_http_request mock_response
 
-      expect do
-        helper.contents_of_aasa_file "myapp.app.link"
-      end.to raise_error RuntimeError
+      expect(helper.contents_of_aasa_file("myapp.app.link")).to be_nil
+      expect(helper.errors).not_to be_empty
     end
   end
 

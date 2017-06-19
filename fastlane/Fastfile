@@ -1,7 +1,9 @@
 desc "Add Branch keys and Universal Link domains to BranchPluginExample"
-lane :test do
+lane :update do
+  # This app is not currently set up properly for test in the Dashboard. Don't include
+  # :test_key in the project for now.
   setup_branch live_key: "key_live_feebgAAhbH9Tv85H5wLQhpdaefiZv5Dv",
-               test_key: "key_test_hdcBLUy1xZ1JD0tKg7qrLcgirFmPPVJc",
+     # test_key: "key_test_hdcBLUy1xZ1JD0tKg7qrLcgirFmPPVJc",
      app_link_subdomain: "bnctestbed",
              uri_scheme: "branchtest",
    android_project_path: "examples/android/BranchPluginExample",
@@ -15,10 +17,10 @@ lane :validate do
   # all domains pass validation.
   # With this parameter, the applinks: domains in the project must match this list.
   # Order is irrelevant.
+  # This app is not currently set up properly for test in the Dashboard. Don't include
+  # test domains in the project for now.
   validate_universal_links domains: %w{
     bnctestbed.app.link
     bnctestbed-alternate.app.link
-    bnctestbed.test-app.link
-    bnctestbed-alternate.test-app.link
   }
 end
