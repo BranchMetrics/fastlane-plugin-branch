@@ -33,7 +33,7 @@ module Fastlane
           else
             UI.error "Universal Link configuration failed validation."
             helper.errors.each { |error| UI.error " #{error}" }
-            return
+            return unless params[:force]
           end
 
           # the following calls can all raise IOError
@@ -155,6 +155,12 @@ module Fastlane
           FastlaneCore::ConfigItem.new(key: :remove_existing_domains,
                                   env_name: "BRANCH_REMOVE_EXISTING_DOMAINS",
                                description: "If set to true, removes any existing domains before adding Branch domains",
+                                  optional: true,
+                             default_value: false,
+                                 is_string: false),
+          FastlaneCore::ConfigItem.new(key: :force,
+                                  env_name: "BRANCH_FORCE_UPDATE",
+                               description: "Update project(s) even if Universal Link validation fails",
                                   optional: true,
                              default_value: false,
                                  is_string: false)
