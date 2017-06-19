@@ -225,7 +225,7 @@ describe Fastlane::Helper::BranchHelper do
     end
 
     it "returns nil if the file cannot be retrieved" do
-      mock_response = double "response", code: "404", message: "Not found"
+      mock_response = double "response", code: "404", message: "Not Found"
 
       mock_http_request mock_response
 
@@ -240,6 +240,16 @@ describe Fastlane::Helper::BranchHelper do
 
       mock_http_request mock_response
 
+      expect(helper.contents_of_aasa_file("myapp.app.link")).to be_nil
+      expect(helper.errors).not_to be_empty
+    end
+
+    it "returns nil in case of a redirect" do
+      mock_response = double "response", code: "302", message: "Moved Permanently"
+
+      mock_http_request mock_response
+
+      expect(FastlaneCore::UI).to receive(:important).with(/redirect/i).at_least(:once)
       expect(helper.contents_of_aasa_file("myapp.app.link")).to be_nil
       expect(helper.errors).not_to be_empty
     end

@@ -257,7 +257,7 @@ module Fastlane
 
               # Better to use Net::HTTPRedirection and Net::HTTPSuccess here, but
               # having difficulty with the unit tests.
-              if response.code.to_i =~ [300..399]
+              if (300..399).cover?(response.code.to_i)
                 UI.important "#{uri} cannot result in a redirect. Ignoring."
                 next
               elsif response.code.to_i != 200
