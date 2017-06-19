@@ -227,16 +227,16 @@ module Fastlane
           file = JSON.parse data
 
           applinks = file[APPLINKS]
-          @errors << "No #{APPLINKS} found in AASA file for domain #{domain}" and return if applinks.nil?
+          @errors << "[#{domain}] No #{APPLINKS} found in AASA file" and return if applinks.nil?
 
           details = applinks["details"]
-          @errors << "No details found for #{APPLINKS} in AASA file for domain #{domain}" and return if details.nil?
+          @errors << "[#{domain}] No details found for #{APPLINKS} in AASA file" and return if details.nil?
 
           identifiers = details.map { |d| d["appID"] }.uniq
-          @errors << "No appID found in AASA file for domain #{domain}" and return if identifiers.count <= 0
+          @errors << "[#{domain}] No appID found in AASA file" and return if identifiers.count <= 0
           identifiers
         rescue JSON::ParserError => e
-          @errors << "Failed to parse AASA file for domain #{domain}: #{e.message}"
+          @errors << "[#{domain}] Failed to parse AASA file: #{e.message}"
           nil
         end
 
@@ -249,6 +249,8 @@ module Fastlane
           data = nil
 
           uris.each do |uri|
+            break unless data.nil?
+
             Net::HTTP.start uri.host, uri.port, use_ssl: uri.scheme == "https" do |http|
               request = Net::HTTP::Get.new uri
               response = http.request request
@@ -265,7 +267,7 @@ module Fastlane
               end
 
               content_type = response["Content-type"]
-              @errors << "Response does not contain a Content-type header" and return nil if content_type.nil?
+              @errors << "[#{domain}] AASA Response does not contain a Content-type header" and return nil if content_type.nil?
 
               case content_type
               when %r{application/pkcs7-mime}
@@ -279,16 +281,18 @@ module Fastlane
                 data = response.body
               end
 
-              UI.message "Retrieved contents of #{uri} (Content-type:#{content_type}) ✅"
-              return data
+              UI.message "GET #{uri}: #{response.code} #{response.message} (Content-type:#{content_type}) ✅"
             end
           end
 
-          @errors << "Failed to retrieve AASA file for #{domain}" and return nil if data.nil?
+          @errors << "[#{domain}] Failed to retrieve AASA file for #{domain}" and return nil if data.nil?
 
           data
+        rescue IOError, SocketError => e
+          @errors << "[#{domain}] Socket error: #{e.message}"
+          nil
         rescue OpenSSL::PKCS7::PKCS7Error => e
-          @errors << "Failed to verify signed AASA file: #{e.message}"
+          @errors << "[#{domain}] Failed to verify signed AASA file: #{e.message}"
           nil
         end
 
@@ -306,7 +310,7 @@ module Fastlane
           match_found = identifiers.include? app_id
 
           unless match_found
-            @errors << "appID mismatch for #{domain}. Project: #{app_id}. AASA: #{identifiers}"
+            @errors << "[#{domain}] appID mismatch. Project: #{app_id}. AASA: #{identifiers}"
           end
 
           match_found
