@@ -145,6 +145,15 @@ describe Fastlane::Helper::BranchHelper do
     end
   end
 
+  describe "#expanded_build_setting" do
+    it "expands values delimited by $()" do
+      target = double "target"
+      expect(target).to receive(:resolved_build_setting).with("SETTING_WITH_NESTED_VALUE").and_return({ "Release" => "$(SETTING_VALUE)" })
+      expect(target).to receive(:resolved_build_setting).with("SETTING_VALUE").and_return({ "Release" => "value" })
+      expect(helper.expanded_build_setting(target, "SETTING_WITH_NESTED_VALUE", "Release")).to eq "value"
+    end
+  end
+
   describe "#app_ids_from_aasa_file" do
     it "parses the contents of an apple-app-site-assocation file" do
       mock_response = '{"applinks":{"apps":[],"details":[{"appID":"XYZPDQ.com.example.MyApp","paths":["NOT /e/*","*","/"]}]}}'
