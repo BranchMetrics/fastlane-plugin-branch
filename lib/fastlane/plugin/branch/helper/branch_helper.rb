@@ -1,32 +1,33 @@
 require "nokogiri"
 require "plist"
 
-module MacroExpansion
-  def expanded_build_setting(target, setting, configuration)
-    build_setting = target.resolved_build_setting(setting)[configuration]
-    return if build_setting.nil?
-    expand_macros target, build_setting, configuration
-  end
-
-  def expand_macros(target, setting, configuration)
-    regex = /\$[{(]([^}]+)[})]/
-    matches = regex.match(setting)
-    return setting if matches.nil?
-
-    macro_name = matches[1]
-    return setting if macro_name.nil?
-    return setting.gsub(regex, ".") if macro_name == "SRCROOT"
-
-    expanded_macro = expanded_build_setting(target, macro_name, configuration)
-
-    # recurse to check for other macros
-    expand_macros target, setting.gsub(regex, expanded_macro), configuration
-  end
-end
-
 module Fastlane
   module Helper
     UI = FastlaneCore::UI
+
+    module MacroExpansion
+      def expanded_build_setting(target, setting_name, configuration)
+        setting_value = target.resolved_build_setting(setting_name)[configuration]
+        return if setting_value.nil?
+        expand_macros target, setting_value, configuration
+      end
+
+      def expand_macros(target, setting_value, configuration)
+        matches = /\$[{(]([^})]+)[})]/.match(setting_value)
+        return setting_value if matches.nil?
+
+        macro_name = matches[1]
+        return setting_value if macro_name.nil?
+
+        expanded_macro = macro_name == "SRCROOT" ? "." : expanded_build_setting(target, macro_name, configuration)
+        return setting_value if expanded_macro.nil?
+
+        setting_value.gsub!(/\$[{(]#{macro_name}[})]/, expanded_macro)
+
+        expand_macros target, setting_value, configuration
+      end
+    end
+
     class BranchHelper
       APPLINKS = "applinks"
       ASSOCIATED_DOMAINS = "com.apple.developer.associated-domains"

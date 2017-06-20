@@ -146,11 +146,45 @@ describe Fastlane::Helper::BranchHelper do
   end
 
   describe "#expanded_build_setting" do
+    let (:target) { double "target" }
     it "expands values delimited by $()" do
-      target = double "target"
-      expect(target).to receive(:resolved_build_setting).with("SETTING_WITH_NESTED_VALUE").and_return({ "Release" => "$(SETTING_VALUE)" })
-      expect(target).to receive(:resolved_build_setting).with("SETTING_VALUE").and_return({ "Release" => "value" })
+      expect(target).to receive(:resolved_build_setting).with("SETTING_WITH_NESTED_VALUE") { { "Release" => "$(SETTING_VALUE)" } }
+      expect(target).to receive(:resolved_build_setting).with("SETTING_VALUE") { { "Release" => "value" } }
       expect(helper.expanded_build_setting(target, "SETTING_WITH_NESTED_VALUE", "Release")).to eq "value"
+    end
+
+    it "expands values delimited by ${}" do
+      expect(target).to receive(:resolved_build_setting).with("SETTING_WITH_NESTED_VALUE") { { "Release" => "${SETTING_VALUE}" } }
+      expect(target).to receive(:resolved_build_setting).with("SETTING_VALUE") { { "Release" => "value" } }
+      expect(helper.expanded_build_setting(target, "SETTING_WITH_NESTED_VALUE", "Release")).to eq "value"
+    end
+
+    it "returns nil if the setting is not present" do
+      expect(target).to receive(:resolved_build_setting).with("NONEXISTENT_SETTING") { { "Release" => nil } }
+      expect(helper.expanded_build_setting(target, "NONEXISTENT_SETTING", "Release")).to be_nil
+    end
+
+    it "substitutes . for $(SRCROOT)" do
+      expect(target).to receive(:resolved_build_setting).with("SETTING_USING_SRCROOT") { { "Release" => "$(SRCROOT)/some.file" } }
+      expect(helper.expanded_build_setting(target, "SETTING_USING_SRCROOT", "Release")).to eq "./some.file"
+    end
+
+    it "returns the setting when no macro present" do
+      expect(target).to receive(:resolved_build_setting).with("SETTING_WITHOUT_MACRO") { { "Release" => "setting" } }
+      expect(helper.expanded_build_setting(target, "SETTING_WITHOUT_MACRO", "Release")).to eq "setting"
+    end
+
+    it "expands multiple instances of the same macro" do
+      expect(target).to receive(:resolved_build_setting).with("SETTING_WITH_NESTED_VALUE") { { "Release" => "$(SETTING_VALUE).$(SETTING_VALUE)" } }
+      expect(target).to receive(:resolved_build_setting).with("SETTING_VALUE") { { "Release" => "value" } }
+      expect(helper.expanded_build_setting(target, "SETTING_WITH_NESTED_VALUE", "Release")).to eq "value.value"
+    end
+
+    it "expands multiple macros in a setting" do
+      expect(target).to receive(:resolved_build_setting).with("SETTING_WITH_NESTED_VALUES") { { "Release" => "$(SETTING_VALUE1).$(SETTING_VALUE2)" } }
+      expect(target).to receive(:resolved_build_setting).with("SETTING_VALUE1") { { "Release" => "value1" } }
+      expect(target).to receive(:resolved_build_setting).with("SETTING_VALUE2") { { "Release" => "value2" } }
+      expect(helper.expanded_build_setting(target, "SETTING_WITH_NESTED_VALUES", "Release")).to eq "value1.value2"
     end
   end
 
