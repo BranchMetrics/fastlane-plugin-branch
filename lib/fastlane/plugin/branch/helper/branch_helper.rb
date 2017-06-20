@@ -13,6 +13,8 @@ module Fastlane
       end
 
       def expand_macros(target, setting_value, configuration)
+        # TODO: Properly balance these delimiters. Currently it will also match
+        # $(SETTING} and ${SETTING). See the pending spec.
         matches = /\$[{(]([^})]+)[})]/.match(setting_value)
         return setting_value if matches.nil?
 

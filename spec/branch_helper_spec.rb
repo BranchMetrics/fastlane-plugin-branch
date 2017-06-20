@@ -186,6 +186,14 @@ describe Fastlane::Helper::BranchHelper do
       expect(target).to receive(:resolved_build_setting).with("SETTING_VALUE2") { { "Release" => "value2" } }
       expect(helper.expanded_build_setting(target, "SETTING_WITH_NESTED_VALUES", "Release")).to eq "value1.value2"
     end
+
+    it "balances delimiters" do
+      pending "sort out the regex matching"
+      expect(target).to receive(:resolved_build_setting).with("SETTING_WITH_NESTED_VALUES") { { "Release" => "$(SETTING_VALUE1}.${SETTING_VALUE2)" } }
+      expect(target).to receive(:resolved_build_setting).with("SETTING_VALUE1") { { "Release" => "value1" } }
+      expect(target).to receive(:resolved_build_setting).with("SETTING_VALUE2") { { "Release" => "value2" } }
+      expect(helper.expanded_build_setting(target, "SETTING_WITH_NESTED_VALUES", "Release")).to eq "$(SETTING_VALUE1}.${SETTING_VALUE2)"
+    end
   end
 
   describe "#app_ids_from_aasa_file" do
