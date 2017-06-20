@@ -4,6 +4,32 @@ require "plist"
 module Fastlane
   module Helper
     UI = FastlaneCore::UI
+
+    module MacroExpansion
+      def expanded_build_setting(target, setting_name, configuration)
+        setting_value = target.resolved_build_setting(setting_name)[configuration]
+        return if setting_value.nil?
+        expand_macros target, setting_value, configuration
+      end
+
+      def expand_macros(target, setting_value, configuration)
+        # TODO: Properly balance these delimiters. Currently it will also match
+        # $(SETTING} and ${SETTING). See the pending spec.
+        matches = /\$[{(]([^})]+)[})]/.match(setting_value)
+        return setting_value if matches.nil?
+
+        macro_name = matches[1]
+        return setting_value if macro_name.nil?
+
+        expanded_macro = macro_name == "SRCROOT" ? "." : expanded_build_setting(target, macro_name, configuration)
+        return setting_value if expanded_macro.nil?
+
+        setting_value.gsub!(/\$[{(]#{macro_name}[})]/, expanded_macro)
+
+        expand_macros target, setting_value, configuration
+      end
+    end
+
     class BranchHelper
       APPLINKS = "applinks"
       ASSOCIATED_DOMAINS = "com.apple.developer.associated-domains"
@@ -14,6 +40,7 @@ module Fastlane
 
       class << self
         attr_accessor :errors
+        include MacroExpansion
 
         #
         # ----- Configuration -----
@@ -108,19 +135,14 @@ module Fastlane
           # raises
           target = target_from_project project, target_name
 
-          # find the Info.plist paths for all configurations
-          info_plist_paths = target.resolved_build_setting "INFOPLIST_FILE"
-
-          raise "INFOPLIST_FILE not found in target" if info_plist_paths.nil? or info_plist_paths.empty?
-
-          # this can differ from one configuration to another.
-          info_plist_path = info_plist_paths[configuration]
+          # find the Info.plist paths for this configuration
+          info_plist_path = expanded_build_setting target, "INFOPLIST_FILE", configuration
 
           raise "Info.plist not found for configuration #{configuration}" if info_plist_path.nil?
 
           project_parent = File.dirname project.path
 
-          info_plist_path = File.join project_parent, info_plist_path
+          info_plist_path = File.expand_path info_plist_path, project_parent
 
           # try to open and parse the Info.plist (raises)
           info_plist = File.open(info_plist_path) { |f| Plist.parse_xml f }
@@ -142,12 +164,12 @@ module Fastlane
           # raises
           target = target_from_project project, target_name
 
-          relative_entitlements_path = target.resolved_build_setting(CODE_SIGN_ENTITLEMENTS)[configuration]
+          relative_entitlements_path = expanded_build_setting target, CODE_SIGN_ENTITLEMENTS, configuration
           project_parent = File.dirname project.path
 
           if relative_entitlements_path.nil?
             relative_entitlements_path = File.join target.name, "#{target.name}.entitlements"
-            entitlements_path = File.join project_parent, relative_entitlements_path
+            entitlements_path = File.expand_path relative_entitlements_path, project_parent
 
             # Add CODE_SIGN_ENTITLEMENTS setting to each configuration
             target.build_configuration_list.set_setting CODE_SIGN_ENTITLEMENTS, relative_entitlements_path
@@ -158,7 +180,7 @@ module Fastlane
             entitlements = {}
             current_domains = []
           else
-            entitlements_path = File.join project_parent, relative_entitlements_path
+            entitlements_path = File.expand_path relative_entitlements_path, project_parent
             # Raises
             entitlements = File.open(entitlements_path) { |f| Plist.parse_xml f }
             raise "Failed to parse entitlements file #{entitlements_path}" if entitlements.nil?
@@ -300,8 +322,8 @@ module Fastlane
           # raises
           target = target_from_project project, target_name
 
-          product_bundle_identifier = target.resolved_build_setting(PRODUCT_BUNDLE_IDENTIFIER)[configuration]
-          development_team = target.resolved_build_setting(DEVELOPMENT_TEAM)[configuration]
+          product_bundle_identifier = expanded_build_setting target, PRODUCT_BUNDLE_IDENTIFIER, configuration
+          development_team = expanded_build_setting target, DEVELOPMENT_TEAM, configuration
 
           identifiers = app_ids_from_aasa_file domain
           return false if identifiers.nil?
@@ -368,11 +390,11 @@ module Fastlane
           # Raises. Does not return nil.
           target = target_from_project project, target_name
 
-          relative_entitlements_path = target.resolved_build_setting(CODE_SIGN_ENTITLEMENTS)[configuration]
+          relative_entitlements_path = expanded_build_setting target, CODE_SIGN_ENTITLEMENTS, configuration
           return [] if relative_entitlements_path.nil?
 
           project_parent = File.dirname project.path
-          entitlements_path = File.join project_parent, relative_entitlements_path
+          entitlements_path = File.expand_path relative_entitlements_path, project_parent
 
           # Raises
           entitlements = File.open(entitlements_path) { |f| Plist.parse_xml f }
