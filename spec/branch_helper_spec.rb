@@ -198,6 +198,13 @@ describe Fastlane::Helper::BranchHelper do
       expect(target).to receive(:resolved_build_setting).with("SETTING_VALUE2") { { "Release" => "value2" } }
       expect(helper.expanded_build_setting(target, "SETTING_WITH_NESTED_VALUES", "Release")).to eq "value2"
     end
+
+    it "returns the unexpanded macro for nonexistent settings" do
+      expect(target).to receive(:resolved_build_setting).with("SETTING_WITH_BOGUS_VALUE") { { "Release" => "$(SETTING_VALUE1).$(SETTING_VALUE2)" } }
+      expect(target).to receive(:resolved_build_setting).with("SETTING_VALUE1") { { "Release" => nil } }
+      expect(target).to receive(:resolved_build_setting).with("SETTING_VALUE2") { { "Release" => "value2" } }
+      expect(helper.expanded_build_setting(target, "SETTING_WITH_BOGUS_VALUE", "Release")).to eq "$(SETTING_VALUE1).value2"
+    end
   end
 
   describe "#app_ids_from_aasa_file" do

@@ -13,15 +13,16 @@ module Fastlane
       end
 
       def expand_macros(target, setting_value, configuration)
-        /\$\(([^(){}]*)\)|\$\{([^(){}]*)\}/.match(setting_value) do |matches|
+        search_position = 0
+        while (matches = /\$\(([^(){}]*)\)|\$\{([^(){}]*)\}/.match(setting_value, search_position))
           macro_name = matches[1] || matches[2]
+          search_position = setting_value.index(macro_name) - 2
 
           expanded_macro = macro_name == "SRCROOT" ? "." : expanded_build_setting(target, macro_name, configuration)
-          break if expanded_macro.nil?
+          search_position += macro_name.length + 3 and next if expanded_macro.nil?
 
           setting_value.gsub!(/\$\(#{macro_name}\)|\$\{#{macro_name}\}/, expanded_macro)
-
-          expand_macros target, setting_value, configuration
+          search_position += expanded_macro.length
         end
         setting_value
       end
