@@ -13,13 +13,13 @@ module Fastlane
       end
 
       def expand_macros(target, setting_value, configuration)
-        /\$\(([^(){}]*)\)|\{([^(){}]*)\}/.match(setting_value) do |matches|
+        /\$\(([^(){}]*)\)|\$\{([^(){}]*)\}/.match(setting_value) do |matches|
           macro_name = matches[1] || matches[2]
 
           expanded_macro = macro_name == "SRCROOT" ? "." : expanded_build_setting(target, macro_name, configuration)
           break if expanded_macro.nil?
 
-          setting_value.gsub!(/\$[{(]#{macro_name}[})]/, expanded_macro)
+          setting_value.gsub!(/\$\(#{macro_name}\)|\$\{#{macro_name}\}/, expanded_macro)
 
           expand_macros target, setting_value, configuration
         end
