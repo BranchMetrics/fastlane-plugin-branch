@@ -13,20 +13,17 @@ module Fastlane
       end
 
       def expand_macros(target, setting_value, configuration)
-        # TODO: Properly balance these delimiters. Currently it will also match
-        # $(SETTING} and ${SETTING). See the pending spec.
-        matches = /\$[{(]([^})]+)[})]/.match(setting_value)
-        return setting_value if matches.nil?
+        /\$\(([^(){}]*)\)|\{([^(){}]*)\}/.match(setting_value) do |matches|
+          macro_name = matches[1] || matches[2]
 
-        macro_name = matches[1]
-        return setting_value if macro_name.nil?
+          expanded_macro = macro_name == "SRCROOT" ? "." : expanded_build_setting(target, macro_name, configuration)
+          break if expanded_macro.nil?
 
-        expanded_macro = macro_name == "SRCROOT" ? "." : expanded_build_setting(target, macro_name, configuration)
-        return setting_value if expanded_macro.nil?
+          setting_value.gsub!(/\$[{(]#{macro_name}[})]/, expanded_macro)
 
-        setting_value.gsub!(/\$[{(]#{macro_name}[})]/, expanded_macro)
-
-        expand_macros target, setting_value, configuration
+          expand_macros target, setting_value, configuration
+        end
+        setting_value
       end
     end
 
