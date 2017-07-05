@@ -9,10 +9,7 @@ module Fastlane
       def expanded_build_setting(target, setting_name, configuration)
         setting_value = target.resolved_build_setting(setting_name)[configuration]
         return if setting_value.nil?
-        expand_macros target, setting_value, configuration
-      end
 
-      def expand_macros(target, setting_value, configuration)
         search_position = 0
         while (matches = /\$\(([^(){}]*)\)|\$\{([^(){}]*)\}/.match(setting_value, search_position))
           macro_name = matches[1] || matches[2]
