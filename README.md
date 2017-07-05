@@ -123,6 +123,7 @@ Available options:
 |:update_bundle_and_team_ids|BRANCH_UPDATE_BUNDLE_AND_TEAM_IDS|If true, changes the bundle and team identifiers in the Xcode project to match the AASA file. Mainly useful for sample apps. (iOS only)|boolean|false|
 |:remove_existing_domains|BRANCH_REMOVE_EXISTING_DOMAINS|If true, any domains currently configured in the Xcode project or Android manifest will be removed before adding the domains specified by the arguments. Mainly useful for sample apps.|boolean|false|
 |:force|BRANCH_FORCE_UPDATE|Update project(s) even if Universal Link validation fails|boolean|false|
+|:commit|BRANCH_COMMIT_CHANGES|Set to true to commit changes to Git; set to a string to commit with a custom message|boolean or string|false|
 
 Individually, all parameters are optional, but the following conditions apply:
 
@@ -175,9 +176,10 @@ Check out the [example `Fastfile`](fastlane/Fastfile) to see how to use this plu
 
 ```bash
 bundle install
-bundle exec fastlane validate # The example project needs to be set up. This will fail.
-bundle exec fastlane update   # Also validates the UL configuration.
-bundle exec fastlane validate # Now validation will pass.
+bundle exec fastlane validate          # The example project needs to be set up. This will fail.
+bundle exec fastlane update            # Also validates the UL configuration.
+bundle exec fastlane update_and_commit # Also commit changes to Git. (git reset --hard HEAD^ to erase the last commit)
+bundle exec fastlane validate          # Now validation will pass.
 ```
 
 ## Run tests for this plugin

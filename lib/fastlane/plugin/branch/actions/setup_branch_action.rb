@@ -3,6 +3,7 @@ require "xcodeproj"
 module Fastlane
   module Actions
     class SetupBranchAction < Action
+      # rubocop: disable Metrics/PerceivedComplexity
       def self.run(params)
         helper = Helper::BranchHelper
 
@@ -70,6 +71,7 @@ module Fastlane
       rescue => e
         UI.user_error! "Error in SetupBranchAction: #{e.message}"
       end
+      # rubocop: enable Metrics/PerceivedComplexity
 
       def self.description
         "Adds Branch keys, custom URI schemes and domains to iOS and Android projects."
