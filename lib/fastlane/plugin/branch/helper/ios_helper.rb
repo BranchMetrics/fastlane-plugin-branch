@@ -37,6 +37,7 @@ module Fastlane
         end
 
         Plist::Emit.save_plist info_plist, info_plist_path
+        add_change info_plist_path
       end
 
       def add_universal_links_to_project(project, target_name, domains, remove_existing, configuration = RELEASE_CONFIGURATION)
@@ -58,6 +59,9 @@ module Fastlane
 
           entitlements = {}
           current_domains = []
+
+          add_change project.path
+          new_path = entitlements_path
         else
           entitlements_path = File.expand_path relative_entitlements_path, project_parent
           # Raises
@@ -77,6 +81,9 @@ module Fastlane
         entitlements[ASSOCIATED_DOMAINS] = all_domains
 
         Plist::Emit.save_plist entitlements, entitlements_path
+        add_change entitlements_path
+
+        new_path
       end
 
       def team_and_bundle_from_app_id(identifier)
@@ -94,6 +101,7 @@ module Fastlane
         team, bundle = team_and_bundle_from_app_id identifier
 
         update_team_and_bundle_ids project, target_name, team, bundle
+        add_change project.path.expand_path
       end
 
       def validate_team_and_bundle_ids_from_aasa_files(project, target_name, domains = [], configuration = RELEASE_CONFIGURATION)
