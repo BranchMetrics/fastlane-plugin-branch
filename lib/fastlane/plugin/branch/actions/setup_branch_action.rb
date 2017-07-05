@@ -38,7 +38,8 @@ module Fastlane
 
           # the following calls can all raise IOError
           helper.add_keys_to_info_plist xcodeproj, target, keys
-          helper.add_universal_links_to_project xcodeproj, target, domains, params[:remove_existing_domains]
+          new_path = helper.add_universal_links_to_project xcodeproj, target, domains, params[:remove_existing_domains]
+          other_action.git_add path: new_path unless new_path.nil?
           xcodeproj.save
         end
 
@@ -58,6 +59,13 @@ module Fastlane
           File.open(manifest_path, "w") do |f|
             manifest.write_xml_to f, ident: 4
           end
+
+          helper.add_change File.expand_path(manifest_path, Bundler.root)
+        end
+
+        if params[:commit]
+          message = params[:commit].kind_of?(String) ? params[:commit] : "[Fastlane] Branch SDK integration"
+          other_action.git_commit path: helper.changes.to_a, message: message
         end
       rescue => e
         UI.user_error! "Error in SetupBranchAction: #{e.message}"
@@ -161,6 +169,12 @@ module Fastlane
           FastlaneCore::ConfigItem.new(key: :force,
                                   env_name: "BRANCH_FORCE_UPDATE",
                                description: "Update project(s) even if Universal Link validation fails",
+                                  optional: true,
+                             default_value: false,
+                                 is_string: false),
+          FastlaneCore::ConfigItem.new(key: :commit,
+                                  env_name: "BRANCH_COMMIT_CHANGES",
+                               description: "Set to true to commit changes to Git; set to a string to commit with a custom message",
                                   optional: true,
                              default_value: false,
                                  is_string: false)
