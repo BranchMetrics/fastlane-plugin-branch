@@ -7,7 +7,8 @@ lane :update do
      app_link_subdomain: "bnctestbed",
              uri_scheme: "branchtest",
    android_project_path: "examples/android/BranchPluginExample",
-              xcodeproj: "examples/ios/BranchPluginExample/BranchPluginExample.xcodeproj"
+              xcodeproj: "examples/ios/BranchPluginExample/BranchPluginExample.xcodeproj",
+                 commit: true
 end
 
 desc "Validate Universal Link settings for a project"
