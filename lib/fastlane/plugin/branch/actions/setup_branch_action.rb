@@ -39,8 +39,9 @@ module Fastlane
 
           # the following calls can all raise IOError
           helper.add_keys_to_info_plist xcodeproj, target, keys
+          helper.add_branch_universal_link_domains_to_info_plist xcodeproj, target, domains
           new_path = helper.add_universal_links_to_project xcodeproj, target, domains, params[:remove_existing_domains]
-          other_action.git_add path: new_path unless new_path.nil?
+          other_action.git_add path: new_path if params[:commit] && new_path
           xcodeproj.save
         end
 
