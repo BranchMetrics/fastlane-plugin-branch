@@ -40,6 +40,32 @@ module Fastlane
         add_change info_plist_path
       end
 
+      def add_branch_universal_link_domains_to_info_plist(project, target_name, domains, configuration = RELEASE_CONFIGURATION)
+        # Add all supplied domains unless all are app.link domains.
+        return if domains.all? { |d| d =~ /app\.link$/ }
+
+        # raises
+        target = target_from_project project, target_name
+
+        # find the Info.plist paths for this configuration
+        info_plist_path = expanded_build_setting target, "INFOPLIST_FILE", configuration
+
+        raise "Info.plist not found for configuration #{configuration}" if info_plist_path.nil?
+
+        project_parent = File.dirname project.path
+
+        info_plist_path = File.expand_path info_plist_path, project_parent
+
+        # try to open and parse the Info.plist (raises)
+        info_plist = File.open(info_plist_path) { |f| Plist.parse_xml f }
+        raise "Failed to parse #{info_plist_path}" if info_plist.nil?
+
+        info_plist["branch_universal_link_domains"] = domains
+
+        Plist::Emit.save_plist info_plist, info_plist_path
+        add_change info_plist_path
+      end
+
       def add_universal_links_to_project(project, target_name, domains, remove_existing, configuration = RELEASE_CONFIGURATION)
         # raises
         target = target_from_project project, target_name
