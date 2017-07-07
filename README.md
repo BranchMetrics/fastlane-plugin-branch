@@ -18,10 +18,11 @@ Before release, the packaged `fastlane` binary available in the zip and via Home
 work.
 
 ```bash
-gem install fastlane -NV
+gem install fastlane
 ```
 
-**Note:** If using the system Ruby, you must use `sudo`. However, using the system Ruby is not recommended. See
+**Note:** If using the system Ruby, you must use `sudo`. However, using the system Ruby can cause
+issues at times. See
 [Notes on Ruby Version Managers](#notes-on-ruby-version-managers)
 
 ### Set up Fastlane for your project
@@ -43,47 +44,14 @@ Then modify the parameters in `/path/to/MyProject/fastlane/Fastfile`.
 
 ### Install this plugin
 
-Once released, you can install this plugin using
-
 ```bash
 fastlane add_plugin branch
 ```
 
-That tries to install from Rubygems and will fail before release.
-
-To install before release:
-
-1. Add a `Gemfile` to your project with these contents (already there if you used fastlane init):
-
-  ```ruby
-  source 'https://rubygems.org'
-
-  gem "fastlane"
-
-  plugins_path = File.join(File.dirname(__FILE__), 'fastlane', 'Pluginfile')
-  eval_gemfile(plugins_path) if File.exist?(plugins_path)
-  ```
-
-2. Modify `/path/to/MyProject/fastlane/Pluginfile` to have these contents:
-
-  ```ruby
-  gem "fastlane-plugin-branch", git: "git@github.com/BranchMetrics/fastlane-plugin-branch"
-  ```
-
-  or
-
-  ```ruby
-  gem "fastlane-plugin-branch", path: "/where/I/checked/out/fastlane-plugin-branch"
-  ```
-
-3. Install the plugin
-
-  ```ruby
-  bundle install
-  ```
-
-**Note:** Before release, `fastlane` must always be run using `bundle exec fastlane <args>` in order
-to use this plugin.
+That tries to install from RubyGems and will fail before release. You will be prompted
+for a GitHub URL (git@github.com:BranchMetrics/fastlane-plugin-branch) or a local path
+where you checked out the code. Once released, the plugin will be directly installed
+from RubyGems with no further input required.
 
 ## setup_branch action
 
@@ -213,8 +181,13 @@ _fastlane_ is the easiest way to automate beta deployments and releases for your
 
 ## Notes on Ruby Version Managers
 
-It is strongly recommended for all Ruby work to use a version manager, either [RVM](https://rvm.io) or
-[rbenv](https://github.com/rbenv/rbenv).
+The Ruby environment is notoriously troublesome. It is strongly recommended for
+all Ruby work to use a version manager, either [RVM](https://rvm.io) or
+[rbenv](https://github.com/rbenv/rbenv). A number of Fastlane actions have known
+issues using the system Ruby because of SSL cert problems. This action mainly
+modifies project files, so it is unlikely to have too much trouble with the
+system Ruby. However, a non-Branch domain using PKCS7 for the AASA file might
+run into similar issues with Universal Link validation.
 
 ### Streamlined RVM installation
 
