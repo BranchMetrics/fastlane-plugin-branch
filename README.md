@@ -213,8 +213,29 @@ _fastlane_ is the easiest way to automate beta deployments and releases for your
 
 ## Notes on Ruby Version Managers
 
-It is strongly recommended for all Ruby work to use a version manager, either [RVM](https://rvm.io) or
-[rbenv](https://github.com/rbenv/rbenv).
+The Ruby environment is notoriously troublesome. It is strongly recommended for
+all Ruby work to use a version manager, either [RVM](https://rvm.io) or
+[rbenv](https://github.com/rbenv/rbenv). A number of Fastlane actions have known
+issues using the system Ruby because of SSL cert problems. This action mainly
+modifies project files, so it is unlikely to have too much trouble with the
+system Ruby. However, similar issues could arise with Universal Link validation.
+
+Starting with 1.7.0, nokogiri requires Ruby 2.1. Apple ships 2.0, which is no
+longer a supported Ruby version as of February 2016. This is a strong argument
+in favor of using RVM or rbenv to get a current ruby (e.g. 2.4.1).
+
+If you're using the system Ruby, you'll need to add this line to the Gemfile in
+your app project:
+
+```Ruby
+gem 'nokogiri', '1.6.8.1'
+```
+
+You may also have to install this manually first using:
+
+```bash
+sudo gem install nokogiri -v 1.6.8.1
+```
 
 ### Streamlined RVM installation
 
