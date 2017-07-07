@@ -70,7 +70,7 @@ module Fastlane
           other_action.git_commit path: helper.changes.to_a, message: message
         end
       rescue => e
-        UI.user_error! "Error in SetupBranchAction: #{e.message}"
+        UI.user_error! "Error in SetupBranchAction: #{e.message}\n#{e.backtrace}"
       end
       # rubocop: enable Metrics/PerceivedComplexity
 
