@@ -1,0 +1,10 @@
+# Branch configuration defaults
+
+live_key "key_live_feebgAAhbH9Tv85H5wLQhpdaefiZv5Dv"
+# This app is not currently set up properly for test in the Dashboard. Don't include
+# test_key in the project for now.
+# test_key "key_test_hdcBLUy1xZ1JD0tKg7qrLcgirFmPPVJc"
+app_link_subdomain "bnctestbed"
+uri_scheme "branchtest"
+android_project_path "examples/android/BranchPluginExample"
+xcodeproj "examples/ios/BranchPluginExample/BranchPluginExample.xcodeproj"

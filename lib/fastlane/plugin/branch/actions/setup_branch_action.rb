@@ -5,6 +5,9 @@ module Fastlane
     class SetupBranchAction < Action
       # rubocop: disable Metrics/PerceivedComplexity
       def self.run(params)
+        # First augment with any defaults from Branchfile, if present
+        params.load_configuration_file("Branchfile")
+
         helper = Helper::BranchHelper
 
         keys = helper.keys_from_params params
