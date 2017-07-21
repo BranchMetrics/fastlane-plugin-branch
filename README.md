@@ -87,6 +87,17 @@ to use this plugin.
 
 ## setup_branch action
 
+### Prerequisites
+
+Before using this action, you should set your app up in the [Branch Dashboard](https://dashboard.branch.io). See https://dev.branch.io/basic-setup/ for details. To use the `setup_branch` action, you need:
+
+- Branch key(s), either live, test or both
+- Domain name(s) used for Branch links
+- The custom URI scheme for your app, if any (Android only)
+- Location(s) of your Android and/or iOS project(s)
+
+### Usage
+
 This action automatically configures Xcode and Android projects that use the Branch SDK
 for Universal Links, App Links and custom URI handling. It modifies Xcode project settings and entitlements as well as Info.plist and AndroidManifest.xml files.
 
@@ -130,6 +141,9 @@ Individually, all parameters are optional, but the following conditions apply:
 - :android_manifest_path, :android_project_path or :xcodeproj must be specified.
 - :live_key or :test_key must be specified.
 - :app_link_subdomain or :domains must be specified.
+
+This action also supports an optional Branchfile to specify configuration options.
+See the sample Branchfile at the root of this repo.
 
 ## validate_universal_links action (iOS only)
 
