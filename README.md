@@ -37,9 +37,10 @@ fastlane init
 ```bash
 git checkout git@github.com:BranchMetrics/fastlane-plugin-branch
 cp -r fastlane-plugin-branch/fastlane /path/to/MyProject
+cp fastlane-plugin-branch/Branchfile /path/to/MyProject
 ```
 
-Then modify the parameters in `/path/to/MyProject/fastlane/Fastfile`.
+Then modify the parameters in `/path/to/MyProject/Branchfile`.
 
 ### Install this plugin
 
