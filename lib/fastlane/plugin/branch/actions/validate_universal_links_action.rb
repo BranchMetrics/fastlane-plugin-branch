@@ -47,7 +47,7 @@ module Fastlane
 
         valid
       rescue => e
-        UI.user_error! "Error in ValidateUniversalLinksAction: #{e.message}"
+        UI.user_error! "Error in ValidateUniversalLinksAction: #{e.message}\n#{e.backtrace}"
         false
       end
 
