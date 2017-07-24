@@ -129,7 +129,7 @@ module Fastlane
           # Don't validate domains to be removed (#16)
           all_domains = domains
         else
-          all_domains = (domains + domains_from_project(project)).uniq
+          all_domains = (domains + domains_from_project(project, target_name, configuration)).uniq
         end
 
         if all_domains.empty?
