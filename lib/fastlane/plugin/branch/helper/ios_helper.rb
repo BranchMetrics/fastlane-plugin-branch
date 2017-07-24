@@ -119,13 +119,19 @@ module Fastlane
         add_change project.path.expand_path
       end
 
-      def validate_team_and_bundle_ids_from_aasa_files(project, target_name, domains = [], configuration = RELEASE_CONFIGURATION)
+      def validate_team_and_bundle_ids_from_aasa_files(project, target_name, domains = [], remove_existing = false, configuration = RELEASE_CONFIGURATION)
         @errors = []
         valid = true
 
         # Include any domains already in the project.
-        # Raises. Returns an non-nil array of strings.
-        all_domains = (domains + domains_from_project(project, target_name, configuration)).uniq
+        # Raises. Returns a non-nil array of strings.
+        if remove_existing
+          # Don't validate domains to be removed (#16)
+          all_domains = domains
+        else
+          all_domains = (domains + domains_from_project(project)).uniq
+        end
+
         if all_domains.empty?
           # Cannot get here from SetupBranchAction, since the domains passed in will never be empty.
           # If called from ValidateUniversalLinksAction, this is a failure, possibly caused by
