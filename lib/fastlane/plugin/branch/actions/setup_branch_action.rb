@@ -231,7 +231,7 @@ module Fastlane
 
         other_action.apply_patch files: app_delegate_swift_path,
           regexp: /^\s*import .*$/,
-          text: "import Branch\n",
+          text: "\nimport Branch",
           mode: :prepend
 
         init_session_text = <<-EOF
