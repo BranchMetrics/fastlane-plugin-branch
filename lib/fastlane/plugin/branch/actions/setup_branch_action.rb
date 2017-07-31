@@ -52,7 +52,7 @@ module Fastlane
 
           xcodeproj.save
 
-          helper.patch_app_delegate_swift other_action, xcodeproj
+          patch_app_delegate_swift xcodeproj
         end
 
         if params[:android_project_path] || params[:android_manifest_path]
@@ -213,6 +213,39 @@ module Fastlane
 
       def self.category
         :project
+      end
+
+      def self.patch_app_delegate_swift(project)
+        unless defined?(Fastlane::Actions::ApplyPatchAction)
+          # plugins as dependencies of plugins not working well right now
+          UI.important "The patch plugin is not available. Run fastlane add_plugin patch first for source-code patching."
+          return
+        end
+
+        app_delegate_swift = project.files.find { |f| f.path =~ /AppDelegate.swift$/ }
+        raise "*AppDelegate.swift not found in project" if app_delegate_swift.nil?
+
+        app_delegate_swift_path = app_delegate_swift.real_path.to_s
+
+        UI.message "Patching #{app_delegate_swift_path}"
+
+        other_action.apply_patch files: app_delegate_swift_path,
+          regexp: /^\s*import .*$/,
+          text: "import Branch\n",
+          mode: :prepend
+
+        init_session_text = <<-EOF
+        Branch.getInstance().initSession(with: launchOptions) {
+            universalObject, linkProperties, error in
+        }
+        EOF
+
+        other_action.apply_patch files: app_delegate_swift_path,
+          regexp: /didFinishLaunchingWithOptions.*\{[^\n]*\n/m,
+          text: init_session_text,
+          mode: :append
+
+        Fastlane::Helper::BranchHelper.add_change app_delegate_swift_path
       end
     end
   end
