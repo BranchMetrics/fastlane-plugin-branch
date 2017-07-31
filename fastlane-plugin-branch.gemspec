@@ -19,6 +19,7 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['lib']
 
+  spec.add_dependency 'fastlane-plugin-patch'
   spec.add_dependency 'plist'
   spec.add_dependency 'xcodeproj'
 
@@ -26,6 +27,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'bundler'
   spec.add_development_dependency 'rspec'
   spec.add_development_dependency 'rake'
+  spec.add_development_dependency 'rspec-simplecov'
   spec.add_development_dependency 'rubocop'
+  spec.add_development_dependency 'simplecov'
   spec.add_development_dependency 'fastlane', '>= 2.26.1'
 end
