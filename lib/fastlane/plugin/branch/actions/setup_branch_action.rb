@@ -51,6 +51,8 @@ module Fastlane
           helper.add_system_frameworks xcodeproj, target, params[:frameworks] unless params[:frameworks].empty?
 
           xcodeproj.save
+
+          helper.patch_app_delegate_swift other_action, xcodeproj
         end
 
         if params[:android_project_path] || params[:android_manifest_path]
