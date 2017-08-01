@@ -368,7 +368,7 @@ module Fastlane
           offset: 0
         )
 
-        Fastlane::Helper::BranchHelper.add_change app_delegate_swift_path
+        add_change app_delegate_swift_path
       end
     end
   end
