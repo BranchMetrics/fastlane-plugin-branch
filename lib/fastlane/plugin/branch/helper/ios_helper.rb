@@ -1,3 +1,4 @@
+require "fastlane/plugin/patch"
 require "plist"
 
 module Fastlane
@@ -330,6 +331,7 @@ module Fastlane
         setting_value
       end
 
+<<<<<<< HEAD
       def add_system_frameworks(project, target_name, frameworks)
         target = target_from_project project, target_name
 
@@ -337,8 +339,6 @@ module Fastlane
       end
 
       def patch_app_delegate_swift(context, project)
-        UI.important "patch plugin not available. Run fastlane add_plugin patch first for source-code patching" and return unless context.respond_to? :apply_patch
-
         app_delegate_swift = project.files.find { |f| f.path =~ /AppDelegate.swift$/ }
         raise "*AppDelegate.swift not found in project" if app_delegate_swift.nil?
 
@@ -346,21 +346,29 @@ module Fastlane
 
         UI.message "Patching #{app_delegate_swift_path}"
 
-        context.apply_patch files: app_delegate_swift_path,
+        Actions::ApplyPatchAction.run(
+          files: app_delegate_swift_path,
           regexp: /^\s*import .*$/,
-          text: "import Branch\n",
-          mode: :prepend
+          text: "\nimport Branch",
+          mode: :prepend,
+          offset: 0
+        )
 
         init_session_text = <<-EOF
-    Branch.getInstance().initSession(with: launchOptions) {
-        universalObject, linkProperties, error in
-    }
+        Branch.getInstance().initSession(with: launchOptions) {
+            universalObject, linkProperties, error in
+        }
         EOF
 
-        context.apply_patch files: app_delegate_swift_path,
-          regexp: /didFinishLaunchingWithOptions.*\{.*\n/m,
+        Actions::ApplyPatchAction.run(
+          files: app_delegate_swift_path,
+          regexp: /didFinishLaunchingWithOptions.*\{[^\n]*\n/m,
           text: init_session_text,
-          mode: :append
+          mode: :append,
+          offset: 0
+        )
+
+        Fastlane::Helper::BranchHelper.add_change app_delegate_swift_path
       end
     end
   end
