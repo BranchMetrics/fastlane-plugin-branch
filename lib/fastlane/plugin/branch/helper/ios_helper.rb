@@ -266,11 +266,9 @@ module Fastlane
         valid
       end
 
-      def update_team_and_bundle_ids(project, team, bundle)
-        # find the first application target
-        target = project.targets.find { |t| !t.extension_target_type? && !t.test_target_type? }
-
-        raise "No application target found" if target.nil?
+      def update_team_and_bundle_ids(project, target_name, team, bundle)
+        # raises
+        target = target_from_project project, target_name
 
         target.build_configuration_list.set_setting PRODUCT_BUNDLE_IDENTIFIER, bundle
         target.build_configuration_list.set_setting DEVELOPMENT_TEAM, team
