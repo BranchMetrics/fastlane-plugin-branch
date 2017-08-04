@@ -11,9 +11,9 @@ module Fastlane
       # TODO: Work on all XML/AndroidManifest formatting
 
       def add_metadata_to_manifest(manifest, key, value)
-        element = manifest.at_css "manifest > application > meta-data[android|name=\"#{key}\"]"
+        element = manifest.at_xpath "//manifest/application/meta-data[@android:name=\"#{key}\"]"
         if element.nil?
-          application = manifest.at_css "manifest application"
+          application = manifest.at_xpath "//manifest/application"
           application.add_child "    <meta-data android:name=\"#{key}\" android:value=\"#{value}\" />\n"
         else
           element["android:value"] = value
@@ -22,7 +22,7 @@ module Fastlane
 
       def add_intent_filters_to_android_manifest(manifest, domains, uri_scheme, activity_name, remove_existing)
         if activity_name
-          activity = manifest.at_css "manifest > application > activity[android|name=\"#{activity_name}\""
+          activity = manifest.at_xpath "//manifest/application/activity[@android:name=\"#{activity_name}\""
         else
           activity = find_activity manifest
         end
@@ -39,12 +39,12 @@ module Fastlane
       def find_activity(manifest)
         # try to infer the right activity
         # look for the first singleTask
-        single_task_activity = manifest.at_css "manifest > application > activity[android|launchMode=\"singleTask\"]"
+        single_task_activity = manifest.at_xpath "//manifest/application/activity[@android:launchMode=\"singleTask\"]"
         return single_task_activity if single_task_activity
 
         # no singleTask activities. Take the first Activity
         # TODO: Add singleTask?
-        manifest.at_css "manifest > application > activity"
+        manifest.at_xpath "//manifest/application/activity"
       end
 
       def add_intent_filter_to_activity(activity, domains, uri_scheme)
@@ -66,8 +66,8 @@ module Fastlane
       def remove_existing_domains(activity)
         # Find all intent-filters that include a data element with android:scheme
         # TODO: Can this be done with a single css/at_css call?
-        activity.css("intent-filter").each do |filter|
-          filter.remove if filter.at_css "data[android|scheme]"
+        activity.xpath("//manifest//intent-filter").each do |filter|
+          filter.remove if filter.at_xpath "data[@android:scheme]"
         end
       end
 
