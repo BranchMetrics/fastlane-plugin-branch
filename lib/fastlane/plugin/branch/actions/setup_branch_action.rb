@@ -1,3 +1,4 @@
+require "rexml/document"
 require "xcodeproj"
 
 module Fastlane
@@ -51,7 +52,7 @@ module Fastlane
         if params[:android_project_path] || params[:android_manifest_path]
           # :android_manifest_path overrides :android_project_path
           manifest_path = params[:android_manifest_path] || "#{params[:android_project_path]}/app/src/main/AndroidManifest.xml"
-          manifest = File.open(manifest_path) { |f| Nokogiri::XML f }
+          manifest = File.open(manifest_path) { |f| REXML::Document.new f }
 
           helper.add_keys_to_android_manifest manifest, keys
           # :activity_name and :uri_scheme may be nil. :remove_existing_domains defaults to false
@@ -62,7 +63,7 @@ module Fastlane
                                                         params[:remove_existing_domains]
 
           File.open(manifest_path, "w") do |f|
-            manifest.write_xml_to f, ident: 4
+            manifest.write f, 4
           end
 
           helper.add_change File.expand_path(manifest_path, Bundler.root)
