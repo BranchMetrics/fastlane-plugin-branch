@@ -56,22 +56,22 @@ setup_branch(
 
 Available options:
 
-|Fastfile key|Environment variable|description|type|default value|
+|Fastfile key|description|Environment variable|type|default value|
 |---|---|---|---|---|
-|:live_key|BRANCH_LIVE_KEY|The Branch live key to use (:live_key or :test_key is required)|string||
-|:test_key|BRANCH_TEST_KEY|The Branch test key to use (:live_key or :test_key is required)|string||
-|:app_link_subdomain|BRANCH_APP_LINK_SUBDOMAIN|An app.link subdomain to use (:app_link_subdomain or :domains is required. The union of the two sets of domains will be used.)|string||
-|:domains|BRANCH_DOMAINS|A list of domains (custom domains or Branch domains) to use (:app_link_subdomain or :domains is required. The union of the two sets of domains will be used.)|string array or comma-separated string||
-|:uri_scheme|BRANCH_URI_SCHEME|A URI scheme to add to the manifest (Android only)|string||
-|:android_project_path|BRANCH_ANDROID_PROJECT_PATH|Path to an Android project to use. Equivalent to 'android_manifest_path: "app/src/main/AndroidManifest.xml"`. Overridden by :android_manifest_path (:xcodeproj, :android_project_path or :android_manifest_path is required.)|string||
-|:android_manifest_path|BRANCH_ANDROID_MANIFEST_PATH|Path to an Android manifest to modify. Overrides :android_project_path. (:xcodeproj, :android_project_path or :android_manifest_path is required.)|string||
-|:xcodeproj|BRANCH_XCODEPROJ|Path to a .xcodeproj directory to use. (:xcodeproj, :android_project_path or :android_manifest_path is required.)|string||
-|:activity_name|BRANCH_ACTIVITY_NAME|Name of the Activity to use (Android only; optional)|string||
-|:target|BRANCH_TARGET|Name of the target to use in the Xcode project (iOS only; optional)|string||
-|:update_bundle_and_team_ids|BRANCH_UPDATE_BUNDLE_AND_TEAM_IDS|If true, changes the bundle and team identifiers in the Xcode project to match the AASA file. Mainly useful for sample apps. (iOS only)|boolean|false|
-|:remove_existing_domains|BRANCH_REMOVE_EXISTING_DOMAINS|If true, any domains currently configured in the Xcode project or Android manifest will be removed before adding the domains specified by the arguments. Mainly useful for sample apps.|boolean|false|
-|:force|BRANCH_FORCE_UPDATE|Update project(s) even if Universal Link validation fails|boolean|false|
-|:commit|BRANCH_COMMIT_CHANGES|Set to true to commit changes to Git; set to a string to commit with a custom message|boolean or string|false|
+|:live_key|The Branch live key to use (:live_key or :test_key is required)|BRANCH_LIVE_KEY|string||
+|:test_key|The Branch test key to use (:live_key or :test_key is required)|BRANCH_TEST_KEY|string||
+|:app_link_subdomain|An app.link subdomain to use (:app_link_subdomain or :domains is required. The union of the two sets of domains will be used.)|BRANCH_APP_LINK_SUBDOMAIN|string||
+|:domains|A list of domains (custom domains or Branch domains) to use (:app_link_subdomain or :domains is required. The union of the two sets of domains will be used.)|BRANCH_DOMAINS|array of strings or comma-separated string||
+|:uri_scheme|A URI scheme to add to the manifest (Android only)|BRANCH_URI_SCHEME|string||
+|:android_project_path|Path to an Android project to use. Equivalent to 'android_manifest_path: "app/src/main/AndroidManifest.xml"`. Overridden by :android_manifest_path (:xcodeproj, :android_project_path or :android_manifest_path is required.)|BRANCH_ANDROID_PROJECT_PATH|string||
+|:android_manifest_path|Path to an Android manifest to modify. Overrides :android_project_path. (:xcodeproj, :android_project_path or :android_manifest_path is required.)|BRANCH_ANDROID_MANIFEST_PATH|string||
+|:xcodeproj|Path to a .xcodeproj directory to use. (:xcodeproj, :android_project_path or :android_manifest_path is required.)|BRANCH_XCODEPROJ|string||
+|:activity_name|Name of the Activity to use (Android only; optional)|BRANCH_ACTIVITY_NAME|string||
+|:target|Name of the target to use in the Xcode project (iOS only; optional)|BRANCH_TARGET|string||
+|:update_bundle_and_team_ids|If true, changes the bundle and team identifiers in the Xcode project to match the AASA file. Mainly useful for sample apps. (iOS only)|BRANCH_UPDATE_BUNDLE_AND_TEAM_IDS|boolean|false|
+|:remove_existing_domains|If true, any domains currently configured in the Xcode project or Android manifest will be removed before adding the domains specified by the arguments. Mainly useful for sample apps.|BRANCH_REMOVE_EXISTING_DOMAINS|boolean|false|
+|:force|Update project(s) even if Universal Link validation fails|BRANCH_FORCE_UPDATE|boolean|false|
+|:commit|Set to true to commit changes to Git; set to a string to commit with a custom message|boolean or string|BRANCH_COMMIT_CHANGES|false|
 
 Individually, all parameters are optional, but the following conditions apply:
 
@@ -106,11 +106,11 @@ validate_universal_links(domains: %w{example.com www.example.com})
 
 Available options:
 
-|Fastfile key|Environment variable|description|type|default value|
+|Fastfile key|description|Environment variable|type|default value|
 |---|---|---|---|---|
-|:xcodeproj|BRANCH_XCODEPROJ|Path to a .xcodeproj directory to use|string||
-|:target|BRANCH_TARGET|Name of the target to use in the Xcode project|string||
-|:domains|BRANCH_DOMAINS|A list of domains (custom domains or Branch domains) that must be present in the project.|string array or comma-separated string||
+|:xcodeproj|Path to a .xcodeproj directory to use|BRANCH_XCODEPROJ|string||
+|:target|Name of the target to use in the Xcode project|BRANCH_TARGET|string||
+|:domains|A list of domains (custom domains or Branch domains) that must be present in the project.|BRANCH_DOMAINS|array of strings or comma-separated string||
 
 All parameters are optional. Without any parameters, the action looks for a single .xcodeproj
 folder (with the exception of a Pods project) and reports an error if none or more than one is found.
