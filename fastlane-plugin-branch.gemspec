@@ -7,7 +7,7 @@ require 'fastlane/plugin/branch/version'
 Gem::Specification.new do |spec|
   spec.name          = 'fastlane-plugin-branch'
   spec.version       = Fastlane::Branch::VERSION
-  spec.author        = 'Jimmy Dee'
+  spec.authors       = ['Branch', 'Jimmy Dee']
   spec.email         = 'jgvdthree@gmail.com'
 
   spec.summary       = 'Adds Branch keys, custom URI schemes and domains to iOS and Android projects. ' \
