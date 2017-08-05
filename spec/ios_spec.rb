@@ -191,7 +191,7 @@ describe Fastlane::Helper::IOSHelper do
     it "returns nil if the response does not contain a Content-type" do
       mock_contents = "{}"
       mock_response = double "response", body: mock_contents, code: "200", message: "OK"
-      expect(mock_response).to receive(:[]).with("Content-type") { nil }
+      expect(mock_response).to receive(:[]).at_least(:once).with("Content-type") { nil }
 
       mock_http_request mock_response
 
