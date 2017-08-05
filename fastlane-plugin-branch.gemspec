@@ -10,7 +10,8 @@ Gem::Specification.new do |spec|
   spec.author        = 'Jimmy Dee'
   spec.email         = 'jgvdthree@gmail.com'
 
-  spec.summary       = 'Adds Branch keys, custom URI schemes and domains to iOS and Android projects.'
+  spec.summary       = 'Adds Branch keys, custom URI schemes and domains to iOS and Android projects. ' \
+                       'Validates the Universal Link configuration for any Xcode project.'
   spec.homepage      = "https://github.com/BranchMetrics/fastlane-plugin-branch"
   spec.license       = "MIT"
 
