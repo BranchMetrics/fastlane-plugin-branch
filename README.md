@@ -70,6 +70,7 @@ Available options:
 |:target|Name of the target to use in the Xcode project (iOS only; optional)|BRANCH_TARGET|string||
 |:update_bundle_and_team_ids|If true, changes the bundle and team identifiers in the Xcode project to match the AASA file. Mainly useful for sample apps. (iOS only)|BRANCH_UPDATE_BUNDLE_AND_TEAM_IDS|boolean|false|
 |:remove_existing_domains|If true, any domains currently configured in the Xcode project or Android manifest will be removed before adding the domains specified by the arguments. Mainly useful for sample apps.|BRANCH_REMOVE_EXISTING_DOMAINS|boolean|false|
+|:validate|Determines whether to validate the resulting Universal Link configuration before modifying the project|BRANCH_VALIDATE|boolean|true|
 |:force|Update project(s) even if Universal Link validation fails|BRANCH_FORCE_UPDATE|boolean|false|
 |:commit|Set to true to commit changes to Git; set to a string to commit with a custom message|boolean or string|BRANCH_COMMIT_CHANGES|false|
 

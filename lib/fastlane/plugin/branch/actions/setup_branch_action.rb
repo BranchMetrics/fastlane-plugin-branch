@@ -33,9 +33,10 @@ module Fastlane
 
           if params[:update_bundle_and_team_ids]
             helper.update_team_and_bundle_ids_from_aasa_file xcodeproj, target, domains.first
-          elsif helper.validate_team_and_bundle_ids_from_aasa_files xcodeproj, target, domains, params[:remove_existing_domains]
+          elsif params[:validate] &&
+                helper.validate_team_and_bundle_ids_from_aasa_files(xcodeproj, target, domains, params[:remove_existing_domains])
             UI.message "Universal Link configuration passed validation. ✅"
-          else
+          elsif params[:validate]
             UI.error "Universal Link configuration failed validation."
             helper.errors.each { |error| UI.error " #{error}" }
             return unless params[:force]
@@ -174,6 +175,11 @@ module Fastlane
                                description: "If set to true, removes any existing domains before adding Branch domains",
                                   optional: true,
                              default_value: false,
+                                 is_string: false),
+          FastlaneCore::ConfigItem.new(key: :validate,
+                                  env_name: "BRANCH_VALIDATE",
+                               description: "Determines whether to validate the resulting Universal Link configuration before modifying the project",
+                             default_value: true,
                                  is_string: false),
           FastlaneCore::ConfigItem.new(key: :force,
                                   env_name: "BRANCH_FORCE_UPDATE",
