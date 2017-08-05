@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.name          = 'fastlane-plugin-branch'
   spec.version       = Fastlane::Branch::VERSION
   spec.authors       = ['Branch', 'Jimmy Dee']
-  spec.email         = 'jgvdthree@gmail.com'
+  spec.email         = ['integrations@branch.io', 'jgvdthree@gmail.com']
 
   spec.summary       = 'Adds Branch keys, custom URI schemes and domains to iOS and Android projects. ' \
                        'Validates the Universal Link configuration for any Xcode project.'
