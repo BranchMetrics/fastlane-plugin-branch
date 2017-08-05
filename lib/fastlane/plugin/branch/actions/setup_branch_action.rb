@@ -99,12 +99,14 @@ module Fastlane
       def self.example_code
         [
           <<-EOF
-            setup_branch live_key: "key_live_xxxx",
-                         test_key: "key_test_yyyy",
-               app_link_subdomain: "myapp",
-                       uri_scheme: "myscheme", # Android only
-             android_project_path: "MyAndroidApp", # MyAndroidApp/src/main/AndroidManifest.xml
-                        xcodeproj: "MyIOSApp.xcodeproj"
+            setup_branch(
+              live_key: "key_live_xxxx",
+              test_key: "key_test_yyyy",
+              app_link_subdomain: "myapp",
+              uri_scheme: "myscheme", # Android only
+              android_project_path: "MyAndroidApp", # MyAndroidApp/src/main/AndroidManifest.xml
+              xcodeproj: "MyIOSApp.xcodeproj"
+            )
           EOF
         ]
       end

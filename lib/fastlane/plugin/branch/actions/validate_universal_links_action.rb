@@ -74,13 +74,13 @@ module Fastlane
             validate_universal_links
           EOF,
           <<-EOF
-            validate_universal_links xcodeproj: "MyProject.xcodeproj"
+            validate_universal_links(xcodeproj: "MyProject.xcodeproj")
           EOF,
           <<-EOF
-            validate_universal_links xcodeproj: "MyProject.xcodeproj", target: "MyProject"
+            validate_universal_links(xcodeproj: "MyProject.xcodeproj", target: "MyProject")
           EOF,
           <<-EOF
-            validate_universal_links domains: %w{example.com www.example.com}
+            validate_universal_links(domains: %w{example.com www.example.com})
           EOF
         ]
       end
@@ -89,12 +89,12 @@ module Fastlane
         [
           FastlaneCore::ConfigItem.new(key: :xcodeproj,
                                   env_name: "BRANCH_XCODEPROJ",
-                               description: "Path to an Xcode project to modify",
+                               description: "Path to an Xcode project to validate",
                                   optional: true,
                                       type: String),
           FastlaneCore::ConfigItem.new(key: :target,
                                   env_name: "BRANCH_TARGET",
-                               description: "Name of the target in the Xcode project to modify (iOS only)",
+                               description: "Name of the target in the Xcode project to validate",
                                   optional: true,
                                       type: String),
           FastlaneCore::ConfigItem.new(key: :domains,
