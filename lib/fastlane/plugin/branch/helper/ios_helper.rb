@@ -173,7 +173,9 @@ module Fastlane
       def contents_of_aasa_file(domain)
         uris = [
           URI("https://#{domain}/.well-known/apple-app-site-association"),
-          URI("https://#{domain}/apple-app-site-association")
+          URI("https://#{domain}/apple-app-site-association"),
+          URI("http://#{domain}/.well-known/apple-app-site-association"),
+          URI("http://#{domain}/apple-app-site-association")
         ]
 
         data = nil
@@ -197,7 +199,7 @@ module Fastlane
             end
 
             content_type = response["Content-type"]
-            @errors << "[#{domain}] AASA Response does not contain a Content-type header" and return nil if content_type.nil?
+            @errors << "[#{domain}] AASA Response does not contain a Content-type header" and next if content_type.nil?
 
             case content_type
             when %r{application/pkcs7-mime}
@@ -208,6 +210,7 @@ module Fastlane
               signature.verify [http.peer_cert], cert_store, nil, OpenSSL::PKCS7::NOVERIFY
               data = signature.data
             else
+              @error << "[#{domain}] Unsigned AASA files must be served via HTTPS" and next if uri.scheme == "http"
               data = response.body
             end
 
