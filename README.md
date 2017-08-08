@@ -1,4 +1,12 @@
-# branch plugin
+# Branch plugin
+
+Use this Fastlane plugin to set up your Android or Xcode project configuration correctly to
+use the Branch SDK. It can also validate the Universal Link configuration in any Xcode
+project, for Branch domains as well as non-Branch domains. Unlike web-based Universal
+Link validators, the `validate_universal_links` action
+operates directly on your project. There is no need to look up your team identifier or
+any other information. The validator requires no input at all for simple projects. It
+supports both signed and unsigned apple-app-site-association files.
 
 [![fastlane Plugin Badge](https://rawcdn.githack.com/fastlane/fastlane/master/fastlane/assets/plugin-badge.svg?style=flat-square)](https://rubygems.org/gems/fastlane-plugin-branch)
 [![Gem](https://img.shields.io/gem/v/fastlane-plugin-branch.svg?style=flat)](https://rubygems.org/gems/fastlane-plugin-branch)
@@ -17,6 +25,12 @@ This project is a [_fastlane_](https://github.com/fastlane/fastlane) plugin. To 
 ```bash
 fastlane add_plugin branch
 ```
+
+### New to Fastlane or Ruby?
+
+See [Simple Fastlane setup with plugins](https://github.com/BranchMetrics/fastlane-plugin-branch/wiki/Simple-Fastlane-setup-with-plugins)
+and the [RVM Cheat Sheet](https://github.com/BranchMetrics/fastlane-plugin-branch/wiki/RVM-Cheat-Sheet) in this repo's wiki
+for help getting started.
 
 ## setup_branch action
 
