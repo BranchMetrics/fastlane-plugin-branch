@@ -173,9 +173,9 @@ module Fastlane
       def contents_of_aasa_file(domain)
         uris = [
           URI("https://#{domain}/.well-known/apple-app-site-association"),
-          URI("https://#{domain}/apple-app-site-association"),
-          URI("http://#{domain}/.well-known/apple-app-site-association"),
-          URI("http://#{domain}/apple-app-site-association")
+          URI("https://#{domain}/apple-app-site-association")
+          # URI("http://#{domain}/.well-known/apple-app-site-association"),
+          # URI("http://#{domain}/apple-app-site-association")
         ]
 
         data = nil
