@@ -48,7 +48,7 @@ module Fastlane
       def add_intent_filter_to_activity(activity, domains, uri_scheme)
         # Add a single intent-filter with autoVerify and a data element for each domain and the optional uri_scheme
         intent_filter = REXML::Element.new "intent-filter"
-        intent_filter.attributes["android:autoverify"] = true
+        intent_filter.attributes["android:autoVerify"] = true
         intent_filter.add_element "action", "android:name" => "android.intent.action.VIEW"
         intent_filter.add_element "category", "android:name" => "android.intent.category.DEFAULT"
         intent_filter.add_element "category", "android:name" => "android.intent.category.BROWSABLE"
