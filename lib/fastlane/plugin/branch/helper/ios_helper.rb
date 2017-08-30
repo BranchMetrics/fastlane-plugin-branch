@@ -207,7 +207,7 @@ module Fastlane
               cert_store = OpenSSL::X509::Store.new
               signature = OpenSSL::PKCS7.new response.body
               # raises
-              signature.verify [http.peer_cert], cert_store, nil, OpenSSL::PKCS7::NOVERIFY
+              signature.verify nil, cert_store, nil, OpenSSL::PKCS7::NOVERIFY
               data = signature.data
             else
               @error << "[#{domain}] Unsigned AASA files must be served via HTTPS" and next if uri.scheme == "http"
