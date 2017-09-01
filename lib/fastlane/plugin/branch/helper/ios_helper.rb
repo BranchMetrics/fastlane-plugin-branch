@@ -331,14 +331,13 @@ module Fastlane
         setting_value
       end
 
-<<<<<<< HEAD
       def add_system_frameworks(project, target_name, frameworks)
         target = target_from_project project, target_name
 
         target.add_system_framework frameworks
       end
 
-      def patch_app_delegate_swift(context, project)
+      def patch_app_delegate_swift(project)
         app_delegate_swift = project.files.find { |f| f.path =~ /AppDelegate.swift$/ }
         raise "*AppDelegate.swift not found in project" if app_delegate_swift.nil?
 
