@@ -1,10 +1,10 @@
 desc "Add Branch keys and Universal Link domains to BranchPluginExample"
-lane :update do
+lane :setup do
   setup_branch
 end
 
 desc "Add Branch keys and Universal Link domains to BranchPluginExample and commit to Git"
-lane :update_and_commit do
+lane :setup_and_commit do
   setup_branch commit: true # Use a string here for a custom commit message
 end
 

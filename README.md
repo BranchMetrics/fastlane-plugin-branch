@@ -144,10 +144,10 @@ This action does not use the Branchfile.
 Check out the [example `Fastfile`](fastlane/Fastfile) to see how to use this plugin. To try it:
 
 ```bash
-bundle exec fastlane validate          # The example project needs to be set up. This will fail.
-bundle exec fastlane update            # Also validates the UL configuration.
-bundle exec fastlane update_and_commit # Also commit changes to Git. (git reset --hard HEAD^ to erase the last commit)
-bundle exec fastlane validate          # Now validation will pass.
+bundle exec fastlane validate         # The example project needs to be set up. This will fail.
+bundle exec fastlane setup            # Also validates the UL configuration.
+bundle exec fastlane setup_and_commit # Also commit changes to Git. (git reset --hard HEAD^ to erase the last commit)
+bundle exec fastlane validate         # Now validation will pass.
 ```
 
 ## Run tests for this plugin
