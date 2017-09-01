@@ -47,6 +47,9 @@ module Fastlane
           helper.add_branch_universal_link_domains_to_info_plist xcodeproj, target, domains
           new_path = helper.add_universal_links_to_project xcodeproj, target, domains, params[:remove_existing_domains]
           other_action.git_add path: new_path if params[:commit] && new_path
+
+          helper.add_system_frameworks xcodeproj, target, params[:frameworks] unless params[:frameworks].empty?
+
           xcodeproj.save
         end
 
@@ -192,7 +195,13 @@ module Fastlane
                                description: "Set to true to commit changes to Git; set to a string to commit with a custom message",
                                   optional: true,
                              default_value: false,
-                                 is_string: false)
+                                 is_string: false),
+          FastlaneCore::ConfigItem.new(key: :frameworks,
+                                  env_name: "BRANCH_FRAMEWORKS",
+                               description: "A list of system frameworks to add to the target that uses the Branch SDK (iOS only)",
+                                  optional: true,
+                             default_value: [],
+                                      type: Array)
         ]
       end
 
