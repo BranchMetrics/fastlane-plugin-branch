@@ -345,7 +345,7 @@ module Fastlane
 
         UI.message "Patching #{app_delegate_swift_path}"
 
-        Actions::ApplyPatchAction.run(
+        Actions::PatchAction.run(
           files: app_delegate_swift_path,
           regexp: /^\s*import .*$/,
           text: "\nimport Branch",
@@ -359,7 +359,7 @@ module Fastlane
         }
         EOF
 
-        Actions::ApplyPatchAction.run(
+        Actions::PatchAction.run(
           files: app_delegate_swift_path,
           regexp: /didFinishLaunchingWithOptions.*\{[^\n]*\n/m,
           text: init_session_text,
