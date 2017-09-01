@@ -86,7 +86,8 @@ Available options:
 |:remove_existing_domains|If true, any domains currently configured in the Xcode project or Android manifest will be removed before adding the domains specified by the arguments. Mainly useful for sample apps.|BRANCH_REMOVE_EXISTING_DOMAINS|boolean|false|
 |:validate|Determines whether to validate the resulting Universal Link configuration before modifying the project|BRANCH_VALIDATE|boolean|true|
 |:force|Update project(s) even if Universal Link validation fails|BRANCH_FORCE_UPDATE|boolean|false|
-|:commit|Set to true to commit changes to Git; set to a string to commit with a custom message|boolean or string|BRANCH_COMMIT_CHANGES|false|
+|:commit|Set to true to commit changes to Git; set to a string to commit with a custom message|BRANCH_COMMIT_CHANGES|boolean or string|false|
+|:frameworks|A list of system frameworks to add to the target that uses the Branch SDK (iOS only)|BRANCH_FRAMEWORKS|array|[]|
 
 Individually, all parameters are optional, but the following conditions apply:
 
@@ -143,10 +144,10 @@ This action does not use the Branchfile.
 Check out the [example `Fastfile`](fastlane/Fastfile) to see how to use this plugin. To try it:
 
 ```bash
-bundle exec fastlane validate          # The example project needs to be set up. This will fail.
-bundle exec fastlane update            # Also validates the UL configuration.
-bundle exec fastlane update_and_commit # Also commit changes to Git. (git reset --hard HEAD^ to erase the last commit)
-bundle exec fastlane validate          # Now validation will pass.
+bundle exec fastlane validate         # The example project needs to be set up. This will fail.
+bundle exec fastlane setup            # Also validates the UL configuration.
+bundle exec fastlane setup_and_commit # Also commit changes to Git. (git reset --hard HEAD^ to erase the last commit)
+bundle exec fastlane validate         # Now validation will pass.
 ```
 
 ## Run tests for this plugin

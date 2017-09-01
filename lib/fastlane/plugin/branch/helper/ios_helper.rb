@@ -329,6 +329,12 @@ module Fastlane
         end
         setting_value
       end
+
+      def add_system_frameworks(project, target_name, frameworks)
+        target = target_from_project project, target_name
+
+        target.add_system_framework frameworks
+      end
     end
   end
 end
