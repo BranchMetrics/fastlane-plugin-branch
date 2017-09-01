@@ -36,7 +36,7 @@ for help getting started.
 
 ### Prerequisites
 
-Before using this action, make sure to set up your app in the [Branch Dashboard](https://dashboard.branch.io). See https://dev.branch.io/basic-setup/ for details. To use the `setup_branch` action, you need:
+Before using this action, make sure to set up your app in the [Branch Dashboard](https://dashboard.branch.io). See https://docs.branch.io/pages/dashboard/integrate/ for details. To use the `setup_branch` action, you need:
 
 - Branch key(s), either live, test or both
 - Domain name(s) used for Branch links
