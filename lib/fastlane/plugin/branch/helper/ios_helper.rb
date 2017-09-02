@@ -473,6 +473,25 @@ module Fastlane
 
         true
       end
+
+      def patch_cartfile(cartfile_path)
+        cartfile = File.open(cartfile_path, &:read)
+
+        # Cartfile already contains the Branch framework
+        return false if cartfile =~ /git.+Branch/
+
+        UI.message "Adding \"Branch\" to #{cartfile_path}"
+
+        Actions::PatchAction.run(
+          files: cartfile_path,
+          regexp: /\z/,
+          text: "git \"https://github.com/BranchMetrics/ios-branch-deep-linking\"\n",
+          mode: :append,
+          offset: 0
+        )
+
+        true
+      end
     end
   end
 end

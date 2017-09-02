@@ -13,6 +13,11 @@ lane :setup_objc do
   setup_branch xcodeproj: "examples/ios/BranchPluginExampleObjc/BranchPluginExampleObjc.xcodeproj"
 end
 
+desc "Set up the BranchPluginExampleCarthage"
+lane :setup_carthage do
+  setup_branch xcodeproj: "examples/ios/BranchPluginExampleCarthage/BranchPluginExampleCarthage.xcodeproj"
+end
+
 desc "Validate Universal Link settings for a project"
 lane :validate do
   # The :domains parameter is optional.

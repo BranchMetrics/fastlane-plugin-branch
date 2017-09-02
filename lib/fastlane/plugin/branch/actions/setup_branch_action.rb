@@ -24,10 +24,10 @@ module Fastlane
         UI.message "domains: #{domains}"
 
         if params[:xcodeproj]
-          update_podfile params
-
           # raises
           xcodeproj = Xcodeproj::Project.open params[:xcodeproj]
+
+          update_podfile(params) || update_cartfile(params, xcodeproj)
 
           target = params[:target] # may be nil
 
@@ -214,7 +214,6 @@ module Fastlane
                                   env_name: "BRANCH_PODFILE",
                                description: "Path to a Podfile to update (iOS only)",
                                   optional: true,
-                             default_value: nil,
                                       type: String),
           FastlaneCore::ConfigItem.new(key: :patch_source,
                                   env_name: "BRANCH_PATCH_SOURCE",
@@ -227,7 +226,12 @@ module Fastlane
                                description: "Set to false to disable update of local podspec repo before pod install",
                                   optional: true,
                              default_value: true,
-                                 is_string: false)
+                                 is_string: false),
+          FastlaneCore::ConfigItem.new(key: :cartfile,
+                                  env_name: "BRANCH_CARTFILE",
+                               description: "Path to a Cartfile to update (iOS only)",
+                                  optional: true,
+                                      type: String)
         ]
       end
 
@@ -242,10 +246,10 @@ module Fastlane
       class << self
         def update_podfile(params)
           podfile_path = helper.podfile_path_from_params params
-          return if podfile_path.nil?
+          return false if podfile_path.nil?
 
           # 1. Patch Podfile. Return if no change (Branch pod already present).
-          return unless helper.patch_podfile podfile_path
+          return false unless helper.patch_podfile podfile_path
 
           # 2. pod install
           other_action.cocoapods podfile: podfile_path, repo_update: params[:pod_repo_update]
@@ -257,11 +261,45 @@ module Fastlane
           # 4. Check if Pods folder is under SCM
           pods_folder_path = File.expand_path "../Pods", podfile_path
           `git ls-files #{pods_folder_path} --error-unmatch > /dev/null 2>&1`
-          return unless $?.exitstatus == 0
+          return true unless $?.exitstatus == 0
 
           # 5. If so, add the Pods folder to the commit (in case :commit param specified)
           helper.add_change pods_folder_path
           other_action.git_add path: pods_folder_path if params[:commit]
+          true
+        end
+
+        def update_cartfile(params, project)
+          cartfile_path = helper.cartfile_path_from_params params
+          return false if cartfile_path.nil?
+
+          # 1. Patch Cartfile. Return if no change (Branch already present).
+          return false unless helper.patch_cartfile cartfile_path
+
+          # 2. carthage update
+          other_action.carthage command: "update", project_directory: File.dirname(cartfile_path)
+
+          # 3. Add Cartfile and Cartfile.resolved to commit (in case :commit param specified)
+          helper.add_change cartfile_path
+          helper.add_change "#{cartfile_path}.resolved"
+
+          # 4. Add to target depependencies
+          frameworks_group = project['Frameworks']
+          branch_framework = frameworks_group.new_file "Carthage/Build/iOS/Branch.framework"
+          target = helper.target_from_project project, params[:target]
+          target.frameworks_build_phase.add_file_reference branch_framework
+
+          # 5. TODO: Add to copy-frameworks build phase
+
+          # 6. Check if Carthage folder is under SCM
+          carthage_folder_path = File.expand_path "../Carthage", cartfile_path
+          `git ls-files #{carthage_folder_path} --error-unmatch > /dev/null 2>&1`
+          return true unless $?.exitstatus == 0
+
+          # 7. If so, add the Pods folder to the commit (in case :commit param specified)
+          helper.add_change carthage_folder_path
+          other_action.git_add path: carthage_folder_path if params[:commit]
+          true
         end
 
         def patch_source(xcodeproj)
