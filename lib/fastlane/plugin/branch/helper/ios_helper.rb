@@ -369,6 +369,26 @@ module Fastlane
 
         add_change app_delegate_swift_path
       end
+
+      def patch_podfile(podfile_path)
+        podfile = File.open(podfile_path, &:read)
+
+        # Podfile already contains the Branch pod
+        return false if podfile =~ /pod\s+'Branch'|pod\s+"Branch"/
+
+        UI.message "Adding pod \"Branch\" to #{podfile_path}"
+
+        # TODO: Improve this patch. Should work in the majority of cases for now.
+        Actions::PatchAction.run(
+          files: podfile_path,
+          regexp: /^\s*pod\s*/,
+          text: "\npod \"Branch\"",
+          mode: :prepend,
+          offset: 0
+        )
+
+        true
+      end
     end
   end
 end

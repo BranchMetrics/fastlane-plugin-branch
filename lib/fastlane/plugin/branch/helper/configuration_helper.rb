@@ -81,6 +81,43 @@ module Fastlane
 
         domains
       end
+
+      def podfile_path_from_params(params)
+        # Disable Podfile update if add_sdk: false is present
+        return nil unless add_sdk? params
+
+        # Use the :podfile parameter if present
+        podfile_path = File.expand_path params[:podfile], Bundler.root
+        if podfile_path
+          UI.user_error! ":podfile argument must specify a path ending in '/Podfile'" unless podfile_path =~ %r{/Podfile$}
+          return podfile_path if File.exist? podfile_path
+          UI.user_error! "#{podfile_path} not found"
+        end
+
+        xcodeproj_path = xcodeproj_path_from_params(params)
+        # Look in the same directory as the project (typical setup)
+        podfile_path = File.expand_path "../Podfile", xcodeproj_path
+        return podfile_path if File.exist? podfile_path
+
+        # Scan the repo. If one Podfile found, return it.
+        repo_path = Bundler.root
+
+        all_podfile_paths = Dir[File.expand_path(File.join(repo_path, '**/Podfile'))]
+        return nil unless all_podfile_paths.count == 1
+        all_podfile_paths.first
+      end
+
+      def add_sdk?(params)
+        add_sdk_param = params[:add_sdk]
+        return false if add_sdk_param.nil?
+
+        case add_sdk_param
+        when String
+          add_sdk_param.casecmp? "true"
+        else
+          add_sdk_param
+        end
+      end
     end
   end
 end
