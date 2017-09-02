@@ -430,6 +430,26 @@ module Fastlane
           offset: 0
         )
 
+        unless app_delegate =~ /application:.*continueUserActivity:.*restorationHandler:/
+          # Add the application:continueUserActivity:restorationHandler method if it does not exist
+          continue_user_activity_text = <<-EOF
+
+
+- (BOOL)application:(UIApplication *)app continueUserActivity:(nonnull NSUserActivity *)userActivity restorationHandler:(nonnull void (^)(NSArray * _Nullable))restorationHandler
+{
+    return [[Branch getInstance] continueUserActivity:userActivity];
+}
+          EOF
+
+          Actions::PatchAction.run(
+            files: app_delegate_objc_path,
+            regexp: /\n\s*@end[^@]*\Z/m,
+            text: continue_user_activity_text,
+            mode: :prepend,
+            offset: 0
+          )
+        end
+
         add_change app_delegate_objc_path
         true
       end
