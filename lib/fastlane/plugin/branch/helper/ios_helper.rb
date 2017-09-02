@@ -376,6 +376,44 @@ module Fastlane
         true
       end
 
+      def patch_app_delegate_objc(project)
+        app_delegate_objc = project.files.find { |f| f.path =~ /AppDelegate.m$/ }
+        return false if app_delegate_objc.nil?
+
+        app_delegate_objc_path = app_delegate_objc.real_path.to_s
+
+        app_delegate = File.open(app_delegate_objc_path, &:read)
+        return false if app_delegate =~ %r{^\s+#import\s+<Branch/Branch.h>|^\s+@import\s+Branch;}
+
+        UI.message "Patching #{app_delegate_objc_path}"
+
+        Actions::PatchAction.run(
+          files: app_delegate_objc_path,
+          regexp: /@import|#import/,
+          text: "\n#import <Branch/Branch.h>",
+          mode: :prepend,
+          offset: 0
+        )
+
+        init_session_text = <<-EOF
+        [[Branch getInstance] initSessionWithLaunchOptions:launchOptions
+                              andRegisterDeepLinkHandlerUsingBranchUniversalObject:^(BranchUniversalObject *universalObject, BranchLinkProperties *linkProperties, NSError *error){
+            // TODO: Route Branch links
+        }];
+        EOF
+
+        Actions::PatchAction.run(
+          files: app_delegate_objc_path,
+          regexp: /didFinishLaunchingWithOptions.*\{[^\n]*\n/m,
+          text: init_session_text,
+          mode: :append,
+          offset: 0
+        )
+
+        add_change app_delegate_objc_path
+        true
+      end
+
       def patch_podfile(podfile_path)
         podfile = File.open(podfile_path, &:read)
 

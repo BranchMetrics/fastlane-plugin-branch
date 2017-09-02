@@ -257,7 +257,7 @@ module Fastlane
         end
 
         def patch_source(xcodeproj)
-          helper.patch_app_delegate_swift xcodeproj
+          helper.patch_app_delegate_swift(xcodeproj) || helper.patch_app_delegate_objc(xcodeproj)
         end
 
         def helper
