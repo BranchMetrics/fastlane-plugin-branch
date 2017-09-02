@@ -277,11 +277,11 @@ module Fastlane
           return false unless helper.patch_cartfile cartfile_path
 
           # 2. carthage update
-          other_action.carthage command: "update"
+          other_action.carthage command: "update", project_directory: File.dirname(cartfile_path)
 
           # 3. Add Cartfile and Cartfile.resolved to commit (in case :commit param specified)
-          helper.add_change podfile_path
-          helper.add_change "#{podfile_path}.resolved"
+          helper.add_change cartfile_path
+          helper.add_change "#{cartfile_path}.resolved"
 
           # 4. Check if Carthage folder is under SCM
           carthage_folder_path = File.expand_path "../Carthage", cartfile_path
