@@ -107,6 +107,31 @@ module Fastlane
         all_podfile_paths.first
       end
 
+      def cartfile_path_from_params(params)
+        # Disable Cartfile update if add_sdk: false is present
+        return nil unless add_sdk? params
+
+        # Use the :cartfile parameter if present
+        if params[:cartfile]
+          UI.user_error! ":cartfile argument must specify a path ending in '/Cartfile'" unless params[:cartfile] =~ %r{/Cartfile$}
+          cartfile_path = File.expand_path params[:cartfile], Bundler.root
+          return cartfile_path if File.exist? cartfile_path
+          UI.user_error! "#{cartfile_path} not found"
+        end
+
+        xcodeproj_path = xcodeproj_path_from_params(params)
+        # Look in the same directory as the project (typical setup)
+        cartfile_path = File.expand_path "../Cartfile", xcodeproj_path
+        return cartfile_path if File.exist? cartfile_path
+
+        # Scan the repo. If one Cartfile found, return it.
+        repo_path = Bundler.root
+
+        all_cartfile_paths = Dir[File.expand_path(File.join(repo_path, '**/Cartfile'))]
+        return nil unless all_cartfile_paths.count == 1
+        all_cartfile_paths.first
+      end
+
       def add_sdk?(params)
         add_sdk_param = params[:add_sdk]
         return false if add_sdk_param.nil?

@@ -213,6 +213,7 @@ AllCops:
   Exclude:
     - '**/lib/assets/custom_action_template.rb'
     - './vendor/**/*'
+    - './examples/**/*'
 
 # They have not to be snake_case
 Style/FileName:
@@ -226,6 +227,7 @@ Style/FileName:
     - '**/Fastfile'
     - '**/Deliverfile'
     - '**/Snapfile'
+    - '**/*.podspec'
 
 # We're not there yet
 Style/Documentation:
