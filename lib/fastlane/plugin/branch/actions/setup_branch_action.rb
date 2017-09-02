@@ -52,7 +52,7 @@ module Fastlane
 
           xcodeproj.save
 
-          helper.patch_app_delegate_swift xcodeproj
+          # helper.patch_app_delegate_swift xcodeproj
         end
 
         if params[:android_project_path] || params[:android_manifest_path]
