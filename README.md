@@ -96,7 +96,7 @@ Individually, all parameters are optional, but the following conditions apply:
 - :app_link_subdomain or :domains must be specified.
 
 This action also supports an optional Branchfile to specify configuration options.
-See the sample Branchfile at the root of this repo.
+See the sample [Branchfile](./fastlane/Branchfile) in the fastlane subdirectory of this repo.
 
 ## validate_universal_links action (iOS only)
 
