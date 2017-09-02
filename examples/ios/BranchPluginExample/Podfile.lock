@@ -1,16 +1,12 @@
 PODS:
-  - Branch (0.14.12):
-    - Branch/Core (= 0.14.12)
-    - Branch/without-IDFA (= 0.14.12)
-  - Branch/Core (0.14.12)
-  - Branch/without-IDFA (0.14.12)
+  - Cartography (1.1.0)
 
 DEPENDENCIES:
-  - Branch
+  - Cartography
 
 SPEC CHECKSUMS:
-  Branch: f63d9cf82ac09747349a73184a0b739d28781c4d
+  Cartography: 0538ccb4044acbbda2266335fc58cb4228794d90
 
-PODFILE CHECKSUM: 376f173e76dc47aacdd01bd32ab92c1aabde9cc3
+PODFILE CHECKSUM: 885d8431fdda8810c5a6d9bd98ff2213680cbc7b
 
-COCOAPODS: 1.2.1
+COCOAPODS: 1.3.1

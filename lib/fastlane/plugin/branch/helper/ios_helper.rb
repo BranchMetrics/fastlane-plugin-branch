@@ -1,3 +1,4 @@
+require "fastlane/plugin/patch"
 require "plist"
 
 module Fastlane
@@ -334,6 +335,59 @@ module Fastlane
         target = target_from_project project, target_name
 
         target.add_system_framework frameworks
+      end
+
+      def patch_app_delegate_swift(project)
+        app_delegate_swift = project.files.find { |f| f.path =~ /AppDelegate.swift$/ }
+        raise "*AppDelegate.swift not found in project" if app_delegate_swift.nil?
+
+        app_delegate_swift_path = app_delegate_swift.real_path.to_s
+
+        UI.message "Patching #{app_delegate_swift_path}"
+
+        Actions::PatchAction.run(
+          files: app_delegate_swift_path,
+          regexp: /^\s*import .*$/,
+          text: "\nimport Branch",
+          mode: :prepend,
+          offset: 0
+        )
+
+        init_session_text = <<-EOF
+        Branch.getInstance().initSession(with: launchOptions) {
+            universalObject, linkProperties, error in
+        }
+        EOF
+
+        Actions::PatchAction.run(
+          files: app_delegate_swift_path,
+          regexp: /didFinishLaunchingWithOptions.*\{[^\n]*\n/m,
+          text: init_session_text,
+          mode: :append,
+          offset: 0
+        )
+
+        add_change app_delegate_swift_path
+      end
+
+      def patch_podfile(podfile_path)
+        podfile = File.open(podfile_path, &:read)
+
+        # Podfile already contains the Branch pod
+        return false if podfile =~ /pod\s+'Branch'|pod\s+"Branch"/
+
+        UI.message "Adding pod \"Branch\" to #{podfile_path}"
+
+        # TODO: Improve this patch. Should work in the majority of cases for now.
+        Actions::PatchAction.run(
+          files: podfile_path,
+          regexp: /^\s*pod\s*/,
+          text: "\npod \"Branch\"",
+          mode: :prepend,
+          offset: 0
+        )
+
+        true
       end
     end
   end

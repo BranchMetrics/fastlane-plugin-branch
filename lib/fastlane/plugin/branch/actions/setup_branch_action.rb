@@ -9,8 +9,6 @@ module Fastlane
         # First augment with any defaults from Branchfile, if present
         params.load_configuration_file("Branchfile")
 
-        helper = Helper::BranchHelper
-
         keys = helper.keys_from_params params
         raise "Must specify :live_key or :test_key." if keys.empty?
 
@@ -26,6 +24,9 @@ module Fastlane
         UI.message "domains: #{domains}"
 
         if params[:xcodeproj]
+          podfile_path = helper.podfile_path_from_params params
+          update_podfile podfile_path if podfile_path
+
           # raises
           xcodeproj = Xcodeproj::Project.open params[:xcodeproj]
 
@@ -51,6 +52,8 @@ module Fastlane
           helper.add_system_frameworks xcodeproj, target, params[:frameworks] unless params[:frameworks].empty?
 
           xcodeproj.save
+
+          # helper.patch_app_delegate_swift xcodeproj
         end
 
         if params[:android_project_path] || params[:android_manifest_path]
@@ -201,7 +204,19 @@ module Fastlane
                                description: "A list of system frameworks to add to the target that uses the Branch SDK (iOS only)",
                                   optional: true,
                              default_value: [],
-                                      type: Array)
+                                      type: Array),
+          FastlaneCore::ConfigItem.new(key: :add_sdk,
+                                  env_name: "BRANCH_ADD_SDK",
+                               description: "Set to false to disable automatic integration of the Branch SDK",
+                                  optional: true,
+                             default_value: true,
+                                 is_string: false),
+          FastlaneCore::ConfigItem.new(key: :podfile,
+                                  env_name: "BRANCH_PODFILE",
+                               description: "Path to a Podfile to update (iOS only)",
+                                  optional: true,
+                             default_value: nil,
+                                      type: String)
         ]
       end
 
@@ -211,6 +226,33 @@ module Fastlane
 
       def self.category
         :project
+      end
+
+      class << self
+        def update_podfile(podfile_path)
+          # 1. Patch Podfile. Return if no change (Branch pod already present).
+          return unless helper.patch_podfile podfile_path
+
+          # 2. pod install
+          other_action.cocoapods podfile: podfile_path
+
+          # 3. Add Podfile and Podfile.lock to commit (in case :commit param specified)
+          helper.add_change podfile_path
+          helper.add_change "#{podfile_path}.lock"
+
+          # 4. Check if Pods folder is under SCM
+          pods_folder_path = File.expand_path "../Pods", podfile_path
+          `git ls-files #{pods_folder_path} --error-unmatch > /dev/null 2>&1`
+          return unless $?.exitstatus == 0
+
+          # 5. If so, add the Pods folder to the commit (in case :commit param specified)
+          helper.add_change pods_folder_path
+          other_action.git_add path: pods_folder_path
+        end
+
+        def helper
+          Helper::BranchHelper
+        end
       end
     end
   end
