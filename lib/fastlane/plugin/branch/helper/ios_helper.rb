@@ -339,9 +339,12 @@ module Fastlane
 
       def patch_app_delegate_swift(project)
         app_delegate_swift = project.files.find { |f| f.path =~ /AppDelegate.swift$/ }
-        raise "*AppDelegate.swift not found in project" if app_delegate_swift.nil?
+        return false if app_delegate_swift.nil?
 
         app_delegate_swift_path = app_delegate_swift.real_path.to_s
+
+        app_delegate = File.open(app_delegate_swift_path, &:read)
+        return false if app_delegate =~ /import\s+Branch/
 
         UI.message "Patching #{app_delegate_swift_path}"
 
@@ -356,6 +359,8 @@ module Fastlane
         init_session_text = <<-EOF
         Branch.getInstance().initSession(with: launchOptions) {
             universalObject, linkProperties, error in
+
+            // TODO: Route Branch links
         }
         EOF
 
@@ -368,6 +373,7 @@ module Fastlane
         )
 
         add_change app_delegate_swift_path
+        true
       end
 
       def patch_podfile(podfile_path)
