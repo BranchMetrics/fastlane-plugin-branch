@@ -53,7 +53,7 @@ module Fastlane
 
           xcodeproj.save
 
-          # helper.patch_app_delegate_swift xcodeproj
+          patch_source xcodeproj if params[:patch_source]
         end
 
         if params[:android_project_path] || params[:android_manifest_path]
@@ -216,7 +216,13 @@ module Fastlane
                                description: "Path to a Podfile to update (iOS only)",
                                   optional: true,
                              default_value: nil,
-                                      type: String)
+                                      type: String),
+          FastlaneCore::ConfigItem.new(key: :patch_source,
+                                  env_name: "BRANCH_PATCH_SOURCE",
+                               description: "Set to false to disable automatic source-code patching",
+                                  optional: true,
+                             default_value: true,
+                                 is_string: false)
         ]
       end
 
@@ -248,6 +254,10 @@ module Fastlane
           # 5. If so, add the Pods folder to the commit (in case :commit param specified)
           helper.add_change pods_folder_path
           other_action.git_add path: pods_folder_path
+        end
+
+        def patch_source(xcodeproj)
+          helper.patch_app_delegate_swift(xcodeproj) || helper.patch_app_delegate_objc(xcodeproj)
         end
 
         def helper

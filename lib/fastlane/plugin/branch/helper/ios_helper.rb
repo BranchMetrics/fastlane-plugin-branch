@@ -339,9 +339,12 @@ module Fastlane
 
       def patch_app_delegate_swift(project)
         app_delegate_swift = project.files.find { |f| f.path =~ /AppDelegate.swift$/ }
-        raise "*AppDelegate.swift not found in project" if app_delegate_swift.nil?
+        return false if app_delegate_swift.nil?
 
         app_delegate_swift_path = app_delegate_swift.real_path.to_s
+
+        app_delegate = File.open(app_delegate_swift_path, &:read)
+        return false if app_delegate =~ /import\s+Branch/
 
         UI.message "Patching #{app_delegate_swift_path}"
 
@@ -353,9 +356,12 @@ module Fastlane
           offset: 0
         )
 
+        # TODO: This is Swift 3. Support other versions, esp. 4.
         init_session_text = <<-EOF
-        Branch.getInstance().initSession(with: launchOptions) {
+        Branch.getInstance().initSession(launchOptions: launchOptions) {
             universalObject, linkProperties, error in
+
+            // TODO: Route Branch links
         }
         EOF
 
@@ -368,6 +374,45 @@ module Fastlane
         )
 
         add_change app_delegate_swift_path
+        true
+      end
+
+      def patch_app_delegate_objc(project)
+        app_delegate_objc = project.files.find { |f| f.path =~ /AppDelegate.m$/ }
+        return false if app_delegate_objc.nil?
+
+        app_delegate_objc_path = app_delegate_objc.real_path.to_s
+
+        app_delegate = File.open(app_delegate_objc_path, &:read)
+        return false if app_delegate =~ %r{^\s+#import\s+<Branch/Branch.h>|^\s+@import\s+Branch;}
+
+        UI.message "Patching #{app_delegate_objc_path}"
+
+        Actions::PatchAction.run(
+          files: app_delegate_objc_path,
+          regexp: /^\s+@import|^\s+#import.*$/,
+          text: "\n#import <Branch/Branch.h>",
+          mode: :prepend,
+          offset: 0
+        )
+
+        init_session_text = <<-EOF
+    [[Branch getInstance] initSessionWithLaunchOptions:launchOptions
+        andRegisterDeepLinkHandlerUsingBranchUniversalObject:^(BranchUniversalObject *universalObject, BranchLinkProperties *linkProperties, NSError *error){
+        // TODO: Route Branch links
+    }];
+        EOF
+
+        Actions::PatchAction.run(
+          files: app_delegate_objc_path,
+          regexp: /didFinishLaunchingWithOptions.*\{[^\n]*\n/m,
+          text: init_session_text,
+          mode: :append,
+          offset: 0
+        )
+
+        add_change app_delegate_objc_path
+        true
       end
 
       def patch_podfile(podfile_path)

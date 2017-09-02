@@ -88,6 +88,9 @@ Available options:
 |:force|Update project(s) even if Universal Link validation fails|BRANCH_FORCE_UPDATE|boolean|false|
 |:commit|Set to true to commit changes to Git; set to a string to commit with a custom message|BRANCH_COMMIT_CHANGES|boolean or string|false|
 |:frameworks|A list of system frameworks to add to the target that uses the Branch SDK (iOS only)|BRANCH_FRAMEWORKS|array|[]|
+|:add_sdk|Set to false to disable automatic integration of the Branch SDK|BRANCH_ADD_SDK|boolean|true|
+|:podfile|Path to a Podfile to update (iOS only)|BRANCH_PODFILE|string||
+|:patch_source|Set to false to disable automatic source-code patching|BRANCH_PATCH_SOURCE|boolean|true|
 
 Individually, all parameters are optional, but the following conditions apply:
 
