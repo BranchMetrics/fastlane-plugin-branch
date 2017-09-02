@@ -50,7 +50,13 @@ for Universal Links, App Links and custom URI handling. It modifies Xcode projec
 
 For iOS projects, if a Podfile is detected, and the Podfile does not already contain
 the Branch pod, the pod will be added and `pod install` run to add the Branch SDK
-dependency to the project. The AppDelegate will receive the following changes if a
+dependency to the project. If no Podfile is present, a Cartfile is detected without
+the Branch framework, the framework will be added and `carthage update` run to add
+the Branch SDK dependency to the project. If no Podfile or Cartfile is detected, or
+if one exists with the Branch SDK already included, no changes to the project's
+dependencies will be made.
+
+The AppDelegate will receive the following changes if a
 Branch import is not found:
 
 - Import the Branch SDK (`import Branch` or `#import <Branch/Branch.h>`).
@@ -106,6 +112,7 @@ Available options:
 |:podfile|Path to a Podfile to update (iOS only)|BRANCH_PODFILE|string||
 |:patch_source|Set to false to disable automatic source-code patching|BRANCH_PATCH_SOURCE|boolean|true|
 |:pod_repo_update|Set to false to disable update of local podspec repo before pod install|BRANCH_POD_REPO_UPDATE|boolean|true|
+|:cartfile|Path to a Cartfile to update (iOS only)|BRANCH_CARTFILE|string||
 
 Individually, all parameters are optional, but the following conditions apply:
 
