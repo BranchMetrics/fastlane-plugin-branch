@@ -48,6 +48,20 @@ Before using this action, make sure to set up your app in the [Branch Dashboard]
 This action automatically configures Xcode and Android projects that use the Branch SDK
 for Universal Links, App Links and custom URI handling. It modifies Xcode project settings and entitlements as well as Info.plist and AndroidManifest.xml files.
 
+For iOS projects, if a Podfile is detected, and the Podfile does not already contain
+the Branch pod, the pod will be added and `pod install` run to add the Branch SDK
+dependency to the project. The AppDelegate will receive the following changes if a
+Branch import is not found:
+
+- Import the Branch SDK (`import Branch` or `#import <Branch/Branch.h>`).
+- Add the Branch `initSession` call to the `application:didFinishLaunchingWithOptions:` method.
+- Add the `application:continueUserActivity:restorationHandler:` method if it does not
+  exist.
+
+Both Swift and Objective-C are supported. Automatically updating the Podfile and
+the AppDelegate may be suppressed, respectively, using the `:add_sdk` and
+`:patch_source` options (see below for all options).
+
 ```ruby
 setup_branch(
   live_key: "key_live_xxxx",
@@ -91,6 +105,7 @@ Available options:
 |:add_sdk|Set to false to disable automatic integration of the Branch SDK|BRANCH_ADD_SDK|boolean|true|
 |:podfile|Path to a Podfile to update (iOS only)|BRANCH_PODFILE|string||
 |:patch_source|Set to false to disable automatic source-code patching|BRANCH_PATCH_SOURCE|boolean|true|
+|:pod_repo_update|Set to false to disable update of local podspec repo before pod install|BRANCH_POD_REPO_UPDATE|boolean|true|
 
 Individually, all parameters are optional, but the following conditions apply:
 

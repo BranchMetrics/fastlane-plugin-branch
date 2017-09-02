@@ -24,8 +24,7 @@ module Fastlane
         UI.message "domains: #{domains}"
 
         if params[:xcodeproj]
-          podfile_path = helper.podfile_path_from_params params
-          update_podfile podfile_path if podfile_path
+          update_podfile params
 
           # raises
           xcodeproj = Xcodeproj::Project.open params[:xcodeproj]
@@ -222,6 +221,12 @@ module Fastlane
                                description: "Set to false to disable automatic source-code patching",
                                   optional: true,
                              default_value: true,
+                                 is_string: false),
+          FastlaneCore::ConfigItem.new(key: :pod_repo_update,
+                                  env_name: "BRANCH_POD_REPO_UPDATE",
+                               description: "Set to false to disable update of local podspec repo before pod install",
+                                  optional: true,
+                             default_value: true,
                                  is_string: false)
         ]
       end
@@ -235,12 +240,15 @@ module Fastlane
       end
 
       class << self
-        def update_podfile(podfile_path)
+        def update_podfile(params)
+          podfile_path = helper.podfile_path_from_params params
+          return if podfile_path.nil?
+
           # 1. Patch Podfile. Return if no change (Branch pod already present).
           return unless helper.patch_podfile podfile_path
 
           # 2. pod install
-          other_action.cocoapods podfile: podfile_path, repo_update: true
+          other_action.cocoapods podfile: podfile_path, repo_update: params[:pod_repo_update]
 
           # 3. Add Podfile and Podfile.lock to commit (in case :commit param specified)
           helper.add_change podfile_path
@@ -253,7 +261,7 @@ module Fastlane
 
           # 5. If so, add the Pods folder to the commit (in case :commit param specified)
           helper.add_change pods_folder_path
-          other_action.git_add path: pods_folder_path
+          other_action.git_add path: pods_folder_path if params[:commit]
         end
 
         def patch_source(xcodeproj)
