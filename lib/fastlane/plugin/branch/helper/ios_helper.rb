@@ -356,8 +356,9 @@ module Fastlane
           offset: 0
         )
 
+        # TODO: This is Swift 3. Support other versions, esp. 4.
         init_session_text = <<-EOF
-        Branch.getInstance().initSession(with: launchOptions) {
+        Branch.getInstance().initSession(launchOptions: launchOptions) {
             universalObject, linkProperties, error in
 
             // TODO: Route Branch links
