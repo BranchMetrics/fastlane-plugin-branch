@@ -50,7 +50,7 @@ for Universal Links, App Links and custom URI handling. It modifies Xcode projec
 
 For iOS projects, if a Podfile is detected, and the Podfile does not already contain
 the Branch pod, the pod will be added and `pod install` run to add the Branch SDK
-dependency to the project. If no Podfile is present, a Cartfile is detected without
+dependency to the project. If no Podfile is present, and a Cartfile is detected without
 the Branch framework, the framework will be added and `carthage update` run to add
 the Branch SDK dependency to the project. If no Podfile or Cartfile is detected, or
 if one exists with the Branch SDK already included, no changes to the project's
