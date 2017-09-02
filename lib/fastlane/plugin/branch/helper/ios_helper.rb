@@ -389,17 +389,17 @@ module Fastlane
 
         Actions::PatchAction.run(
           files: app_delegate_objc_path,
-          regexp: /@import|#import/,
+          regexp: /^\s+@import|^\s+#import.*$/,
           text: "\n#import <Branch/Branch.h>",
           mode: :prepend,
           offset: 0
         )
 
         init_session_text = <<-EOF
-        [[Branch getInstance] initSessionWithLaunchOptions:launchOptions
-                              andRegisterDeepLinkHandlerUsingBranchUniversalObject:^(BranchUniversalObject *universalObject, BranchLinkProperties *linkProperties, NSError *error){
-            // TODO: Route Branch links
-        }];
+    [[Branch getInstance] initSessionWithLaunchOptions:launchOptions
+        andRegisterDeepLinkHandlerUsingBranchUniversalObject:^(BranchUniversalObject *universalObject, BranchLinkProperties *linkProperties, NSError *error){
+        // TODO: Route Branch links
+    }];
         EOF
 
         Actions::PatchAction.run(
