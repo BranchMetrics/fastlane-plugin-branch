@@ -240,7 +240,7 @@ module Fastlane
           return unless helper.patch_podfile podfile_path
 
           # 2. pod install
-          other_action.cocoapods podfile: podfile_path
+          other_action.cocoapods podfile: podfile_path, repo_update: true
 
           # 3. Add Podfile and Podfile.lock to commit (in case :commit param specified)
           helper.add_change podfile_path
