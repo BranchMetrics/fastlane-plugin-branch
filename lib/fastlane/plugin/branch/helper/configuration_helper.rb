@@ -87,9 +87,9 @@ module Fastlane
         return nil unless add_sdk? params
 
         # Use the :podfile parameter if present
-        podfile_path = File.expand_path params[:podfile], Bundler.root
-        if podfile_path
-          UI.user_error! ":podfile argument must specify a path ending in '/Podfile'" unless podfile_path =~ %r{/Podfile$}
+        if params[:podfile]
+          UI.user_error! ":podfile argument must specify a path ending in '/Podfile'" unless params[:podfile] =~ %r{/Podfile$}
+          podfile_path = File.expand_path params[:podfile], Bundler.root
           return podfile_path if File.exist? podfile_path
           UI.user_error! "#{podfile_path} not found"
         end
