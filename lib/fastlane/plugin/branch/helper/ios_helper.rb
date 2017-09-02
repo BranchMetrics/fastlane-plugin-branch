@@ -373,6 +373,25 @@ module Fastlane
           offset: 0
         )
 
+        unless app_delegate =~ /application:.*continueUserActivity:.*restorationHandler:/
+          # Add the application:continueUserActivity:restorationHandler method if it does not exist
+          continue_user_activity_text = <<-EOF
+
+
+    func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
+      return Branch.getInstance().continue(userActivity)
+    }
+          EOF
+
+          Actions::PatchAction.run(
+            files: app_delegate_swift_path,
+            regexp: /\n\s*\}[^{}]*\Z/m,
+            text: continue_user_activity_text,
+            mode: :prepend,
+            offset: 0
+          )
+        end
+
         add_change app_delegate_swift_path
         true
       end
@@ -419,7 +438,7 @@ module Fastlane
         podfile = File.open(podfile_path, &:read)
 
         # Podfile already contains the Branch pod
-        return false if podfile =~ /pod\s+'Branch'|pod\s+"Branch"/
+        return false if podfile =~ /pod\s+('Branch'|"Branch")/
 
         UI.message "Adding pod \"Branch\" to #{podfile_path}"
 
