@@ -8,15 +8,21 @@
 
 /* Begin PBXBuildFile section */
 		2DFA0F43148933CB7CB7F10B /* Pods_BranchPluginExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A7BA8F4DED579D593CB5269 /* Pods_BranchPluginExample.framework */; };
+		58C6382A104D4297A0F03FD0 /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 377F31B45986238010520A90 /* SafariServices.framework */; };
+		5D7175848729B9FE8A63F795 /* CoreSpotlight.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2064DB8F2F40EE442F03EAF9 /* CoreSpotlight.framework */; };
 		7B03D6201EA18B7F00AE01E7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B03D61F1EA18B7F00AE01E7 /* AppDelegate.swift */; };
 		7B03D6221EA18B7F00AE01E7 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B03D6211EA18B7F00AE01E7 /* ViewController.swift */; };
 		7B03D6251EA18B7F00AE01E7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7B03D6231EA18B7F00AE01E7 /* Main.storyboard */; };
 		7B03D6271EA18B7F00AE01E7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B03D6261EA18B7F00AE01E7 /* Assets.xcassets */; };
 		7B03D62A1EA18B7F00AE01E7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7B03D6281EA18B7F00AE01E7 /* LaunchScreen.storyboard */; };
+		F5C337E9B6D1A8DCE5C94FA2 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E33877C2014592BFB0811038 /* AdSupport.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		1A7BA8F4DED579D593CB5269 /* Pods_BranchPluginExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BranchPluginExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		2064DB8F2F40EE442F03EAF9 /* CoreSpotlight.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreSpotlight.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/System/Library/Frameworks/CoreSpotlight.framework; sourceTree = DEVELOPER_DIR; };
+		377F31B45986238010520A90 /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/System/Library/Frameworks/SafariServices.framework; sourceTree = DEVELOPER_DIR; };
+		48AA03202BB81CC493993A69 /* BranchPluginExample.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; name = BranchPluginExample.entitlements; path = BranchPluginExample/BranchPluginExample.entitlements; sourceTree = "<group>"; };
 		7B03D61C1EA18B7F00AE01E7 /* BranchPluginExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BranchPluginExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B03D61F1EA18B7F00AE01E7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7B03D6211EA18B7F00AE01E7 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -26,6 +32,7 @@
 		7B03D62B1EA18B7F00AE01E7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A78993DA75A56A8B38F927FF /* Pods-BranchPluginExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BranchPluginExample.debug.xcconfig"; path = "Pods/Target Support Files/Pods-BranchPluginExample/Pods-BranchPluginExample.debug.xcconfig"; sourceTree = "<group>"; };
 		D3CC0ABC7F7C89663342D316 /* Pods-BranchPluginExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BranchPluginExample.release.xcconfig"; path = "Pods/Target Support Files/Pods-BranchPluginExample/Pods-BranchPluginExample.release.xcconfig"; sourceTree = "<group>"; };
+		E33877C2014592BFB0811038 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/System/Library/Frameworks/AdSupport.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -34,6 +41,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				2DFA0F43148933CB7CB7F10B /* Pods_BranchPluginExample.framework in Frameworks */,
+				F5C337E9B6D1A8DCE5C94FA2 /* AdSupport.framework in Frameworks */,
+				5D7175848729B9FE8A63F795 /* CoreSpotlight.framework in Frameworks */,
+				58C6382A104D4297A0F03FD0 /* SafariServices.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -44,8 +54,19 @@
 			isa = PBXGroup;
 			children = (
 				1A7BA8F4DED579D593CB5269 /* Pods_BranchPluginExample.framework */,
+				212421F76106EF8982392507 /* iOS */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		212421F76106EF8982392507 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				E33877C2014592BFB0811038 /* AdSupport.framework */,
+				2064DB8F2F40EE442F03EAF9 /* CoreSpotlight.framework */,
+				377F31B45986238010520A90 /* SafariServices.framework */,
+			);
+			name = iOS;
 			sourceTree = "<group>";
 		};
 		7B03D6131EA18B7F00AE01E7 = {
@@ -55,6 +76,7 @@
 				7B03D61D1EA18B7F00AE01E7 /* Products */,
 				D2F58300BBDB58DE2DE408CA /* Pods */,
 				09984245DD971436BB75F49C /* Frameworks */,
+				48AA03202BB81CC493993A69 /* BranchPluginExample.entitlements */,
 			);
 			sourceTree = "<group>";
 		};
@@ -345,6 +367,7 @@
 			baseConfigurationReference = A78993DA75A56A8B38F927FF /* Pods-BranchPluginExample.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = BranchPluginExample/BranchPluginExample.entitlements;
 				DEVELOPMENT_TEAM = R63EM248DP;
 				INFOPLIST_FILE = BranchPluginExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -359,6 +382,7 @@
 			baseConfigurationReference = D3CC0ABC7F7C89663342D316 /* Pods-BranchPluginExample.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = BranchPluginExample/BranchPluginExample.entitlements;
 				DEVELOPMENT_TEAM = R63EM248DP;
 				INFOPLIST_FILE = BranchPluginExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
