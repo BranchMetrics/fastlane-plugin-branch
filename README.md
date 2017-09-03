@@ -34,6 +34,8 @@ for help getting started.
 
 ## setup_branch action
 
+![Branch plugin](./assets/branch_plugin.gif)
+
 ### Prerequisites
 
 Before using this action, make sure to set up your app in the [Branch Dashboard](https://dashboard.branch.io). See https://docs.branch.io/pages/dashboard/integrate/ for details. To use the `setup_branch` action, you need:
