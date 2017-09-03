@@ -1,17 +1,12 @@
 PODS:
-  - Branch (0.17.10):
-    - Branch/Core (= 0.17.10)
-  - Branch/Core (0.17.10)
   - Cartography (1.1.0)
 
 DEPENDENCIES:
-  - Branch
   - Cartography
 
 SPEC CHECKSUMS:
-  Branch: 29745957de17eb5973627f4c7720bd0eb390fd45
   Cartography: 0538ccb4044acbbda2266335fc58cb4228794d90
 
-PODFILE CHECKSUM: dc306d6646d7fec2016aa0593ca44c4ef6d1a1dd
+PODFILE CHECKSUM: 885d8431fdda8810c5a6d9bd98ff2213680cbc7b
 
 COCOAPODS: 1.3.1

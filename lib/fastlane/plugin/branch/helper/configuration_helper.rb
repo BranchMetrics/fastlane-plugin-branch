@@ -98,13 +98,6 @@ module Fastlane
         # Look in the same directory as the project (typical setup)
         podfile_path = File.expand_path "../Podfile", xcodeproj_path
         return podfile_path if File.exist? podfile_path
-
-        # Scan the repo. If one Podfile found, return it.
-        repo_path = Bundler.root
-
-        all_podfile_paths = Dir[File.expand_path(File.join(repo_path, '**/Podfile'))]
-        return nil unless all_podfile_paths.count == 1
-        all_podfile_paths.first
       end
 
       def cartfile_path_from_params(params)
@@ -123,13 +116,6 @@ module Fastlane
         # Look in the same directory as the project (typical setup)
         cartfile_path = File.expand_path "../Cartfile", xcodeproj_path
         return cartfile_path if File.exist? cartfile_path
-
-        # Scan the repo. If one Cartfile found, return it.
-        repo_path = Bundler.root
-
-        all_cartfile_paths = Dir[File.expand_path(File.join(repo_path, '**/Cartfile'))]
-        return nil unless all_cartfile_paths.count == 1
-        all_cartfile_paths.first
       end
 
       def add_sdk?(params)
