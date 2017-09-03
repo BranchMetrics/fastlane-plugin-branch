@@ -358,6 +358,10 @@ module Fastlane
 
         # TODO: This is Swift 3. Support other versions, esp. 4.
         init_session_text = <<-EOF
+        #if DEBUG
+            Branch.setUseTestBranchKey(true)
+        #endif
+
         Branch.getInstance().initSession(launchOptions: launchOptions) {
             universalObject, linkProperties, error in
 
@@ -416,6 +420,10 @@ module Fastlane
         )
 
         init_session_text = <<-EOF
+#ifdef DEBUG
+    [Branch setUseTestBranchKey:YES];
+#endif // DEBUG
+
     [[Branch getInstance] initSessionWithLaunchOptions:launchOptions
         andRegisterDeepLinkHandlerUsingBranchUniversalObject:^(BranchUniversalObject *universalObject, BranchLinkProperties *linkProperties, NSError *error){
         // TODO: Route Branch links
