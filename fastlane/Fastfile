@@ -5,8 +5,7 @@ end
 
 desc "Add Branch keys and Universal Link domains to BranchPluginExample and commit to Git"
 lane :setup_and_commit do
-  setup_branch commit: true, # Use a string here for a custom commit message
-               pod_repo_update: false
+  setup_branch commit: true # Use a string here for a custom commit message
 end
 
 desc "Set up the BranchPluginExampleObjc"
