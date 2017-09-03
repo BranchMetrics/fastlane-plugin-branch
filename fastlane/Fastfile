@@ -1,19 +1,22 @@
-desc "Add Branch keys and Universal Link domains to BranchPluginExample"
+desc "Set up BranchPluginExample"
 lane :setup do
-  setup_branch
+  setup_branch android_project_path: "examples/android/BranchPluginExample",
+               xcodeproj: "examples/ios/BranchPluginExample/BranchPluginExample.xcodeproj"
 end
 
-desc "Add Branch keys and Universal Link domains to BranchPluginExample and commit to Git"
+desc "Set up BranchPluginExample and commit to Git"
 lane :setup_and_commit do
-  setup_branch commit: true # Use a string here for a custom commit message
+  setup_branch android_project_path: "examples/android/BranchPluginExample",
+               xcodeproj: "examples/ios/BranchPluginExample/BranchPluginExample.xcodeproj",
+               commit: true # Use a string here for a custom commit message
 end
 
-desc "Set up the BranchPluginExampleObjc"
+desc "Set up BranchPluginExampleObjc"
 lane :setup_objc do
   setup_branch xcodeproj: "examples/ios/BranchPluginExampleObjc/BranchPluginExampleObjc.xcodeproj"
 end
 
-desc "Set up the BranchPluginExampleCarthage"
+desc "Set up BranchPluginExampleCarthage"
 lane :setup_carthage do
   setup_branch xcodeproj: "examples/ios/BranchPluginExampleCarthage/BranchPluginExampleCarthage.xcodeproj"
 end

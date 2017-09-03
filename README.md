@@ -166,16 +166,59 @@ the project must also match the value of this parameter without regard to order.
 
 This action does not use the Branchfile.
 
-## Example
+## Examples
 
-Check out the [example `Fastfile`](fastlane/Fastfile) to see how to use this plugin. To try it:
+There is an example [Fastfile](./fastlane/Fastfile) in this repo that defines a number of
+example lanes. Be sure to run `bundle install` before trying any of the examples.
+
+### setup
+
+This lane sets up the BranchPluginExample projects
+in [examples/android/BranchPluginExample](./examples/android/BranchPluginExample) and
+[examples/ios/BranchPluginExample](./examples/ios/BranchPluginExample).
+The Xcode project uses CocoaPods and Swift.
 
 ```bash
-bundle exec fastlane validate         # The example project needs to be set up. This will fail.
-bundle exec fastlane setup            # Also validates the UL configuration.
-bundle exec fastlane setup_and_commit # Also commit changes to Git. (git reset --hard HEAD^ to erase the last commit)
-bundle exec fastlane validate         # Now validation will pass.
+bundle exec fastlane setup
 ```
+
+### setup_and_commit
+
+This lane sets up the BranchPluginExample projects and also commits the results to git.
+
+```bash
+bundle exec fastlane setup
+```
+
+### setup_objc
+
+This lane sets up the BranchPluginExampleObjc project
+in [examples/ios/BranchPluginExampleObjc](./examples/ios/BranchPluginExampleObjc).
+The project uses CocoaPods and Objective-C.
+
+```bash
+bundle exec fastlane setup_objc
+```
+
+### setup_carthage
+
+This lane sets up the BranchPluginExampleCarthage project
+in [examples/ios/BranchPluginExampleCarthage](./examples/ios/BranchPluginExampleCarthage).
+The project uses Carthage and Swift.
+
+```bash
+bundle exec fastlane setup_carthage
+```
+
+### validate
+
+This lane validates the Universal Link configuration for the BranchPluginExample
+project in [examples/ios/BranchPluginExample](./examples/ios/BranchPluginExample).
+
+```bash
+bundle exec fastlane validate
+```
+
 
 ## Run tests for this plugin
 
