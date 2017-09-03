@@ -94,9 +94,8 @@ module Fastlane
           UI.user_error! "#{podfile_path} not found"
         end
 
-        xcodeproj_path = xcodeproj_path_from_params(params)
         # Look in the same directory as the project (typical setup)
-        podfile_path = File.expand_path "../Podfile", xcodeproj_path
+        podfile_path = File.expand_path "../Podfile", params[:xcodeproj]
         return podfile_path if File.exist? podfile_path
       end
 
@@ -112,9 +111,8 @@ module Fastlane
           UI.user_error! "#{cartfile_path} not found"
         end
 
-        xcodeproj_path = xcodeproj_path_from_params(params)
         # Look in the same directory as the project (typical setup)
-        cartfile_path = File.expand_path "../Cartfile", xcodeproj_path
+        cartfile_path = File.expand_path "../Cartfile", params[:xcodeproj]
         return cartfile_path if File.exist? cartfile_path
       end
 
