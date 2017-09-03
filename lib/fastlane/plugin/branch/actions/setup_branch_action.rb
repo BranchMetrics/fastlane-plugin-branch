@@ -289,7 +289,15 @@ module Fastlane
           target = helper.target_from_project project, params[:target]
           target.frameworks_build_phase.add_file_reference branch_framework
 
-          # 5. TODO: Add to copy-frameworks build phase
+          # 5. Add to copy-frameworks build phase
+          carthage_build_phase = target.build_phases.find do |phase|
+            phase.respond_to?(:shell_script) && phase.shell_script =~ /carthage\s+copy-frameworks/
+          end
+
+          if carthage_build_phase
+            carthage_build_phase.input_paths << "$(SRCROOT)/Carthage/Build/iOS/Branch.framework"
+            carthage_build_phase.output_paths << "$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/Branch.framework"
+          end
 
           # 6. Check if Carthage folder is under SCM
           carthage_folder_path = File.expand_path "../Carthage", cartfile_path
