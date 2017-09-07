@@ -187,7 +187,7 @@ bundle exec fastlane setup
 This lane sets up the BranchPluginExample projects and also commits the results to git.
 
 ```bash
-bundle exec fastlane setup
+bundle exec fastlane setup_and_commit
 ```
 
 ### setup_objc
