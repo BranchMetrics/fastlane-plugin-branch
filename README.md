@@ -115,6 +115,7 @@ Available options:
 |:patch_source|Set to false to disable automatic source-code patching|BRANCH_PATCH_SOURCE|boolean|true|
 |:pod_repo_update|Set to false to disable update of local podspec repo before pod install|BRANCH_POD_REPO_UPDATE|boolean|true|
 |:cartfile|Path to a Cartfile to update (iOS only)|BRANCH_CARTFILE|string||
+|:double_quotes|Use double quotes in generated XML|BRANCH_FORCE_DOUBLE_QUOTES|boolean|true|
 
 Individually, all parameters are optional, but the following conditions apply:
 
