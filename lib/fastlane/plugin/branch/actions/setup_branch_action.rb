@@ -72,6 +72,20 @@ module Fastlane
             manifest.write f, 4
           end
 
+          # Work around a REXML issue for now.
+          # Replace single quotes with double quotes in all XML attributes.
+          # Disable this using double_quotes: false.
+          if params[:double_quotes]
+            Actions::PatchAction.run(
+              files: manifest_path,
+              regexp: /(=\s*)'([^']*)'/,
+              text: '\1"\2"',
+              mode: :replace,
+              global: true,
+              offset: 0
+            )
+          end
+
           helper.add_change File.expand_path(manifest_path, Bundler.root)
         end
 
@@ -79,7 +93,7 @@ module Fastlane
           message = params[:commit].kind_of?(String) ? params[:commit] : "[Fastlane] Branch SDK integration"
           other_action.git_commit path: helper.changes.to_a, message: message
         end
-      rescue => e
+      rescue StandardError => e
         UI.user_error! "Error in SetupBranchAction: #{e.message}\n#{e.backtrace}"
       end
       # rubocop: enable Metrics/PerceivedComplexity
@@ -231,7 +245,13 @@ module Fastlane
                                   env_name: "BRANCH_CARTFILE",
                                description: "Path to a Cartfile to update (iOS only)",
                                   optional: true,
-                                      type: String)
+                                      type: String),
+          FastlaneCore::ConfigItem.new(key: :double_quotes,
+                                  env_name: "BRANCH_FORCE_DOUBLE_QUOTES",
+                               description: "Use double quotes in generated XML",
+                                  optional: true,
+                             default_value: true,
+                                 is_string: false)
         ]
       end
 

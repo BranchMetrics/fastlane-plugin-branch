@@ -46,7 +46,7 @@ module Fastlane
         UI.message "Universal Link configuration passed validation. ✅" if valid
 
         valid
-      rescue => e
+      rescue StandardError => e
         UI.user_error! "Error in ValidateUniversalLinksAction: #{e.message}\n#{e.backtrace}"
         false
       end
