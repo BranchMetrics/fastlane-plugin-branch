@@ -371,7 +371,7 @@ module Fastlane
 
         Actions::PatchAction.run(
           files: app_delegate_swift_path,
-          regexp: /didFinishLaunchingWithOptions.*\{[^\n]*\n/m,
+          regexp: /didFinishLaunchingWithOptions.*?\{[^\n]*\n/m,
           text: init_session_text,
           mode: :append,
           offset: 0
@@ -432,7 +432,7 @@ module Fastlane
 
         Actions::PatchAction.run(
           files: app_delegate_objc_path,
-          regexp: /didFinishLaunchingWithOptions.*\{[^\n]*\n/m,
+          regexp: /didFinishLaunchingWithOptions.*?\{[^\n]*\n/m,
           text: init_session_text,
           mode: :append,
           offset: 0
@@ -473,8 +473,8 @@ module Fastlane
         # TODO: Improve this patch. Should work in the majority of cases for now.
         Actions::PatchAction.run(
           files: podfile_path,
-          regexp: /^\s*pod\s*/,
-          text: "\npod \"Branch\"",
+          regexp: /^(\s*)pod\s*/,
+          text: "\n\\1pod \"Branch\"\n",
           mode: :prepend,
           offset: 0
         )
