@@ -473,8 +473,8 @@ module Fastlane
         # TODO: Improve this patch. Should work in the majority of cases for now.
         Actions::PatchAction.run(
           files: podfile_path,
-          regexp: /^\s*pod\s*/,
-          text: "\npod \"Branch\"",
+          regexp: /^(\s*)pod\s*/,
+          text: "\n\\1pod \"Branch\"\n",
           mode: :prepend,
           offset: 0
         )
