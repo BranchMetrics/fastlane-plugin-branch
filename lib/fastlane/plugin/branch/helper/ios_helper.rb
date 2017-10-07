@@ -371,7 +371,7 @@ module Fastlane
 
         Actions::PatchAction.run(
           files: app_delegate_swift_path,
-          regexp: /didFinishLaunchingWithOptions.*\{[^\n]*\n/m,
+          regexp: /didFinishLaunchingWithOptions.*?\{[^\n]*\n/m,
           text: init_session_text,
           mode: :append,
           offset: 0
@@ -432,7 +432,7 @@ module Fastlane
 
         Actions::PatchAction.run(
           files: app_delegate_objc_path,
-          regexp: /didFinishLaunchingWithOptions.*\{[^\n]*\n/m,
+          regexp: /didFinishLaunchingWithOptions.*?\{[^\n]*\n/m,
           text: init_session_text,
           mode: :append,
           offset: 0
