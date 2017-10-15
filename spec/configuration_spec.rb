@@ -1,12 +1,5 @@
-class ModuleInstance
-  class << self
-    attr_accessor :errors
-    include Fastlane::Helper::ConfigurationHelper
-  end
-end
-
 describe Fastlane::Helper::ConfigurationHelper do
-  let(:helper) { ModuleInstance }
+  let(:helper) { Fastlane::Helper::BranchConfigurationHelper }
 
   before :each do
     helper.errors = []

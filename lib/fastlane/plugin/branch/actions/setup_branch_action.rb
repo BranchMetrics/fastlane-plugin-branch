@@ -1,18 +1,35 @@
+require "branch_io_cli"
 require "rexml/document"
-require "xcodeproj"
 
 module Fastlane
   module Actions
     class SetupBranchAction < Action
+      SetupOptions = Struct.new(
+        :live_key,
+        :test_key,
+        :app_link_subdomain,
+        :domains,
+        :xcodeproj,
+        :target,
+        :podfile,
+        :cartfile,
+        :frameworks,
+        :no_add_sdk,
+        :no_patch_source,
+        :no_pod_repo_update,
+        :no_validate,
+        :force
+      )
+
       # rubocop: disable Metrics/PerceivedComplexity
       def self.run(params)
         # First augment with any defaults from Branchfile, if present
         params.load_configuration_file("Branchfile")
 
-        keys = helper.keys_from_params params
+        keys = config_helper.keys_from_params params
         raise "Must specify :live_key or :test_key." if keys.empty?
 
-        domains = helper.domains_from_params params
+        domains = config_helper.domains_from_params params
         raise "Cannot determine domains to add to project. Specify :app_link_subdomain or :domains." if domains.empty?
 
         if params[:xcodeproj].nil? and params[:android_project_path].nil? and params[:android_manifest_path].nil?
@@ -24,35 +41,25 @@ module Fastlane
         UI.message "domains: #{domains}"
 
         if params[:xcodeproj]
-          # raises
-          xcodeproj = Xcodeproj::Project.open params[:xcodeproj]
+          options = SetupOptions.new(
+            params[:live_key],
+            params[:test_key],
+            params[:app_link_subdomain],
+            params[:domains].split(","),
+            params[:xcodeproj],
+            params[:target],
+            params[:podfile],
+            params[:cartfile],
+            params[:frameworks],
+            !params[:add_sdk],
+            !params[:patch_source],
+            !params[:pod_repo_update],
+            !params[:validate],
+            params[:force]
+          )
 
-          update_podfile(params) || update_cartfile(params, xcodeproj)
-
-          target = params[:target] # may be nil
-
-          if params[:update_bundle_and_team_ids]
-            helper.update_team_and_bundle_ids_from_aasa_file xcodeproj, target, domains.first
-          elsif params[:validate] &&
-                helper.validate_team_and_bundle_ids_from_aasa_files(xcodeproj, target, domains, params[:remove_existing_domains])
-            UI.message "Universal Link configuration passed validation. ✅"
-          elsif params[:validate]
-            UI.error "Universal Link configuration failed validation."
-            helper.errors.each { |error| UI.error " #{error}" }
-            return unless params[:force]
-          end
-
-          # the following calls can all raise IOError
-          helper.add_keys_to_info_plist xcodeproj, target, keys
-          helper.add_branch_universal_link_domains_to_info_plist xcodeproj, target, domains
-          new_path = helper.add_universal_links_to_project xcodeproj, target, domains, params[:remove_existing_domains]
-          other_action.git_add path: new_path if params[:commit] && new_path
-
-          helper.add_system_frameworks xcodeproj, target, params[:frameworks] unless params[:frameworks].empty?
-
-          xcodeproj.save
-
-          patch_source xcodeproj if params[:patch_source]
+          # :commit is handled at the end, in case doing both at once
+          BranchIOCLI::Command.setup options
         end
 
         if params[:android_project_path] || params[:android_manifest_path]
@@ -60,9 +67,9 @@ module Fastlane
           manifest_path = params[:android_manifest_path] || "#{params[:android_project_path]}/app/src/main/AndroidManifest.xml"
           manifest = File.open(manifest_path) { |f| REXML::Document.new f }
 
-          helper.add_keys_to_android_manifest manifest, keys
+          android_helper.add_keys_to_android_manifest manifest, keys
           # :activity_name and :uri_scheme may be nil. :remove_existing_domains defaults to false
-          helper.add_intent_filters_to_android_manifest manifest,
+          android_helper.add_intent_filters_to_android_manifest manifest,
                                                         domains,
                                                         params[:uri_scheme],
                                                         params[:activity_name],
@@ -86,12 +93,12 @@ module Fastlane
             )
           end
 
-          helper.add_change File.expand_path(manifest_path, Bundler.root)
+          config_helper.add_change File.expand_path(manifest_path, Bundler.root)
         end
 
         if params[:commit]
           message = params[:commit].kind_of?(String) ? params[:commit] : "[Fastlane] Branch SDK integration"
-          other_action.git_commit path: helper.changes.to_a, message: message
+          other_action.git_commit path: config_helper.changes.to_a, message: message
         end
       rescue StandardError => e
         UI.user_error! "Error in SetupBranchAction: #{e.message}\n#{e.backtrace}"
@@ -264,78 +271,13 @@ module Fastlane
       end
 
       class << self
-        def update_podfile(params)
-          podfile_path = helper.podfile_path_from_params params
-          return false if podfile_path.nil?
-
-          # 1. Patch Podfile. Return if no change (Branch pod already present).
-          return false unless helper.patch_podfile podfile_path
-
-          # 2. pod install
-          other_action.cocoapods podfile: podfile_path, repo_update: params[:pod_repo_update]
-
-          # 3. Add Podfile and Podfile.lock to commit (in case :commit param specified)
-          helper.add_change podfile_path
-          helper.add_change "#{podfile_path}.lock"
-
-          # 4. Check if Pods folder is under SCM
-          pods_folder_path = File.expand_path "../Pods", podfile_path
-          `git ls-files #{pods_folder_path} --error-unmatch > /dev/null 2>&1`
-          return true unless $?.exitstatus == 0
-
-          # 5. If so, add the Pods folder to the commit (in case :commit param specified)
-          helper.add_change pods_folder_path
-          other_action.git_add path: pods_folder_path if params[:commit]
-          true
+        def android_helper
+          # Use this here until the CLI fully supports Android
+          BranchIOCLI::Helper::BranchHelper
         end
 
-        def update_cartfile(params, project)
-          cartfile_path = helper.cartfile_path_from_params params
-          return false if cartfile_path.nil?
-
-          # 1. Patch Cartfile. Return if no change (Branch already present).
-          return false unless helper.patch_cartfile cartfile_path
-
-          # 2. carthage update
-          other_action.carthage command: "update", project_directory: File.dirname(cartfile_path)
-
-          # 3. Add Cartfile and Cartfile.resolved to commit (in case :commit param specified)
-          helper.add_change cartfile_path
-          helper.add_change "#{cartfile_path}.resolved"
-
-          # 4. Add to target depependencies
-          frameworks_group = project['Frameworks']
-          branch_framework = frameworks_group.new_file "Carthage/Build/iOS/Branch.framework"
-          target = helper.target_from_project project, params[:target]
-          target.frameworks_build_phase.add_file_reference branch_framework
-
-          # 5. Add to copy-frameworks build phase
-          carthage_build_phase = target.build_phases.find do |phase|
-            phase.respond_to?(:shell_script) && phase.shell_script =~ /carthage\s+copy-frameworks/
-          end
-
-          if carthage_build_phase
-            carthage_build_phase.input_paths << "$(SRCROOT)/Carthage/Build/iOS/Branch.framework"
-            carthage_build_phase.output_paths << "$(BUILT_PRODUCTS_DIR)/$(FRAMEWORKS_FOLDER_PATH)/Branch.framework"
-          end
-
-          # 6. Check if Carthage folder is under SCM
-          carthage_folder_path = File.expand_path "../Carthage", cartfile_path
-          `git ls-files #{carthage_folder_path} --error-unmatch > /dev/null 2>&1`
-          return true unless $?.exitstatus == 0
-
-          # 7. If so, add the Pods folder to the commit (in case :commit param specified)
-          helper.add_change carthage_folder_path
-          other_action.git_add path: carthage_folder_path if params[:commit]
-          true
-        end
-
-        def patch_source(xcodeproj)
-          helper.patch_app_delegate_swift(xcodeproj) || helper.patch_app_delegate_objc(xcodeproj)
-        end
-
-        def helper
-          Helper::BranchHelper
+        def config_helper
+          Helper::BranchConfigurationHelper
         end
       end
     end
