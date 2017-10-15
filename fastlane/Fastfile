@@ -30,8 +30,13 @@ lane :validate do
   # Order is irrelevant.
   # This app is not currently set up properly for test in the Dashboard. Don't include
   # test domains in the project for now.
-  validate_universal_links domains: %w{
-    bnctestbed.app.link
-    bnctestbed-alternate.app.link
-  }
+  validate_universal_links(
+    domains: %w{
+      k272.app.link
+      k272-alternate.app.link
+      k272.test-app.link
+      k272-alternate.test-app.link
+    },
+    xcodeproj: "examples/ios/BranchPluginExample/BranchPluginExample.xcodeproj"
+  )
 end
