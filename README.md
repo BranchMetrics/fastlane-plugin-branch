@@ -8,6 +8,9 @@ operates directly on your project. There is no need to look up your team identif
 any other information. The validator requires no input at all for simple projects. It
 supports both signed and unsigned apple-app-site-association files.
 
+Also see the [Branch CLI](https://github.com/BranchMetrics/branch_io_cli), which
+supports the same operations without Fastlane.
+
 [![fastlane Plugin Badge](https://rawcdn.githack.com/fastlane/fastlane/master/fastlane/assets/plugin-badge.svg?style=flat-square)](https://rubygems.org/gems/fastlane-plugin-branch)
 [![Gem](https://img.shields.io/gem/v/fastlane-plugin-branch.svg?style=flat)](https://rubygems.org/gems/fastlane-plugin-branch)
 [![Downloads](https://img.shields.io/gem/dt/fastlane-plugin-branch.svg?style=flat)](https://rubygems.org/gems/fastlane-plugin-branch)
