@@ -3,16 +3,9 @@ require "branch_io_cli"
 module Fastlane
   module Actions
     class ValidateUniversalLinksAction < Action
-      ValidateOptions = Struct.new(
-        :xcodeproj,
-        :target,
-        :domains
-      )
-
       def self.run(params)
-        options = ValidateOptions.new params[:xcodeproj], params[:target], params[:domains]
-
-        BranchIOCLI::Command.validate options
+        options = Helper::BranchOptions.new params
+        BranchIOCLI::Commands::ValidateCommand.new(options).run!
       rescue StandardError => e
         UI.user_error! "Error in ValidateUniversalLinksAction: #{e.message}\n#{e.backtrace}"
         false
