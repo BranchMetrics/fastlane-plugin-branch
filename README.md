@@ -1,6 +1,6 @@
 # Branch plugin
 
-Use this Fastlane plugin to set up your Android or Xcode project configuration correctly to
+Use this Fastlane plugin to set up your Xcode project configuration correctly to
 use the Branch SDK. It can also validate the Universal Link configuration in any Xcode
 project, for Branch domains as well as non-Branch domains. Unlike web-based Universal
 Link validators, the `validate_universal_links` action
@@ -29,57 +29,58 @@ This project is a [_fastlane_](https://github.com/fastlane/fastlane) plugin. To 
 fastlane add_plugin branch
 ```
 
-### New to Fastlane or Ruby?
-
-See [Simple Fastlane setup with plugins](https://github.com/BranchMetrics/fastlane-plugin-branch/wiki/Simple-Fastlane-setup-with-plugins)
-and the [RVM Cheat Sheet](https://github.com/BranchMetrics/fastlane-plugin-branch/wiki/RVM-Cheat-Sheet) in this repo's wiki
-for help getting started.
-
 ## setup_branch action
 
-![Branch plugin](./assets/branch_plugin.gif)
+Integrates the Branch SDK into a native app project. This currently supports iOS only.
+It will infer the project location if there is exactly one .xcodeproj anywhere under
+the current directory, excluding any in a Pods or Carthage folder. Otherwise, specify
+the project location using the `--xcodeproj` option, or the CLI will prompt you for the
+location.
 
-### Prerequisites
+If a Podfile or Cartfile is detected, the Branch SDK will be added to the relevant
+configuration file and the dependencies updated to include the Branch framework.
+This behavior may be suppressed using `--no-add-sdk`. If no Podfile or Cartfile
+is found, and Branch.framework is not already among the project's dependencies,
+you will be prompted for a number of choices, including setting up CocoaPods or
+Carthage for the project or directly installing the Branch.framework.
 
-Before using this action, make sure to set up your app in the [Branch Dashboard](https://dashboard.branch.io). See https://docs.branch.io/pages/dashboard/integrate/ for details. To use the `setup_branch` action, you need:
+By default, all supplied Universal Link domains are validated. If validation passes,
+the setup continues. If validation fails, no further action is taken. Suppress
+validation using `--no-validate` or force changes when validation fails using
+`--force`.
+
+By default, this command will look for the first app target in the project. Test
+targets are not supported. To set up an extension target, supply the `--target` option.
+
+All relevant target settings are modified. The Branch keys are added to the Info.plist,
+along with the `branch_universal_link_domains` key for custom domains (when `--domains`
+is used). For app targets, all domains are added to the project's Associated Domains
+entitlement. An entitlements file is also added for app targets if none is found.
+Optionally, if `--frameworks` is specified, this command can add a list of system
+frameworks to the target's dependencies (e.g., AdSupport, CoreSpotlight, SafariServices).
+
+A language-specific patch is applied to the AppDelegate (Swift or Objective-C).
+This can be suppressed using `--no-patch-source`.
+
+#### Prerequisites
+
+Before using this command, make sure to set up your app in the [Branch Dashboard](https://dashboard.branch.io). See https://docs.branch.io/pages/dashboard/integrate/ for details. To use the `setup` command, you need:
 
 - Branch key(s), either live, test or both
 - Domain name(s) used for Branch links
-- The custom URI scheme for your app, if any (Android only)
-- Location(s) of your Android and/or iOS project(s)
+- Location of your Xcode project (may be inferred in simple projects)
 
-### Usage
-
-This action automatically configures Xcode and Android projects that use the Branch SDK
-for Universal Links, App Links and custom URI handling. It modifies Xcode project settings and entitlements as well as Info.plist and AndroidManifest.xml files.
-
-For iOS projects, if a Podfile is detected, and the Podfile does not already contain
-the Branch pod, the pod will be added and `pod install` run to add the Branch SDK
-dependency to the project. If no Podfile is present, and a Cartfile is detected without
-the Branch framework, the framework will be added and `carthage update` run to add
-the Branch SDK dependency to the project. If no Podfile or Cartfile is detected, or
-if one exists with the Branch SDK already included, no changes to the project's
-dependencies will be made.
-
-The AppDelegate will receive the following changes if a
-Branch import is not found:
-
-- Import the Branch SDK (`import Branch` or `#import <Branch/Branch.h>`).
-- Add the Branch `initSession` call to the `application:didFinishLaunchingWithOptions:` method.
-- Add the `application:continueUserActivity:restorationHandler:` method if it does not
-  exist.
-
-Both Swift and Objective-C are supported. Automatically updating the Podfile and
-the AppDelegate may be suppressed, respectively, using the `:add_sdk` and
-`:patch_source` options (see below for all options).
+If using the `--commit` option, `git` is required. If not using `--no-add-sdk`,
+the `pod` or `carthage` command may be required. If not found, the CLI will
+offer to install and set up these command-line tools for you. Alternately, you can arrange
+that the relevant commands are available in your `PATH`.
 
 ```ruby
 setup_branch(
   live_key: "key_live_xxxx",
   test_key: "key_test_yyyy",
   app_link_subdomain: "myapp",
-  uri_scheme: "myscheme", # Android only
-  android_project_path: "MyAndroidApp", # MyAndroidApp/src/main/AndroidManifest.xml
+  uri_scheme: "myscheme",
   xcodeproj: "MyIOSApp.xcodeproj"
 )
 ```
@@ -101,14 +102,9 @@ Available options:
 |:test_key|The Branch test key to use (:live_key or :test_key is required)|BRANCH_TEST_KEY|string||
 |:app_link_subdomain|An app.link subdomain to use (:app_link_subdomain or :domains is required. The union of the two sets of domains will be used.)|BRANCH_APP_LINK_SUBDOMAIN|string||
 |:domains|A list of domains (custom domains or Branch domains) to use (:app_link_subdomain or :domains is required. The union of the two sets of domains will be used.)|BRANCH_DOMAINS|array of strings or comma-separated string||
-|:uri_scheme|A URI scheme to add to the manifest (Android only)|BRANCH_URI_SCHEME|string||
-|:android_project_path|Path to an Android project to use. Equivalent to 'android_manifest_path: "app/src/main/AndroidManifest.xml"`. Overridden by :android_manifest_path (:xcodeproj, :android_project_path or :android_manifest_path is required.)|BRANCH_ANDROID_PROJECT_PATH|string||
-|:android_manifest_path|Path to an Android manifest to modify. Overrides :android_project_path. (:xcodeproj, :android_project_path or :android_manifest_path is required.)|BRANCH_ANDROID_MANIFEST_PATH|string||
+|:uri_scheme|A URI scheme to add to the manifest|BRANCH_URI_SCHEME|string||
 |:xcodeproj|Path to a .xcodeproj directory to use. (:xcodeproj, :android_project_path or :android_manifest_path is required.)|BRANCH_XCODEPROJ|string||
-|:activity_name|Name of the Activity to use (Android only; optional)|BRANCH_ACTIVITY_NAME|string||
 |:target|Name of the target to use in the Xcode project (iOS only; optional)|BRANCH_TARGET|string||
-|:update_bundle_and_team_ids|If true, changes the bundle and team identifiers in the Xcode project to match the AASA file. Mainly useful for sample apps. (iOS only)|BRANCH_UPDATE_BUNDLE_AND_TEAM_IDS|boolean|false|
-|:remove_existing_domains|If true, any domains currently configured in the Xcode project or Android manifest will be removed before adding the domains specified by the arguments. Mainly useful for sample apps.|BRANCH_REMOVE_EXISTING_DOMAINS|boolean|false|
 |:validate|Determines whether to validate the resulting Universal Link configuration before modifying the project|BRANCH_VALIDATE|boolean|true|
 |:force|Update project(s) even if Universal Link validation fails|BRANCH_FORCE_UPDATE|boolean|false|
 |:commit|Set to true to commit changes to Git; set to a string to commit with a custom message|BRANCH_COMMIT_CHANGES|boolean or string|false|
@@ -118,13 +114,14 @@ Available options:
 |:patch_source|Set to false to disable automatic source-code patching|BRANCH_PATCH_SOURCE|boolean|true|
 |:pod_repo_update|Set to false to disable update of local podspec repo before pod install|BRANCH_POD_REPO_UPDATE|boolean|true|
 |:cartfile|Path to a Cartfile to update (iOS only)|BRANCH_CARTFILE|string||
-|:double_quotes|Use double quotes in generated XML|BRANCH_FORCE_DOUBLE_QUOTES|boolean|true|
+|:carthage_command|Command to use when installing with Carthage|BRANCH_CARTHAGE_COMMAND|string|update --platform ios|
 
 Individually, all parameters are optional, but the following conditions apply:
 
-- :android_manifest_path, :android_project_path or :xcodeproj must be specified.
 - :live_key or :test_key must be specified.
 - :app_link_subdomain or :domains must be specified.
+
+If these parameters are not specified, you will be prompted for them.
 
 This action also supports an optional Branchfile to specify configuration options.
 See the sample [Branchfile](./fastlane/Branchfile) in the fastlane subdirectory of this repo.
@@ -177,8 +174,8 @@ example lanes. Be sure to run `bundle install` before trying any of the examples
 
 ### setup
 
-This lane sets up the BranchPluginExample projects
-in [examples/android/BranchPluginExample](./examples/android/BranchPluginExample) and
+This lane sets up the BranchPluginExample project
+in
 [examples/ios/BranchPluginExample](./examples/ios/BranchPluginExample).
 The Xcode project uses CocoaPods and Swift.
 

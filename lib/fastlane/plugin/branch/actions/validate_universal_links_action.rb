@@ -1,51 +1,11 @@
-require "xcodeproj"
+require "branch_io_cli"
 
 module Fastlane
   module Actions
     class ValidateUniversalLinksAction < Action
       def self.run(params)
-        helper = Fastlane::Helper::BranchHelper
-
-        xcodeproj_path = helper.xcodeproj_path_from_params params
-        # Error reporting is done in the helper.
-        return false if xcodeproj_path.nil?
-
-        # raises
-        xcodeproj = Xcodeproj::Project.open xcodeproj_path
-
-        target = params[:target] # may be nil
-        domains = params[:domains] # may be nil
-
-        valid = true
-
-        unless domains.nil?
-          domains_valid = helper.validate_project_domains(
-            helper.custom_domains_from_params(params),
-            xcodeproj,
-            target
-          )
-
-          if domains_valid
-            UI.message "Project domains match :domains parameter: ✅"
-          else
-            UI.error "Project domains do not match specified :domains"
-            helper.errors.each { |error| UI.error " #{error}" }
-          end
-
-          valid &&= domains_valid
-        end
-
-        configuration_valid = helper.validate_team_and_bundle_ids_from_aasa_files xcodeproj, target
-        unless configuration_valid
-          UI.error "Universal Link configuration failed validation."
-          helper.errors.each { |error| UI.error " #{error}" }
-        end
-
-        valid &&= configuration_valid
-
-        UI.message "Universal Link configuration passed validation. ✅" if valid
-
-        valid
+        options = Helper::BranchOptions.new params
+        BranchIOCLI::Commands::ValidateCommand.new(options).run!
       rescue StandardError => e
         UI.user_error! "Error in ValidateUniversalLinksAction: #{e.message}\n#{e.backtrace}"
         false
