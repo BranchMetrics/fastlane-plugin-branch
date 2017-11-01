@@ -4,6 +4,7 @@ module Fastlane
   module Actions
     class SetupBranchAction < Action
       def self.run(params)
+        params.load_configuration_file "Branchfile"
         options = Helper::BranchOptions.new params
         BranchIOCLI::Commands::SetupCommand.new(options).run!
       rescue StandardError => e
@@ -22,9 +23,9 @@ module Fastlane
       end
 
       def self.details
-        "This action automatically configures Xcode and Android projects that use the Branch SDK " \
-          "for Universal Links, App Links and custom URI handling. It modifies Xcode project settings and " \
-          "entitlements as well as Info.plist and AndroidManifest.xml files. It also validates the Universal Link " \
+        "This action automatically configures Xcode projects that use the Branch SDK " \
+          "for Universal Links and custom URI handling. It modifies Xcode project settings and " \
+          "entitlements as well as Info.plist files. It also validates the Universal Link " \
           "configuration for Xcode projects."
       end
 
@@ -129,6 +130,12 @@ module Fastlane
                                   env_name: "BRANCH_CARTFILE",
                                description: "Path to a Cartfile to update (iOS only)",
                                   optional: true,
+                                      type: String),
+          FastlaneCore::ConfigItem.new(key: :carthage_command,
+                                  env_name: "BRANCH_CARTHAGE_COMMAND",
+                               description: "Command to use when installing with Carthage",
+                                  optional: true,
+                             default_value: "update --platform ios",
                                       type: String)
         ]
       end
