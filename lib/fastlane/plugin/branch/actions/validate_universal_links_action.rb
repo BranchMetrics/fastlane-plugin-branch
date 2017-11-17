@@ -1,11 +1,12 @@
 require "branch_io_cli"
+include BranchIOCLI::Format::HighlineFormat
 
 module Fastlane
   module Actions
     class ValidateUniversalLinksAction < Action
       def self.run(params)
-        options = Helper::BranchOptions.new params
-        BranchIOCLI::Commands::ValidateCommand.new(options).run!
+        config = BranchIOCLI::Configuration::ValidateConfiguration.wrapper params, false
+        BranchIOCLI::Commands::ValidateCommand.new(config).run!
       rescue StandardError => e
         UI.user_error! "Error in ValidateUniversalLinksAction: #{e.message}\n#{e.backtrace}"
         false
@@ -23,9 +24,7 @@ module Fastlane
       end
 
       def self.details
-        "This action validates all the Universal Link domains found in an Xcode project's entitlements " \
-        "file by ensuring that the development team and bundle identifier combination is found in the " \
-        "domain's apple-app-site-association file."
+        render :validate_description
       end
 
       def self.example_code
@@ -46,27 +45,13 @@ module Fastlane
       end
 
       def self.available_options
-        [
-          FastlaneCore::ConfigItem.new(key: :xcodeproj,
-                                  env_name: "BRANCH_XCODEPROJ",
-                               description: "Path to an Xcode project to validate",
-                                  optional: true,
-                                      type: String),
-          FastlaneCore::ConfigItem.new(key: :target,
-                                  env_name: "BRANCH_TARGET",
-                               description: "Name of the target in the Xcode project to validate",
-                                  optional: true,
-                                      type: String),
-          FastlaneCore::ConfigItem.new(key: :domains,
-                                  env_name: "BRANCH_DOMAINS",
-                               description: "Branch (and/or non-Branch) Universal Link/App Link domains expected to be present in project (comma-separated list or array)",
-                                  optional: true,
-                                 is_string: false)
-        ]
+        BranchIOCLI::Configuration::ValidateConfiguration.available_options.map do |option|
+          FastlaneCore::ConfigItem.from_branch_option(option)
+        end
       end
 
       def self.return_value
-        "Returns true for a valid configuration, false otherwise."
+        BranchIOCLI::Configuration::ValidateConfiguration.return_value
       end
 
       def self.is_supported?(platform)
