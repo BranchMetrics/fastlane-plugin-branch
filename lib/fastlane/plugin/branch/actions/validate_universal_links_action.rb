@@ -6,7 +6,7 @@ module Fastlane
     class ValidateUniversalLinksAction < Action
       def self.run(params)
         config = BranchIOCLI::Configuration::ValidateConfiguration.wrapper params, false
-        BranchIOCLI::Commands::ValidateCommand.new(config).run! == 0 ? true : false
+        BranchIOCLI::Commands::ValidateCommand.new(config).run! == 0
       rescue StandardError => e
         UI.user_error! "Error in ValidateUniversalLinksAction: #{e.message}\n#{e.backtrace}"
         false
