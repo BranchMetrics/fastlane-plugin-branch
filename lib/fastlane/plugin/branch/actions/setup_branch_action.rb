@@ -1,28 +1,8 @@
 require "branch_io_cli"
+require "fastlane/plugin/branch/config_item"
+require "fastlane/plugin/branch/fastlane_format"
 
-include BranchIOCLI::Format::HighlineFormat # for now
-
-module FastlaneCore
-  class ConfigItem
-    class << self
-      def from_branch_option(option)
-        params = {
-          key: option.name,
-          description: option.description,
-          default_value: option.default_value,
-          type: option.type,
-          is_string: option.type == String
-        }
-
-        if option.respond_to?(:env_name) && option.env_name
-          params[:env_name] = option.env_name
-        end
-
-        new params
-      end
-    end
-  end
-end
+include Fastlane::Branch::FastlaneDescriptionFormat
 
 module Fastlane
   module Actions
@@ -58,13 +38,13 @@ module Fastlane
       def self.example_code
         [
           <<-EOF
-            setup_branch(
-              live_key: "key_live_xxxx",
-              test_key: "key_test_yyyy",
-              app_link_subdomain: "myapp",
-              uri_scheme: "myscheme",
-              xcodeproj: "MyIOSApp.xcodeproj"
-            )
+setup_branch(
+  live_key: "key_live_xxxx",
+  test_key: "key_test_yyyy",
+  app_link_subdomain: "myapp",
+  uri_scheme: "myscheme",
+  xcodeproj: "MyIOSApp.xcodeproj"
+)
           EOF
         ]
       end

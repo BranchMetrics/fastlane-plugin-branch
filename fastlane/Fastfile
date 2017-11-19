@@ -1,3 +1,5 @@
+actions_path("../actions")
+
 desc "Set up BranchPluginExample"
 lane :setup do
   setup_branch xcodeproj: "examples/BranchPluginExample/BranchPluginExample.xcodeproj"
@@ -37,4 +39,14 @@ lane :validate do
     },
     xcodeproj: "examples/BranchPluginExample/BranchPluginExample.xcodeproj"
   )
+end
+
+desc "Update the README in this repo"
+lane :readme do
+  updated_dox = update_readme
+
+  patch regexp: /(\<!-- BEGIN ACTION REFERENCE --\>).*(\<!-- END ACTION REFERENCE --\>)/m,
+        text: "\\1\n#{updated_dox}\n\\2",
+        mode: :replace,
+        files: "README.md"
 end

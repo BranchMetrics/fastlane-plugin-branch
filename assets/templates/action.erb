@@ -1,0 +1,25 @@
+<%= header "#{@action_name} action", 3 %>
+
+```Ruby
+<%= @action_name %>
+```
+
+<%= render "#{@command.command_name}_description" %>
+
+<%= header "Options", 4 %>
+
+|Fastfile key|description|Environment variable|type|default value|
+|---|---|---|---|---|
+<%= table_options %>
+
+<% if @action.respond_to?(:example_code) && !@action.example_code.blank? %>
+<%= header "Examples", 4 %>
+<% @action.example_code.each do |example| %>
+```Ruby
+<%= example %>
+```
+<% end %>
+<% end %>
+
+<% if @command.respond_to?(:return_value) && !@command.return_value.nil? %>
+<% end %>

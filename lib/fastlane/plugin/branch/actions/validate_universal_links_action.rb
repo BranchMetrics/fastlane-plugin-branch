@@ -1,5 +1,8 @@
 require "branch_io_cli"
-include BranchIOCLI::Format::HighlineFormat
+require "fastlane/plugin/branch/config_item"
+require "fastlane/plugin/branch/fastlane_format"
+
+include Fastlane::Branch::FastlaneDescriptionFormat
 
 module Fastlane
   module Actions
@@ -29,18 +32,10 @@ module Fastlane
 
       def self.example_code
         [
-          <<-EOF
-            validate_universal_links
-          EOF,
-          <<-EOF
-            validate_universal_links(xcodeproj: "MyProject.xcodeproj")
-          EOF,
-          <<-EOF
-            validate_universal_links(xcodeproj: "MyProject.xcodeproj", target: "MyProject")
-          EOF,
-          <<-EOF
-            validate_universal_links(domains: %w{example.com www.example.com})
-          EOF
+          "validate_universal_links",
+          %{validate_universal_links(xcodeproj: "MyProject.xcodeproj")},
+          %{validate_universal_links(xcodeproj: "MyProject.xcodeproj", target: "MyProject")},
+          %{validate_universal_links(domains: %w{example.com www.example.com})}
         ]
       end
 

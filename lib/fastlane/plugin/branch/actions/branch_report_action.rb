@@ -1,5 +1,8 @@
 require "branch_io_cli"
-include BranchIOCLI::Format::HighlineFormat
+require "fastlane/plugin/branch/config_item"
+require "fastlane/plugin/branch/fastlane_format"
+
+include Fastlane::Branch::FastlaneDescriptionFormat
 
 module Fastlane
   module Actions

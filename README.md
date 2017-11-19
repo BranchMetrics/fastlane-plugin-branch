@@ -29,53 +29,98 @@ This project is a [_fastlane_](https://github.com/fastlane/fastlane) plugin. To 
 fastlane add_plugin branch
 ```
 
-## setup_branch action
+<!-- The following is generated. Do not edit by hand. Run fastlane readme to -->
+<!-- regenerate this section. -->
+<!-- BEGIN ACTION REFERENCE -->
+### setup_branch action
+
+```Ruby
+setup_branch
+```
 
 Integrates the Branch SDK into a native app project. This currently supports iOS only.
 It will infer the project location if there is exactly one .xcodeproj anywhere under
 the current directory, excluding any in a Pods or Carthage folder. Otherwise, specify
-the project location using the `--xcodeproj` option, or the CLI will prompt you for the
+the project location using the `xcodeproj` option, or the CLI will prompt you for the
 location.
 
 If a Podfile or Cartfile is detected, the Branch SDK will be added to the relevant
 configuration file and the dependencies updated to include the Branch framework.
-This behavior may be suppressed using `--no-add-sdk`. If no Podfile or Cartfile
+This behavior may be suppressed using `no_add_sdk`. If no Podfile or Cartfile
 is found, and Branch.framework is not already among the project's dependencies,
 you will be prompted for a number of choices, including setting up CocoaPods or
 Carthage for the project or directly installing the Branch.framework.
 
 By default, all supplied Universal Link domains are validated. If validation passes,
 the setup continues. If validation fails, no further action is taken. Suppress
-validation using `--no-validate` or force changes when validation fails using
-`--force`.
+validation using `no_validate` or force changes when validation fails using
+`force`.
 
 By default, this command will look for the first app target in the project. Test
-targets are not supported. To set up an extension target, supply the `--target` option.
+targets are not supported. To set up an extension target, supply the `target` option.
 
 All relevant target settings are modified. The Branch keys are added to the Info.plist,
-along with the `branch_universal_link_domains` key for custom domains (when `--domains`
+along with the `branch_universal_link_domains` key for custom domains (when `domains`
 is used). For app targets, all domains are added to the project's Associated Domains
 entitlement. An entitlements file is also added for app targets if none is found.
-Optionally, if `--frameworks` is specified, this command can add a list of system
+Optionally, if `frameworks` is specified, this command can add a list of system
 frameworks to the target's dependencies (e.g., AdSupport, CoreSpotlight, SafariServices).
 
 A language-specific patch is applied to the AppDelegate (Swift or Objective-C).
-This can be suppressed using `--no-patch-source`.
+This can be suppressed using `no_patch_source`.
 
 #### Prerequisites
 
-Before using this command, make sure to set up your app in the [Branch Dashboard](https://dashboard.branch.io). See https://docs.branch.io/pages/dashboard/integrate/ for details. To use the `setup` command, you need:
+Before using this command, make sure to set up your app in the Branch Dashboard
+(https://dashboard.branch.io). See https://docs.branch.io/pages/dashboard/integrate/
+for details. To use the `setup` command, you need:
 
 - Branch key(s), either live, test or both
 - Domain name(s) used for Branch links
 - Location of your Xcode project (may be inferred in simple projects)
 
-If using the `--commit` option, `git` is required. If not using `--no-add-sdk`,
+If using the `commit` option, `git` is required. If not using `no_add_sdk`,
 the `pod` or `carthage` command may be required. If not found, the CLI will
 offer to install and set up these command-line tools for you. Alternately, you can arrange
 that the relevant commands are available in your `PATH`.
 
-```ruby
+All parameters are optional. A live key or test key, or both is required, as well
+as at least one domain. Specify `live_key`, `test_key` or both and `app_link_subdomain`,
+`domains` or both. If these are not specified, this command will prompt you
+for this information.
+
+See https://github.com/BranchMetrics/branch_io_cli#setup-command for more information.
+
+
+#### Options
+
+|Fastfile key|description|Environment variable|type|default value|
+|---|---|---|---|---|
+|live_key|Branch live key|BRANCH_LIVE_KEY|Boolean||
+|test_key|Branch test key|BRANCH_TEST_KEY|Boolean||
+|domains|Comma-separated list of custom domain(s) or non-Branch domain(s)|BRANCH_DOMAINS|Boolean||
+|app_link_subdomain|Branch app.link subdomain, e.g. myapp for myapp.app.link|BRANCH_APP_LINK_SUBDOMAIN|Boolean||
+|uri_scheme|Custom URI scheme used in the Branch Dashboard for this app|BRANCH_URI_SCHEME|Boolean||
+|setting|Use a custom build setting for the Branch key (default: Use Info.plist)|BRANCH_SETTING|Boolean||
+|test_configurations|List of configurations that use the test key with a user-defined setting (default: Debug configurations)|BRANCH_TEST_CONFIGURATIONS|Boolean||
+|xcodeproj|Path to an Xcode project to update|BRANCH_XCODEPROJ|Boolean||
+|target|Name of a target to modify in the Xcode project|BRANCH_TARGET|Boolean||
+|podfile|Path to the Podfile for the project|BRANCH_PODFILE|Boolean||
+|cartfile|Path to the Cartfile for the project|BRANCH_CARTFILE|Boolean||
+|carthage_command|Command to run when installing from Carthage|BRANCH_CARTHAGE_COMMAND|Boolean|update --platform ios|
+|frameworks|Comma-separated list of system frameworks to add to the project|BRANCH_FRAMEWORKS|Boolean||
+|pod_repo_update|Update the local podspec repo before installing|BRANCH_POD_REPO_UPDATE||true|
+|validate|Validate Universal Link configuration|BRANCH_VALIDATE||true|
+|force|Update project even if Universal Link validation fails|BRANCH_FORCE||false|
+|add_sdk|Add the Branch framework to the project|BRANCH_ADD_SDK||true|
+|patch_source|Add Branch SDK calls to the AppDelegate|BRANCH_PATCH_SOURCE||true|
+|commit|Commit the results to Git if non-blank|BRANCH_COMMIT|Boolean||
+|confirm|Confirm configuration before proceeding|BRANCH_CONFIRM||true|
+
+
+#### Examples
+
+```Ruby
 setup_branch(
   live_key: "key_live_xxxx",
   test_key: "key_test_yyyy",
@@ -83,143 +128,103 @@ setup_branch(
   uri_scheme: "myscheme",
   xcodeproj: "MyIOSApp.xcodeproj"
 )
+
 ```
 
-Use the `:domains` parameter to specify custom domains, including non-Branch domains
-```ruby
-setup_branch(
-  live_key: "key_live_xxxx",
-  domains: %w{example.com www.example.com}
-  xcodeproj: "MyIOSApp.xcodeproj"
-)
-```
-
-Available options:
-
-|Fastfile key|description|Environment variable|type|default value|
-|---|---|---|---|---|
-|:live_key|The Branch live key to use (:live_key or :test_key is required)|BRANCH_LIVE_KEY|string||
-|:test_key|The Branch test key to use (:live_key or :test_key is required)|BRANCH_TEST_KEY|string||
-|:app_link_subdomain|An app.link subdomain to use (:app_link_subdomain or :domains is required. The union of the two sets of domains will be used.)|BRANCH_APP_LINK_SUBDOMAIN|string||
-|:domains|A list of domains (custom domains or Branch domains) to use (:app_link_subdomain or :domains is required. The union of the two sets of domains will be used.)|BRANCH_DOMAINS|array of strings or comma-separated string||
-|:uri_scheme|A URI scheme to add to the manifest|BRANCH_URI_SCHEME|string||
-|:xcodeproj|Path to a .xcodeproj directory to use. (:xcodeproj, :android_project_path or :android_manifest_path is required.)|BRANCH_XCODEPROJ|string||
-|:target|Name of the target to use in the Xcode project (iOS only; optional)|BRANCH_TARGET|string||
-|:validate|Determines whether to validate the resulting Universal Link configuration before modifying the project|BRANCH_VALIDATE|boolean|true|
-|:force|Update project(s) even if Universal Link validation fails|BRANCH_FORCE_UPDATE|boolean|false|
-|:commit|Set to true to commit changes to Git; set to a string to commit with a custom message|BRANCH_COMMIT_CHANGES|boolean or string|false|
-|:frameworks|A list of system frameworks to add to the target that uses the Branch SDK (iOS only)|BRANCH_FRAMEWORKS|array|[]|
-|:add_sdk|Set to false to disable automatic integration of the Branch SDK|BRANCH_ADD_SDK|boolean|true|
-|:podfile|Path to a Podfile to update (iOS only)|BRANCH_PODFILE|string||
-|:patch_source|Set to false to disable automatic source-code patching|BRANCH_PATCH_SOURCE|boolean|true|
-|:pod_repo_update|Set to false to disable update of local podspec repo before pod install|BRANCH_POD_REPO_UPDATE|boolean|true|
-|:cartfile|Path to a Cartfile to update (iOS only)|BRANCH_CARTFILE|string||
-|:carthage_command|Command to use when installing with Carthage|BRANCH_CARTHAGE_COMMAND|string|update --platform ios|
-
-Individually, all parameters are optional, but the following conditions apply:
-
-- :live_key or :test_key must be specified.
-- :app_link_subdomain or :domains must be specified.
-
-If these parameters are not specified, you will be prompted for them.
-
-This action also supports an optional Branchfile to specify configuration options.
-See the sample [Branchfile](./fastlane/Branchfile) in the fastlane subdirectory of this repo.
-
-## validate_universal_links action (iOS only)
-
-This action validates all Universal Link domains configured in a project without making any modification.
-It validates both Branch and non-Branch domains.
 
 
-```ruby
+
+### validate_universal_links action
+
+```Ruby
 validate_universal_links
 ```
 
-```ruby
-validate_universal_links(xcodeproj: "MyProject.xcodeproj")
-```
+This command validates all Universal Link domains configured in a project without making any
+modification. It validates both Branch and non-Branch domains. Unlike web-based Universal
+Link validators, this command operates directly on the project. It finds the bundle and
+signing team identifiers in the project as well as the app's Associated Domains. It requests
+the apple-app-site-association file for each domain and validates the file against the
+project's settings.
 
-```ruby
-validate_universal_links(xcodeproj: "MyProject.xcodeproj", target: "MyProject")
-```
+Only app targets are supported for this command. By default, it will validate the first.
+If your project has multiple app targets, specify the `target` option to validate other
+targets.
 
-```ruby
-validate_universal_links(domains: %w{example.com www.example.com})
-```
+All parameters are optional. If `domains` is specified, the list of Universal Link domains in
+the Associated Domains entitlement must exactly match this list, without regard to order. If
+no `domains` are provided, validation passes if at least one Universal Link domain is
+configured and passes validation, and no Universal Link domain is present that does not pass
+validation.
 
-Available options:
+See https://github.com/BranchMetrics/branch_io_cli#validate-command for more information.
+
+
+#### Options
 
 |Fastfile key|description|Environment variable|type|default value|
 |---|---|---|---|---|
-|:xcodeproj|Path to a .xcodeproj directory to use|BRANCH_XCODEPROJ|string||
-|:target|Name of the target to use in the Xcode project|BRANCH_TARGET|string||
-|:domains|A list of domains (custom domains or Branch domains) that must be present in the project.|BRANCH_DOMAINS|array of strings or comma-separated string||
+|domains|Comma-separated list of domains to validate (Branch domains or non-Branch domains)|BRANCH_DOMAINS|Boolean|[]|
+|xcodeproj|Path to an Xcode project to update|BRANCH_XCODEPROJ|Boolean||
+|target|Name of a target to validate in the Xcode project|BRANCH_TARGET|Boolean||
 
-All parameters are optional. Without any parameters, the action looks for a single .xcodeproj
-folder (with the exception of a Pods project) and reports an error if none or more than one is found.
-It uses the first non-test, non-extension target in that project.
 
-If the :domains parameter is not provided, validation will pass as long as there is at least
-one Universal Link domain configured for the target, and all Universal Link domains pass
-AASA validation. If the the :domains parameter is provided, the Universal Link domains in
-the project must also match the value of this parameter without regard to order.
+#### Examples
 
-This action does not use the Branchfile.
-
-## Examples
-
-There is an example [Fastfile](./fastlane/Fastfile) in this repo that defines a number of
-example lanes. Be sure to run `bundle install` before trying any of the examples.
-
-### setup
-
-This lane sets up the BranchPluginExample project
-in
-[examples/ios/BranchPluginExample](./examples/ios/BranchPluginExample).
-The Xcode project uses CocoaPods and Swift.
-
-```bash
-bundle exec fastlane setup
+```Ruby
+validate_universal_links
 ```
 
-### setup_and_commit
-
-This lane sets up the BranchPluginExample projects and also commits the results to git.
-
-```bash
-bundle exec fastlane setup_and_commit
+```Ruby
+validate_universal_links(xcodeproj: "MyProject.xcodeproj")
 ```
 
-### setup_objc
-
-This lane sets up the BranchPluginExampleObjc project
-in [examples/ios/BranchPluginExampleObjc](./examples/ios/BranchPluginExampleObjc).
-The project uses CocoaPods and Objective-C.
-
-```bash
-bundle exec fastlane setup_objc
+```Ruby
+validate_universal_links(xcodeproj: "MyProject.xcodeproj", target: "MyProject")
 ```
 
-### setup_carthage
-
-This lane sets up the BranchPluginExampleCarthage project
-in [examples/ios/BranchPluginExampleCarthage](./examples/ios/BranchPluginExampleCarthage).
-The project uses Carthage and Swift.
-
-```bash
-bundle exec fastlane setup_carthage
+```Ruby
+validate_universal_links(domains: %w{example.com www.example.com})
 ```
 
-### validate
 
-This lane validates the Universal Link configuration for the BranchPluginExample
-project in [examples/ios/BranchPluginExample](./examples/ios/BranchPluginExample).
 
-```bash
-bundle exec fastlane validate
+
+
+### branch_report action
+
+```Ruby
+branch_report
 ```
 
+_Work in progress_
+
+This command optionally cleans and then builds a workspace or project, generating a verbose
+report with additional diagnostic information suitable for opening a support ticket.
+
+
+#### Options
+
+|Fastfile key|description|Environment variable|type|default value|
+|---|---|---|---|---|
+|workspace|Path to an Xcode workspace|BRANCH_WORKSPACE|Boolean||
+|xcodeproj|Path to an Xcode project|BRANCH_XCODEPROJ|Boolean||
+|scheme|A scheme from the project or workspace to build|BRANCH_SCHEME|Boolean||
+|target|A target to build|BRANCH_TARGET|Boolean||
+|configuration|The build configuration to use (default: Scheme-dependent)|BRANCH_CONFIGURATION|Boolean||
+|sdk|Passed as -sdk to xcodebuild|BRANCH_SDK|Boolean|iphonesimulator|
+|podfile|Path to the Podfile for the project|BRANCH_PODFILE|Boolean||
+|cartfile|Path to the Cartfile for the project|BRANCH_CARTFILE|Boolean||
+|clean|Clean before attempting to build|BRANCH_CLEAN||true|
+|header_only|Write a report header to standard output and exit|BRANCH_HEADER_ONLY||false|
+|pod_repo_update|Update the local podspec repo before installing|BRANCH_POD_REPO_UPDATE||true|
+|out|Report output path|BRANCH_REPORT_PATH|Boolean|./report.txt|
+
+
+
+
+
+<!-- END ACTION REFERENCE -->
 
 ## Run tests for this plugin
 
