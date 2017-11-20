@@ -55,4 +55,6 @@ lane :readme do
         text: "\\1\n#{updated_dox}\n\\2",
         mode: :replace,
         files: "README.md"
+
+  update_action_docs
 end
