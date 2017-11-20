@@ -9,7 +9,7 @@ module Fastlane
     class BranchReportAction < Action
       def self.run(params)
         config = BranchIOCLI::Configuration::ReportConfiguration.wrapper params, false
-        BranchIOCLI::Commands::ReportCommand.new(config).run!
+        BranchIOCLI::Command::ReportCommand.new(config).run!
       rescue StandardError => e
         UI.user_error! "Error in BranchReportAction: #{e.message}\n#{e.backtrace}"
       end

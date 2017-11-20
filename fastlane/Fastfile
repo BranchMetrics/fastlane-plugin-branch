@@ -41,6 +41,11 @@ lane :validate do
   )
 end
 
+lane :report do
+  branch_report workspace: "examples/BranchPluginExample/BranchPluginExample.xcworkspace",
+                header_only: true
+end
+
 desc "Update the README in this repo"
 lane :readme do
   updated_dox = update_readme

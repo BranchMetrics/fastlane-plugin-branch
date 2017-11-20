@@ -7,7 +7,9 @@ module FastlaneCore
           env_name: option.env_name,
           description: option.description,
           default_value: option.default_value,
-          type: option.type
+          type: option.type,
+          is_string: option.type == String,
+          optional: true
         )
       end
     end
