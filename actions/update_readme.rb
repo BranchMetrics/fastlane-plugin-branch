@@ -11,7 +11,6 @@ module Fastlane
 
           [SetupBranchAction, ValidateUniversalLinksAction, BranchReportAction].inject("") do |docs, action|
             @action = action
-            @action_name = action.name.sub(/^Fastlane::Actions::(\w+)Action$/, '\1').gsub(/([a-z])([A-Z])/, '\1_\2').downcase
 
             if action == SetupBranchAction
               @command = BranchIOCLI::Command::SetupCommand
