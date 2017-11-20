@@ -11,7 +11,7 @@ module Fastlane
         params.load_configuration_file "Branchfile"
         # second arg false: Don't add default values or env. vars. Let Fastlane
         # handle that. This is necessary to work with the Branchfile.
-        config = BranchIOCLI::Configuration::Configuration.wrapper params, false
+        config = BranchIOCLI::Configuration::SetupConfiguration.wrapper params, false
         BranchIOCLI::Command::SetupCommand.new(config).run!
       rescue StandardError => e
         UI.user_error! "Error in SetupBranchAction: #{e.message}\n#{e.backtrace}"
