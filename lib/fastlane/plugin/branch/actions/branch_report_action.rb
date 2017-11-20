@@ -31,6 +31,9 @@ module Fastlane
 
       def self.example_code
         [
+          "branch_report",
+          "branch_report(header_only: true)",
+          "branch_report(workspace: \"MyWorkspace.xcworkspace\")"
         ]
       end
 

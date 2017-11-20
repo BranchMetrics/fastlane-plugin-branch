@@ -41,6 +41,7 @@ lane :validate do
   )
 end
 
+desc "Generate a brief project report"
 lane :report do
   branch_report workspace: "examples/BranchPluginExample/BranchPluginExample.xcworkspace",
                 header_only: true

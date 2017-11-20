@@ -221,6 +221,21 @@ report with additional diagnostic information suitable for opening a support tic
 |out|Report output path|BRANCH_REPORT_PATH|Boolean|./report.txt|
 
 
+#### Examples
+
+```Ruby
+branch_report
+```
+
+```Ruby
+branch_report(header_only: true)
+```
+
+```Ruby
+branch_report(workspace: "MyWorkspace.xcworkspace")
+```
+
+
 
 
 
