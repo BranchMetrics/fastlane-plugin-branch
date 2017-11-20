@@ -6,7 +6,7 @@ TODO
 
 
 
-> _Work in progress_
+> Work in progress
 This command optionally cleans and then builds a workspace or project, generating a verbose
 report with additional diagnostic information suitable for opening a support ticket.
 

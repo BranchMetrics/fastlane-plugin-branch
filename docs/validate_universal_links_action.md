@@ -13,11 +13,11 @@ signing team identifiers in the project as well as the app's Associated Domains.
 the apple-app-site-association file for each domain and validates the file against the
 project's settings.
 Only app targets are supported for this command. By default, it will validate the first.
-If your project has multiple app targets, specify the `target` option to validate other
+If your project has multiple app targets, specify the target option to validate other
 targets.
-All parameters are optional. If `domains` is specified, the list of Universal Link domains in
+All parameters are optional. If domains is specified, the list of Universal Link domains in
 the Associated Domains entitlement must exactly match this list, without regard to order. If
-no `domains` are provided, validation passes if at least one Universal Link domain is
+no domains are provided, validation passes if at least one Universal Link domain is
 configured and passes validation, and no Universal Link domain is present that does not pass
 validation.
 See https://github.com/BranchMetrics/branch_io_cli#validate-command for more information.
