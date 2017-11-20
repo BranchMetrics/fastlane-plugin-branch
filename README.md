@@ -46,14 +46,14 @@ location.
 
 If a Podfile or Cartfile is detected, the Branch SDK will be added to the relevant
 configuration file and the dependencies updated to include the Branch framework.
-This behavior may be suppressed using `no_add_sdk`. If no Podfile or Cartfile
+This behavior may be suppressed using `add_sdk: false`. If no Podfile or Cartfile
 is found, and Branch.framework is not already among the project's dependencies,
 you will be prompted for a number of choices, including setting up CocoaPods or
 Carthage for the project or directly installing the Branch.framework.
 
 By default, all supplied Universal Link domains are validated. If validation passes,
 the setup continues. If validation fails, no further action is taken. Suppress
-validation using `no_validate` or force changes when validation fails using
+validation using `validate: false` or force changes when validation fails using
 `force`.
 
 By default, this command will look for the first app target in the project. Test
@@ -67,7 +67,7 @@ Optionally, if `frameworks` is specified, this command can add a list of system
 frameworks to the target's dependencies (e.g., AdSupport, CoreSpotlight, SafariServices).
 
 A language-specific patch is applied to the AppDelegate (Swift or Objective-C).
-This can be suppressed using `no_patch_source`.
+This can be suppressed using `patch_source: false`.
 
 #### Prerequisites
 
@@ -79,7 +79,7 @@ for details. To use the `setup` command, you need:
 - Domain name(s) used for Branch links
 - Location of your Xcode project (may be inferred in simple projects)
 
-If using the `commit` option, `git` is required. If not using `no_add_sdk`,
+If using the `commit` option, `git` is required. If not using `add_sdk: false`,
 the `pod` or `carthage` command may be required. If not found, the CLI will
 offer to install and set up these command-line tools for you. Alternately, you can arrange
 that the relevant commands are available in your `PATH`.
