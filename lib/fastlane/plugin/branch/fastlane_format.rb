@@ -24,7 +24,7 @@ module Fastlane
       end
 
       def table_option(option)
-        "|#{option.name}|#{option.description}|#{option.env_name}|#{option.type ? 'Boolean' : option.type}|#{option.default_value}|"
+        "|#{option.name}|#{option.description}|#{option.env_name}|#{option.type.nil? ? 'Boolean' : option.type.name}|#{option.default_value}|"
       end
     end
 

@@ -96,26 +96,26 @@ See https://github.com/BranchMetrics/branch_io_cli#setup-command for more inform
 
 |Fastfile key|description|Environment variable|type|default value|
 |---|---|---|---|---|
-|live_key|Branch live key|BRANCH_LIVE_KEY|Boolean||
-|test_key|Branch test key|BRANCH_TEST_KEY|Boolean||
-|domains|Comma-separated list of custom domain(s) or non-Branch domain(s)|BRANCH_DOMAINS|Boolean||
-|app_link_subdomain|Branch app.link subdomain, e.g. myapp for myapp.app.link|BRANCH_APP_LINK_SUBDOMAIN|Boolean||
-|uri_scheme|Custom URI scheme used in the Branch Dashboard for this app|BRANCH_URI_SCHEME|Boolean||
-|setting|Use a custom build setting for the Branch key (default: Use Info.plist)|BRANCH_SETTING|Boolean||
-|test_configurations|List of configurations that use the test key with a user-defined setting (default: Debug configurations)|BRANCH_TEST_CONFIGURATIONS|Boolean||
-|xcodeproj|Path to an Xcode project to update|BRANCH_XCODEPROJ|Boolean||
-|target|Name of a target to modify in the Xcode project|BRANCH_TARGET|Boolean||
-|podfile|Path to the Podfile for the project|BRANCH_PODFILE|Boolean||
-|cartfile|Path to the Cartfile for the project|BRANCH_CARTFILE|Boolean||
-|carthage_command|Command to run when installing from Carthage|BRANCH_CARTHAGE_COMMAND|Boolean|update --platform ios|
-|frameworks|Comma-separated list of system frameworks to add to the project|BRANCH_FRAMEWORKS|Boolean||
-|pod_repo_update|Update the local podspec repo before installing|BRANCH_POD_REPO_UPDATE||true|
-|validate|Validate Universal Link configuration|BRANCH_VALIDATE||true|
-|force|Update project even if Universal Link validation fails|BRANCH_FORCE||false|
-|add_sdk|Add the Branch framework to the project|BRANCH_ADD_SDK||true|
-|patch_source|Add Branch SDK calls to the AppDelegate|BRANCH_PATCH_SOURCE||true|
-|commit|Commit the results to Git if non-blank|BRANCH_COMMIT|Boolean||
-|confirm|Confirm configuration before proceeding|BRANCH_CONFIRM||true|
+|live_key|Branch live key|BRANCH_LIVE_KEY|String||
+|test_key|Branch test key|BRANCH_TEST_KEY|String||
+|domains|Comma-separated list of custom domain(s) or non-Branch domain(s)|BRANCH_DOMAINS|Array||
+|app_link_subdomain|Branch app.link subdomain, e.g. myapp for myapp.app.link|BRANCH_APP_LINK_SUBDOMAIN|String||
+|uri_scheme|Custom URI scheme used in the Branch Dashboard for this app|BRANCH_URI_SCHEME|String||
+|setting|Use a custom build setting for the Branch key (default: Use Info.plist)|BRANCH_SETTING|String||
+|test_configurations|List of configurations that use the test key with a user-defined setting (default: Debug configurations)|BRANCH_TEST_CONFIGURATIONS|Array||
+|xcodeproj|Path to an Xcode project to update|BRANCH_XCODEPROJ|String||
+|target|Name of a target to modify in the Xcode project|BRANCH_TARGET|String||
+|podfile|Path to the Podfile for the project|BRANCH_PODFILE|String||
+|cartfile|Path to the Cartfile for the project|BRANCH_CARTFILE|String||
+|carthage_command|Command to run when installing from Carthage|BRANCH_CARTHAGE_COMMAND|String|update --platform ios|
+|frameworks|Comma-separated list of system frameworks to add to the project|BRANCH_FRAMEWORKS|Array||
+|pod_repo_update|Update the local podspec repo before installing|BRANCH_POD_REPO_UPDATE|Boolean|true|
+|validate|Validate Universal Link configuration|BRANCH_VALIDATE|Boolean|true|
+|force|Update project even if Universal Link validation fails|BRANCH_FORCE|Boolean|false|
+|add_sdk|Add the Branch framework to the project|BRANCH_ADD_SDK|Boolean|true|
+|patch_source|Add Branch SDK calls to the AppDelegate|BRANCH_PATCH_SOURCE|Boolean|true|
+|commit|Commit the results to Git if non-blank|BRANCH_COMMIT|String||
+|confirm|Confirm configuration before proceeding|BRANCH_CONFIRM|Boolean|true|
 
 
 #### Examples
@@ -170,10 +170,10 @@ See https://github.com/BranchMetrics/branch_io_cli#validate-command for more inf
 
 |Fastfile key|description|Environment variable|type|default value|
 |---|---|---|---|---|
-|domains|Comma-separated list of domains to validate (Branch domains or non-Branch domains)|BRANCH_DOMAINS|Boolean|[]|
-|xcodeproj|Path to an Xcode project to update|BRANCH_XCODEPROJ|Boolean||
-|target|Name of a target to validate in the Xcode project|BRANCH_TARGET|Boolean||
-|configurations|Comma-separated list of configurations to validate (default: all)|BRANCH_CONFIGURATIONS|Boolean||
+|domains|Comma-separated list of domains to validate (Branch domains or non-Branch domains)|BRANCH_DOMAINS|Array|[]|
+|xcodeproj|Path to an Xcode project to update|BRANCH_XCODEPROJ|String||
+|target|Name of a target to validate in the Xcode project|BRANCH_TARGET|String||
+|configurations|Comma-separated list of configurations to validate (default: all)|BRANCH_CONFIGURATIONS|Array||
 
 
 #### Examples
@@ -215,18 +215,18 @@ building.
 
 |Fastfile key|description|Environment variable|type|default value|
 |---|---|---|---|---|
-|workspace|Path to an Xcode workspace|BRANCH_WORKSPACE|Boolean||
-|xcodeproj|Path to an Xcode project|BRANCH_XCODEPROJ|Boolean||
-|scheme|A scheme from the project or workspace to build|BRANCH_SCHEME|Boolean||
-|target|A target to build|BRANCH_TARGET|Boolean||
-|configuration|The build configuration to use (default: Scheme-dependent)|BRANCH_CONFIGURATION|Boolean||
-|sdk|Passed as -sdk to xcodebuild|BRANCH_SDK|Boolean|iphonesimulator|
-|podfile|Path to the Podfile for the project|BRANCH_PODFILE|Boolean||
-|cartfile|Path to the Cartfile for the project|BRANCH_CARTFILE|Boolean||
-|clean|Clean before attempting to build|BRANCH_CLEAN||true|
-|header_only|Write a report header to standard output and exit|BRANCH_HEADER_ONLY||false|
-|pod_repo_update|Update the local podspec repo before installing|BRANCH_POD_REPO_UPDATE||true|
-|out|Report output path|BRANCH_REPORT_PATH|Boolean|./report.txt|
+|workspace|Path to an Xcode workspace|BRANCH_WORKSPACE|String||
+|xcodeproj|Path to an Xcode project|BRANCH_XCODEPROJ|String||
+|scheme|A scheme from the project or workspace to build|BRANCH_SCHEME|String||
+|target|A target to build|BRANCH_TARGET|String||
+|configuration|The build configuration to use (default: Scheme-dependent)|BRANCH_CONFIGURATION|String||
+|sdk|Passed as -sdk to xcodebuild|BRANCH_SDK|String|iphonesimulator|
+|podfile|Path to the Podfile for the project|BRANCH_PODFILE|String||
+|cartfile|Path to the Cartfile for the project|BRANCH_CARTFILE|String||
+|clean|Clean before attempting to build|BRANCH_CLEAN|Boolean|true|
+|header_only|Write a report header to standard output and exit|BRANCH_HEADER_ONLY|Boolean|false|
+|pod_repo_update|Update the local podspec repo before installing|BRANCH_POD_REPO_UPDATE|Boolean|true|
+|out|Report output path|BRANCH_REPORT_PATH|String|./report.txt|
 
 
 #### Examples
