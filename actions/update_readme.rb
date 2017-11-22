@@ -1,6 +1,5 @@
 require "fastlane/plugin/branch/fastlane_format"
 
-
 module Fastlane
   module Actions
     class UpdateReadmeAction < Action
@@ -8,7 +7,6 @@ module Fastlane
         include Fastlane::Branch::FastlaneMarkdownFormat
 
         def run(params)
-
           [SetupBranchAction, ValidateUniversalLinksAction, BranchReportAction].inject("") do |docs, action|
             @action = action
 
