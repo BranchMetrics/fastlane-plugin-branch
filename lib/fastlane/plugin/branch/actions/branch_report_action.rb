@@ -15,7 +15,7 @@ module Fastlane
       end
 
       def self.description
-        "TODO"
+        "Generate a brief summary or a full build report for your project."
       end
 
       def self.authors
