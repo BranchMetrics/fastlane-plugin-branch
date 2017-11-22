@@ -1,27 +1,21 @@
-describe Fastlane::Actions::SetupBranchAction do
-  let (:action) { Fastlane::Actions::SetupBranchAction }
-  let (:command) { BranchIOCLI::Command::SetupCommand }
+describe Fastlane::Actions::ValidateUniversalLinksAction do
+  let (:action) { Fastlane::Actions::ValidateUniversalLinksAction }
+  let (:command) { BranchIOCLI::Command::ValidateCommand }
 
-  it 'provides the same options as the SetupCommand' do
+  it 'provides the same options as the ValidateCommand' do
     expect(action.available_options.map(&:key).sort).to eq command.available_options.map(&:name).sort
   end
 
-  it 'loads the Branchfile and calls run!' do
-    mock_config = double :configuration
-    expect(mock_config).to receive(:load_configuration_file).with("Branchfile")
-
+  it 'calls run!' do
     mock_command = double :command
     expect(mock_command).to receive(:run!)
 
     expect(command).to receive(:new) { mock_command }
 
-    action.run(mock_config)
+    action.run({})
   end
 
   it 'calls UI.user_error! on exception' do
-    mock_config = double :configuration
-    expect(mock_config).to receive(:load_configuration_file).with("Branchfile")
-
     mock_command = double :command
     expect(mock_command).to receive(:run!).and_raise(RuntimeError)
 
@@ -29,7 +23,7 @@ describe Fastlane::Actions::SetupBranchAction do
 
     expect(FastlaneCore::UI).to receive(:user_error!)
 
-    action.run(mock_config)
+    action.run({})
   end
 
   it 'is supported on iOS' do
@@ -41,7 +35,7 @@ describe Fastlane::Actions::SetupBranchAction do
   end
 
   it 'renders the description template for details' do
-    expect(action).to receive(:render).with(:setup_description) { "rendered description" }
+    expect(action).to receive(:render).with(:validate_description) { "rendered description" }
     expect(action.details).to eq "rendered description"
   end
 
