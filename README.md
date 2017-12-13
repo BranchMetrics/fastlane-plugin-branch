@@ -227,6 +227,7 @@ building.
 |header_only|Write a report header to standard output and exit|BRANCH_HEADER_ONLY|Boolean|false|
 |pod_repo_update|Update the local podspec repo before installing|BRANCH_POD_REPO_UPDATE|Boolean|true|
 |out|Report output path|BRANCH_REPORT_PATH|String|./report.txt|
+|confirm|Confirm before running certain commands|BRANCH_CONFIRM|Boolean|true|
 
 
 #### Examples
