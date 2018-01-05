@@ -115,7 +115,7 @@ See https://github.com/BranchMetrics/branch_io_cli#setup-command for more inform
 |add_sdk|Add the Branch framework to the project|BRANCH_ADD_SDK|Boolean|true|
 |patch_source|Add Branch SDK calls to the AppDelegate|BRANCH_PATCH_SOURCE|Boolean|true|
 |commit|Commit the results to Git if non-blank|BRANCH_COMMIT|String||
-|confirm|Confirm configuration before proceeding|BRANCH_CONFIRM|Boolean|true|
+|confirm|Enable or disable many prompts|BRANCH_CONFIRM|Boolean|true|
 
 
 #### Examples
@@ -140,16 +140,26 @@ setup_branch(
 validate_universal_links
 ```
 
-This command validates all Universal Link domains configured in a project without making any
-modification. It validates both Branch and non-Branch domains. Unlike web-based Universal
-Link validators, this command operates directly on the project. It finds the bundle and
-signing team identifiers in the project as well as the app's Associated Domains. It requests
-the apple-app-site-association file for each domain and validates the file against the
-project's settings.
+This command validates all Branch-related settings for a target in an Xcode project,
+including validation of the apple-app-site-association file from each domain.
+Multiple targets may be validated by running the command multiple times using
+the `target` option. Test targets are not supported.
 
-Only app targets are supported for this command. By default, it will validate the first.
-If your project has multiple app targets, specify the `target` option to validate other
-targets.
+For each Branch key present in the Info.plist, it retrieves the settings from Branch's
+system. If the information cannot be retrieved (or if the `branch_key` is not present),
+an error is recorded. If the `live_key` or `test_key` option is present,
+the set of all keys used by the target must exactly match the options.
+
+All domains and URI schemes configured for the target must include all domains
+and URI schemes configured for all keys used by the target. Other domains or
+URI schemes may also be present in the project.
+
+This command validates all Universal Link domains configured in an application target
+without making any modification. It validates both Branch and non-Branch domains. Unlike
+web-based Universal Link validators, this command operates directly on the project. It
+finds the bundle and signing team identifiers in the project as well as the app's
+Associated Domains. It requests the apple-app-site-association file for each domain
+and validates the file against the project's settings.
 
 By default, all build configurations in the project are validated. To validate a different list
 of configurations, including a single configuration, specify the `configurations` option.
@@ -158,7 +168,7 @@ If `domains` is specified, the list of Universal Link domains in the Associated
 Domains entitlement must exactly match this list, without regard to order, for all
 configurations under validation. If no `domains` are provided, validation passes
 if at least one Universal Link domain is configured for each configuration and passes
-validation, and no Universal Link domain is present in anyconfiguration that does not
+validation, and no Universal Link domain is present in any configuration that does not
 pass validation.
 
 All parameters are optional.
@@ -170,10 +180,14 @@ See https://github.com/BranchMetrics/branch_io_cli#validate-command for more inf
 
 |Fastfile key|description|Environment variable|type|default value|
 |---|---|---|---|---|
-|domains|Comma-separated list of domains to validate (Branch domains or non-Branch domains)|BRANCH_DOMAINS|Array|[]|
-|xcodeproj|Path to an Xcode project to update|BRANCH_XCODEPROJ|String||
+|live_key|Branch live key expected in project|BRANCH_LIVE_KEY|String||
+|test_key|Branch test key expected in project|BRANCH_TEST_KEY|String||
+|domains|Comma-separated list of domains expected to be configured in the project (Branch domains or non-Branch domains)|BRANCH_DOMAINS|Array|[]|
+|xcodeproj|Path to an Xcode project to validate|BRANCH_XCODEPROJ|String||
 |target|Name of a target to validate in the Xcode project|BRANCH_TARGET|String||
 |configurations|Comma-separated list of configurations to validate (default: all)|BRANCH_CONFIGURATIONS|Array||
+|universal_links_only|Validate only the Universal Link configuration|BRANCH_UNIVERSAL_LINKS_ONLY|Boolean|false|
+|confirm|Enable or disable many prompts|BRANCH_CONFIRM|Boolean|true|
 
 
 #### Examples
@@ -227,7 +241,7 @@ building.
 |header_only|Write a report header to standard output and exit|BRANCH_HEADER_ONLY|Boolean|false|
 |pod_repo_update|Update the local podspec repo before installing|BRANCH_POD_REPO_UPDATE|Boolean|true|
 |out|Report output path|BRANCH_REPORT_PATH|String|./report.txt|
-|confirm|Confirm before running certain commands|BRANCH_CONFIRM|Boolean|true|
+|confirm|Enable or disable many prompts|BRANCH_CONFIRM|Boolean|true|
 
 
 #### Examples
